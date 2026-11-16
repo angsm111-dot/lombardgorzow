@@ -52,7 +52,7 @@ Test sprawdza 12 stron, 48 kombinacji strony i szerokości ekranu (320, 390, 768
 
 ## Kierunek wizualny
 
-Aktualna wersja: białe tło, lekkie powierzchnie w kolorze kości słoniowej, delikatne cienie, ciemny tekst i pojedynczy ciepły akcent. Zachowano warstwowe kompozycje, zaokrąglenia i animacje.
+Aktualna wersja: ciepłoszare tło, białe powierzchnie, wyraźny granatowy tekst, ceglasty akcent i kontrastowe stany wyboru. Zachowano warstwowe kompozycje, zaokrąglenia i animacje.
 
 Przejrzane inspiracje: [Cruip Simple](https://github.com/cruip/tailwind-landing-page-template) (świetlne tła, warstwy, animacje wejścia) i [Shadcn Landing Page](https://github.com/leoMirandaa/shadcn-landing-page) (pływające elementy, głębia, zaokrąglenia). Nie skopiowano szablonu ani jego treści. Kompozycje i implementacja są własne, z zachowaniem zdjęć i danych Sezamu.
 
