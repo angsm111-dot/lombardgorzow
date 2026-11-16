@@ -167,3 +167,9 @@ Działają: kalkulator 2,5% / 15 dni i 5% / 30 dni według lombardgorzow.com (z 
 ## Wersja 31 — szarości i złoto
 
 `/wersja-31/` zachowuje centralną kompozycję ciemnej wersji 30 w jasnej, chłodnej palecie: białe powierzchnie, perłowe szarości, grafitowa typografia, stonowane szczotkowane złoto, delikatne obramowania i cienie. Ciemna wersja 30 pozostaje dostępna. Sprawdzono 320/390/768/1440 px, obrazy, kalkulator, przełączanie kategorii, menu mobilne i Escape. Zrzuty: `/tmp/sezam31-*.png`.
+
+### Rozwinięcie wersji 31 — metaliczne powierzchnie i nawigacja
+
+Dodano chłodne gradienty szarości i srebra w tle, pasie faktów, kartach, kalkulatorze i sekcji kontaktowej; złote gradienty tytułu, przycisków i ikon; krawędzie ze światłem i warstwowe cienie. Złote wypełnienia pod białymi napisami są ciemniejsze dla czytelności. Przyciski mają przejście świetlne po najechaniu, karty unoszą się, a menu łagodnie się rozwija. Ruch jest ograniczany przez `prefers-reduced-motion`.
+
+Nawigacja wersji 31: przyklejony pasek, kapsułowe skróty do sekcji z oznaczeniem oglądanej sekcji, rozwijane menu z opisami usług i kontaktem telefonicznym, zamykanie przez Escape i kliknięcie poza menu. Wersje 29 i 30 zachowują dotychczasowy układ. `npm run test:silver` sprawdza 5 szerokości, widoczność przycisku menu także przy 320 px, przejście do kalkulatora, kalkulację, kategorie, menu mobilne, Escape, kliknięcie poza menu i przejście do usługi. Zrzuty: `/tmp/sezam31-polish-*.png`.
