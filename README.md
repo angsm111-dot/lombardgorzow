@@ -157,3 +157,9 @@ Przed projektowaniem odczytano https://sezamgold.pl/beta/ i https://sezam.com.pl
 Wybory z ekspozycji synchronizują się z „Moim planem”: celem i przedmiotem wizyty, wskazówkami, checklistą i paskiem postępu. Zmiana wyboru zeruje przygotowania; plan można skopiować do schowka. Wybór naprawy ustawia telefon, a przejście do innego przedmiotu wraca do zastawu. Dla sprzedaży telefonu i laptopa link kieruje do elektroniki. Plan działa lokalnie, bez wysyłania danych i bez fikcyjnej rezerwacji. Ruch i paralaksa respektują `prefers-reduced-motion`.
 
 `npm run test:showroom` sprawdza pięć szerokości 320–1440 px, obrazy, cztery cele i przedmioty, strzałki, hotspot, synchronizację planu, checklistę, postęp i reset, rzeczywistą zawartość schowka, zdjęcie w dialogu, mobilne menu, Escape i przejście do serwisu. Zrzuty są w `/tmp/sezam28-*.png`. Pozostałe propozycje i główna pozostają dostępne.
+
+## Wersje 29 i 30 — jasny i ciemny kierunek
+
+`/wersja-29/` rozwija charakter jasnej referencji użytkownika: ciepłe światło, delikatny punktowy wzór, wyraźna oferta, pomarańczowe działania i boczny panel z rzeczowymi informacjami. `/wersja-30/` ma osobną, centralną kompozycję w ciemnej tonacji, złote działania, kontakt przez WhatsApp oraz pas faktów o punkcie. Oba projekty zachowują oryginalne logo, bez kopiowania układu i treści ze zrzutów. Nie przeniesiono niezweryfikowanych liczb klientów, ocen, czasu obsługi ani twierdzeń o najniższej cenie.
+
+Działają: kalkulator 2,5% / 15 dni i 5% / 30 dni według lombardgorzow.com (z informacją o umowie 31-dniowej), suwak kwoty, wybór kategorii, pytania rozwijane i menu mobilne. Wersje mają wzajemne odnośniki. `npm run test:duo` sprawdza dwa adresy, osiem kombinacji szerokości, obrazy, kalkulator, błędne dane, suwak, trzy kategorie, FAQ, menu, Escape i przejście do serwisu. Zrzuty: `/tmp/sezam-duo-*.png`.
