@@ -17,6 +17,22 @@ try{
   if(['','gotowka/','skup-zlota/','kontakt/'].includes(route))await screenshot(route.replace('/','')||'home');
  }
  await go('');
+ assert.equal(await p.locator('main > section').count(),2,'Homepage contains introduction and service shortcuts');
+ assert.equal(await p.locator('.original-logo').count(),2,'Original logo in header and footer');
+ assert.match(await p.locator('.original-logo').first().getAttribute('src'),/sezam-logo-original.png$/);
+ assert.equal(await p.locator('#site-nav a').count(),12,'Every page appears in the menu');
+ await p.locator('#site-nav summary').filter({hasText:'Usługi'}).press('Enter');
+ assert.equal(await p.locator('#site-nav').getByRole('link',{name:'Części do telefonów',exact:true}).isVisible(),true);
+ await p.locator('#site-nav').getByRole('link',{name:'Części do telefonów',exact:true}).click();
+ assert.match(p.url(),/czesci\/$/);
+ await p.locator('#site-nav summary').filter({hasText:'O Sezamie'}).click();
+ await p.locator('#site-nav').getByRole('link',{name:'Pytania i odpowiedzi',exact:true}).click();
+ assert.match(p.url(),/pytania\/$/);
+ await go('gotowka/');assert.equal(await p.locator('.steps-section').count(),1);
+ await go('na-sprzedaz/');assert.equal(await p.locator('.home-shop').count(),1);
+ await go('o-nas/');assert.equal(await p.locator('.about-feature').count(),1);
+ await go('kontakt/');assert.equal(await p.locator('.visit').count(),1);
+ await go('');
  await p.getByRole('button',{name:'Telefony',exact:true}).click();
  assert.match(await p.locator('#showcase-image').getAttribute('src'),/phones.webp$/);
  assert.equal(await p.getByRole('button',{name:'Telefony',exact:true}).getAttribute('aria-pressed'),'true');
@@ -39,6 +55,6 @@ try{
  await go('pytania/');await p.locator('.questions summary').first().click();assert.equal(await p.locator('.questions details').first().getAttribute('open'),'');
  await go('galeria/');await p.locator('.gallery-photo').first().click();assert.equal(await p.getByRole('dialog').isVisible(),true);await p.keyboard.press('Escape');assert.equal(await p.getByRole('dialog').isVisible(),false);
  await go('blog/');await p.locator('.article-details summary').first().click();assert.equal(await p.locator('.article-body').first().isVisible(),true);
- await p.setViewportSize({width:390,height:844});await go('');await p.getByRole('button',{name:'Menu'}).click();assert.equal(await p.locator('#site-nav').isVisible(),true);await p.locator('#site-nav').getByRole('link',{name:'Kontakt',exact:true}).click();assert.match(p.url(),/kontakt\/$/);await go('');await screenshot('mobile');
- assert.deepEqual(errors,[]);console.log('PASS: 12 pages, images, anchors, 48 viewport checks, calculator boundaries, prices and weight tiers, keyboard tabs, FAQ, gallery lightbox, articles, mobile navigation, hero categories, sale filters, scroll animation and reduced-motion mode.');
+ await p.setViewportSize({width:390,height:844});await go('');await p.getByRole('button',{name:'Menu'}).click();await p.locator('#site-nav summary').filter({hasText:'Usługi'}).click();await p.locator('#site-nav').getByRole('link',{name:'Gotówka i kalkulator',exact:true}).click();assert.match(p.url(),/gotowka\/$/);await go('');await p.getByRole('button',{name:'Menu'}).click();assert.equal(await p.locator('#site-nav').isVisible(),true);await p.locator('#site-nav').getByRole('link',{name:'Kontakt',exact:true}).click();assert.match(p.url(),/kontakt\/$/);await go('');await screenshot('mobile');
+ assert.deepEqual(errors,[]);console.log('PASS: 12 pages, images, anchors, 48 viewport checks, calculator boundaries, prices and weight tiers, keyboard tabs, FAQ, gallery lightbox, articles, mobile navigation, hero categories, sale filters, scroll animation and reduced-motion mode, original logo, all menu pages, keyboard dropdowns and mobile submenus.');
 }finally{await browser.close();}

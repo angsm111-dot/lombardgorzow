@@ -57,3 +57,9 @@ Aktualna wersja: ciepłoszare tło, białe powierzchnie, wyraźny granatowy teks
 Przejrzane inspiracje: [Cruip Simple](https://github.com/cruip/tailwind-landing-page-template) (świetlne tła, warstwy, animacje wejścia) i [Shadcn Landing Page](https://github.com/leoMirandaa/shadcn-landing-page) (pływające elementy, głębia, zaokrąglenia). Nie skopiowano szablonu ani jego treści. Kompozycje i implementacja są własne, z zachowaniem zdjęć i danych Sezamu.
 
 Fonty serwowane są lokalnie z pakietów Fontsource. Animacje, ruch perspektywiczny i przewijanie respektują `prefers-reduced-motion`. Przełącznik prezentacji na głównej zmienia kategorię zdjęć, a filtr na stronie sprzedaży zawęża widoczne kategorie. Bez automatycznie przesuwającej się karuzeli.
+
+## Logo i podział treści
+
+Oryginalne logo Sezamu pobrano z `https://lombardgorzow.com/wp-content/uploads/2018/03/SezamLombard_logoRGB-x2.png` i zapisano bez zmian w `public/images/sezam-logo-original.png`. Nagłówek oraz stopka używają tego pliku.
+
+Strona główna zawiera wprowadzenie i skróty usług. Rozwinięcie oferty znajduje się w „Na sprzedaż”, opis kroków w „Gotówka i kalkulator”, opis firmy w „O nas”, FAQ na własnej stronie, a większy blok kontaktu na stronie kontaktowej. Menu zawiera bezpośrednie strony Start, Na sprzedaż, Kontakt oraz rozwijane grupy Usługi i O Sezamie. Wszystkie 12 stron jest dostępnych z nawigacji również na telefonie.
