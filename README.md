@@ -204,3 +204,12 @@ Nowe układy zaprojektowano bez wzorowania się na układach stron Sezamu. Z ist
 Nie dodano fikcyjnych wycen, rezerwacji ani dostępności produktów. Mapa jest oznaczona jako schemat; rzeczywisty dojazd otwiera Mapy Google. Przewodnik działa lokalnie, bez pozornego AI i wysyłania danych.
 
 `npm run test:new-five` sprawdza 20 zestawień strony i szerokości (320, 390, 768, 1440 px), obrazy, menu i Escape oraz najważniejsze interakcje wszystkich pięciu wersji, w tym kopiowanie listy do schowka. Przełącznik obejmuje teraz 37 propozycji oraz obecną główną. Weryfikacja wizualna: komputer i telefon, zrzuty `/tmp/sezam-new-*.png`.
+
+
+## Wersja 38 — Nowy obrót
+
+Samodzielny portal handlowy: gęstsza nawigacja, duża fotograficzna mozaika, ekspozycje skupu i serwisu, przewijane kategorie, przegląd możliwości oraz zdjęcie rzeczywistego punktu. Paleta śliwki, kremu i złota, warstwowe fotografie i mocniejsza typografia zastępują oszczędne układy wcześniejszych wersji. Mobilny pasek oferuje telefon, dojazd, kategorie i prawdziwe ogłoszenia OLX. Nie dodano fikcyjnych produktów ani cen.
+
+Wyszukiwanie rozpoznaje kategorie i intencje usługowe, a dla nieznanego hasła wyświetla wyjaśnienie i telefon. Kategorie aktualizują zdjęcie, opis i właściwą ścieżkę usługi. Zachowano starsze wersje, a przełącznik obejmuje 38 propozycji i obecną główną.
+
+Próby dostępu do lombard-slonce.pl, Allegro i Back Market zostały zablokowane przez środowisko; nie oparto projektu na nieobejrzanych widokach. `npm run test:market`: pięć szerokości 320–1440 px, obrazy, kategorie, wyszukiwarka i brak wyników, mobilne menu, Escape, FAQ i integracja przełącznika. Weryfikacja wizualna: `/tmp/sezam38-390.png` i `/tmp/sezam38-1440.png`.
