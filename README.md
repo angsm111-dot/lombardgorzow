@@ -149,3 +149,11 @@ Weryfikacja wersji 26: build, zrzuty desktop/mobile, szerokości 320/390/768/144
 Przed projektowaniem odczytano https://sezamgold.pl/beta/ i https://sezam.com.pl/beta/ przez narzędzie WWW, a następnie odtworzono lokalnie i obejrzano ich źródła z repozytoriów właściciela `angsm111-dot/sezamgold` oraz `angsm111-dot/sezam.com.pl` (`dist/w1/`). Bezpośredni dostęp HTTP ze środowiska był blokowany. Kategorie fotograficzne, zdjęcie pierścionków, wnętrze i grafiki przedmiotów pochodzą z tych projektów Sezamu; kopie zoptymalizowano w `public/images/portal27/`. Nie zmieniano repozytoriów źródłowych ani bet na hostingu. Dodatkowy punkt odniesienia dla struktury usług: https://www.cashconverters.co.uk/.
 
 `npm run test:portal` sprawdza pięć szerokości 320–1440 px, obrazy, menu, trzy tematy banera, kalkulator i suwak, wyszukiwanie z pustym wynikiem, filtry, panele kategorii, limit i tabelę porównania, cztery procesy, galerię, panel kontaktowy, mobilną nawigację i zachowanie głównej oraz wersji 26. Zrzuty są w `/tmp/sezam27-*.png`.
+
+## Wersja 28 — interaktywna witryna
+
+`/wersja-28/` przedstawia autorską przestrzenną ekspozycję: centralny przedmiot na podium, drugi plan, cztery kategorie przełączane przyciskami i strzałkami, hotspot z przygotowaniem przedmiotu, cztery cele wizyty zmieniające treść i akcent kolorystyczny. Nie korzysta z układu źródeł beta ani ze struktury wersji 27. Zdjęcia kategorii pochodzą z istniejących zasobów Sezamu.
+
+Wybory z ekspozycji synchronizują się z „Moim planem”: celem i przedmiotem wizyty, wskazówkami, checklistą i paskiem postępu. Zmiana wyboru zeruje przygotowania; plan można skopiować do schowka. Wybór naprawy ustawia telefon, a przejście do innego przedmiotu wraca do zastawu. Dla sprzedaży telefonu i laptopa link kieruje do elektroniki. Plan działa lokalnie, bez wysyłania danych i bez fikcyjnej rezerwacji. Ruch i paralaksa respektują `prefers-reduced-motion`.
+
+`npm run test:showroom` sprawdza pięć szerokości 320–1440 px, obrazy, cztery cele i przedmioty, strzałki, hotspot, synchronizację planu, checklistę, postęp i reset, rzeczywistą zawartość schowka, zdjęcie w dialogu, mobilne menu, Escape i przejście do serwisu. Zrzuty są w `/tmp/sezam28-*.png`. Pozostałe propozycje i główna pozostają dostępne.

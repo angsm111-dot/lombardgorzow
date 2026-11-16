@@ -11,7 +11,8 @@
     "test:variants": "node tests/variants.mjs",
     "test:next": "node tests/next-variants.mjs",
     "test:lab": "node tests/lab-variants.mjs",
-    "test:portal": "node tests/portal27.mjs"
+    "test:portal": "node tests/portal27.mjs",
+    "test:showroom": "node tests/showroom28.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",
