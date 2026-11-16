@@ -241,3 +241,19 @@ Nowy, niezależny moduł `src/studio-five.js` / `src/studio-five.css`. Referencj
 - **48 / Znajdź swoją sprawę** — wyszukiwanie jako główne działanie, metaliczna ilustracja i rozbudowany katalog. Rozpoznaje intencje usługowe i kategorie, ma gotowe podpowiedzi i uczciwy komunikat dla nieznanego hasła.
 
 Sprawdzono `npm run test:studio`: 5 stron × 5 szerokości 320/390/768/1024/1440 px, obrazy, brak poziomego przepełnienia, modalne menu i fokus/Escape, wszystkie warianty usług, filtry i dialogi, przewodnik i rzeczywisty schowek, wyszukiwarkę i brak dopasowania. Test przełącznika obejmuje wszystkie 49 stron (48 propozycji i obecną główną). Osobno skontrolowano finalny mobilny układ tekstu i grafiki 45/46 po poprawkach wizualnych. Zrzuty: `/tmp/sezam-studio-{44..48}-{390,1440}.png`.
+
+
+### Przebudowa 44–48 po wskazaniu ThemeForest
+
+Wersje 44–48 przebudowano pod istniejącymi adresami. Dodano odrębny arkusz `src/themeforest-direction.css`, zmieniono konstrukcje pierwszych ekranów 46 i 48 oraz układy i stylistykę 44, 45 i 47. Kierunki: Nosic (panel w perspektywie), Bulkit (trzy pionowe kadry), Vuexy (pulpit usług z nawigacją i widgetami), City Listing (fotograficzny nagłówek i zaokrąglone karty) i Appoi (turkusowe pole oraz telefon z działającą nawigacją). Nie dodano fikcyjnych statystyk, ofert ani modułów logowania.
+
+Przeszukano oficjalny ThemeForest.net i otwarto karty Bulkit, Nosic, City Listing, Leverage i Landrick oraz ich strony demo przez wyszukiwarkę. Bezpośredni podgląd przeglądarki nie zadziałał; nie deklarujemy przetestowania interakcji zewnętrznych dem. Dla stylu wizualnego wykorzystano przesłane przez użytkownika screeny; kod i materiały szablonów nie zostały skopiowane.
+
+Źródła:
+- https://themeforest.net/item/nosic-responsive-bootstrap-5-landing-page-template/53366900
+- https://themeforest.net/item/bulkit-agency-startup-and-saas-template/21278677
+- https://themeforest.net/item/city-listing-directory-template/19468136
+- https://themeforest.net/item/leverage-creative-agency-corporate-and-startups-multipurpose-template/25988106
+- https://themeforest.net/item/landrick-responsive-saas-and-software-template/24438577
+
+Ponownie sprawdzono pięć szerokości, interakcje, dialogi, schowek i wyszukiwarkę; dodatkowo zweryfikowano cztery prawdziwe linki w telefonie wersji 48. Podgląd wizualny zestawienia: `/tmp/themeforest-five-overview.jpg`; poszczególne zrzuty: `/tmp/sezam-studio-{44..48}-{390,1440}.png`.
