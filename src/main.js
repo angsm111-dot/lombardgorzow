@@ -1,6 +1,7 @@
 import '@fontsource-variable/outfit';
 import '@fontsource-variable/manrope';
 import './style.css';
+import './contrast.css';
 import articles from './articles.json';
 const base = import.meta.env.BASE_URL;
 const url = (path='') => `${base}${path}${path ? '/' : ''}`;
