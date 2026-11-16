@@ -4,6 +4,7 @@ import './style.css';
 import './contrast.css';
 import './navigation.css';
 import articles from './articles.json';
+import {renderAllVersions,initAllVersions} from './all-versions.js';
 import {renderConcept32,initConcept32} from './concept32.js';
 import {renderDuo29,initDuo29} from './duo29.js';
 import {renderShowroom28,initShowroom28} from './showroom28.js';
@@ -47,6 +48,7 @@ const meta = {
  'wersja-30':['Sezam — ciemna propozycja',''],
  'wersja-31':['Sezam — srebrna elegancja',''],
  'wersja-32':['Sezam — po swojemu',''],
+ 'wszystkie-wersje':['Sezam — wszystkie projekty',''],
  '': ['W Twoich rzeczach jest więcej.',''],
  gotowka: ['Gotówka pod zastaw','01 / GOTÓWKA'],
  'skup-zlota': ['Złoto i srebro','02 / KRUSZCE'],
@@ -105,7 +107,7 @@ const pages = {'':home,gotowka:loans,'skup-zlota':gold,'telefony-laptopy':electr
 if(page!=='404') document.title = `Sezam — ${meta[page][0]}`;
 else document.title = 'Sezam — Nie znaleziono strony';
 const content = pages[page] ? pages[page]() : `<section class="wrap section missing">${label('404 / TU NICZEGO NIE MA')}<h1>Poszukajmy<br>gdzie indziej.</h1>${link('','Wróć na główną','underlink')}</section>`;
-const comparison = (page==='wersja-32'?renderConcept32({url,image,maps,olx}):null) || (['wersja-29','wersja-30','wersja-31'].includes(page)?renderDuo29(Number(page.split('-')[1]),{url,image,maps,olx}):null) || (page==='wersja-28'?renderShowroom28({url,image,maps,olx}):null) || (page==='wersja-27'?renderPortal27({url,image,maps,olx}):null) || (page==='wersja-26'?renderSoft26({url,image,maps,olx}):null) || renderLab(page,{url,image,maps,olx}) || renderComparison(page,{url,image,arrow,icon,olx,maps});
+const comparison = (page==='wszystkie-wersje'?renderAllVersions({url}):null) || (page==='wersja-32'?renderConcept32({url,image,maps,olx}):null) || (['wersja-29','wersja-30','wersja-31'].includes(page)?renderDuo29(Number(page.split('-')[1]),{url,image,maps,olx}):null) || (page==='wersja-28'?renderShowroom28({url,image,maps,olx}):null) || (page==='wersja-27'?renderPortal27({url,image,maps,olx}):null) || (page==='wersja-26'?renderSoft26({url,image,maps,olx}):null) || renderLab(page,{url,image,maps,olx}) || renderComparison(page,{url,image,arrow,icon,olx,maps});
 document.querySelector('#app').innerHTML = comparison || `<div id="top"></div>${header}<main id="main">${content}</main>${footer}`;
 initComparison({url,image});
 initLab({url,image,maps,olx});
@@ -114,6 +116,7 @@ initPortal27({url,image});
 initShowroom28({url,image});
 initDuo29({url,image});
 initConcept32({image});
+initAllVersions({url});
 const menu = document.querySelector('.menu-button');
 function closeMenu(){if(!menu)return;menu.setAttribute('aria-expanded','false');document.querySelector('#site-nav').classList.remove('open');document.querySelectorAll('.nav-group').forEach(group=>group.open=false);}
 menu?.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));document.querySelector('#site-nav').classList.toggle('open',open);});

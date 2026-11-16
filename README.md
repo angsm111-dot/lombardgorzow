@@ -183,3 +183,9 @@ Usunięto duże metaliczne gradienty i ciemnozłote napisy. Tło jest białe, na
 `/wersja-32/` to nowa kompozycja: duża fotografia po lewej, cztery rozwijane ścieżki usług po prawej i poziomy kalkulator pod pierwszym ekranem. Wybór usługi zmienia zdjęcie, szczegóły i trzy wskazówki „Przed wizytą”. Instrukcje można również przełączać bez powrotu do góry. Jasna, oszczędna paleta: biel, chłodne szarości, grafit i złoto tylko w drobnych detalach. Zdjęcia pochodzą z zasobów Sezamu; nie reprezentują aktualnego stanu magazynowego. Nowe pliki: `src/concept32.js`, `src/concept32.css`, `public/images/concept32/`.
 
 Sprawdzono build, 320/390/768/1024/1440 px, obrazy, cztery panele i zdjęcia, synchronizację wskazówek, kalkulator obu okresów i błędne kwoty, mobilne menu, Escape i przejście do serwisu. Zrzuty: `/tmp/sezam32-*.png`. Starsze propozycje zachowano.
+
+## Wszystkie projekty w jednym miejscu
+
+`/wszystkie-wersje/` to interaktywny przełącznik 32 propozycji i obecnej głównej. Jedna ramka ładuje tylko wybrany projekt. Lista ma wyszukiwanie po numerze lub nazwie, a podgląd oferuje szerokości 1440 px (komputer) i 390 px (telefon), skalowane do dostępnego miejsca. Można przewijać stronę i sprawdzać jej interakcje, przejść strzałkami do sąsiedniego projektu, zresetować podgląd oraz otworzyć wersję osobno.
+
+Parametry `?wersja=31&widok=telefon` zachowują wybór w linku. Bez parametrów otwiera się najnowsza propozycja. Na telefonie lista projektów otwiera się przyciskiem. `npm run test:all-versions` sprawdza załadowanie wszystkich 33 projektów, nagłówki, linki, zaznaczenie, przełączanie szerokości, strzałki i granice, wyszukiwanie, pusty wynik, cztery rozmiary ekranu, mobilną listę, Escape oraz zachowanie wyboru po odświeżeniu. Zrzuty: `/tmp/sezam-all-*.png`.

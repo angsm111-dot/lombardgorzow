@@ -14,7 +14,8 @@
     "test:portal": "node tests/portal27.mjs",
     "test:showroom": "node tests/showroom28.mjs",
     "test:duo": "node tests/duo29.mjs",
-    "test:silver": "node tests/silver31.mjs"
+    "test:silver": "node tests/silver31.mjs",
+    "test:all-versions": "node tests/all-versions.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",
