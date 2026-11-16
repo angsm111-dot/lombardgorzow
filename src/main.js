@@ -93,7 +93,7 @@ else document.title = 'Sezam — Nie znaleziono strony';
 const content = pages[page] ? pages[page]() : `<section class="wrap section missing">${label('404 / TU NICZEGO NIE MA')}<h1>Poszukajmy<br>gdzie indziej.</h1>${link('','Wróć na główną','underlink')}</section>`;
 const comparison = renderComparison(page,{url,image,arrow,icon,olx,maps});
 document.querySelector('#app').innerHTML = comparison || `<div id="top"></div>${header}<main id="main">${content}</main>${footer}`;
-initComparison();
+initComparison({url,image});
 const menu = document.querySelector('.menu-button');
 function closeMenu(){if(!menu)return;menu.setAttribute('aria-expanded','false');document.querySelector('#site-nav').classList.remove('open');document.querySelectorAll('.nav-group').forEach(group=>group.open=false);}
 menu?.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));document.querySelector('#site-nav').classList.toggle('open',open);});

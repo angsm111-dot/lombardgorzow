@@ -89,3 +89,15 @@ Wersje są dodatkowymi propozycjami głównej. Obecna strona pod `/` zachowuje s
 - `/wersja-10/` — Impuls Plakat: kobaltowy plakat i kolaż zdjęć punktu.
 
 Nowa strona porównania zawiera odnośnik do oryginalnej wersji nr 2. Pasek przełączania działa osobno dla rodzin 1–5 i 6–10. Test `npm run test:variants` obejmuje teraz 10 wersji, dwie strony porównania i 48 kombinacji rozmiarów ekranu.
+
+## Pięć nowych kierunków (11–15)
+
+`/nowe-wersje/` zawiera porównanie pięciu niezależnych propozycji:
+
+- `/wersja-11/` — Katalog: zielono-biały układ oferty z przełączaniem kategorii.
+- `/wersja-12/` — Gazeta: redakcyjna kompozycja, szeryfowa typografia i zdjęcie punktu.
+- `/wersja-13/` — Orbita: fioletowa scena z produktami i wyborem ścieżki sprzedaży lub zakupu.
+- `/wersja-14/` — Warsztat: techniczny układ, pomarańczowe akcenty i proces obsługi.
+- `/wersja-15/` — Studio: boczna nawigacja, magentowy akcent i przesuwana galeria kategorii.
+
+Wszystkie propozycje zachowują oryginalne logo i prowadzą do istniejących podstron usług. Dotychczasowe wersje i strona główna pozostają dostępne. Test `npm run test:variants` obejmuje 15 propozycji, trzy strony porównania, 72 kombinacje rozmiarów ekranu i interakcje nowych projektów.
