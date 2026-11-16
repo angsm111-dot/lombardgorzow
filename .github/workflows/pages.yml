@@ -24,8 +24,6 @@ jobs:
         env:
           SITE_BASE: /lombardgorzow/
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
@@ -39,3 +37,13 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify public pages
+        env:
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          for path in "" "gotowka/" "skup-zlota/" "kontakt/"; do
+            curl --fail --silent --show-error --retry 6 --retry-delay 5 --retry-all-errors "${SITE_URL%/}/$path" -o /tmp/sezam-page.html
+            test -s /tmp/sezam-page.html
+          done
+          echo "Public home and service pages respond successfully."
