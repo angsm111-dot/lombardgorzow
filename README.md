@@ -141,3 +141,11 @@ Punkty odniesienia: [Bulletproof](https://www.awwwards.com/sites/bulletproof) �
 Przejrzano karty ThemeForest: [Frameloft](https://themeforest.net/item/frameloft-creative-agency-photography-react-template/65651542) (bento i interaktywne sekcje) oraz [Cashelrie](https://themeforest.net/item/cashelrie-pawn-shop-wordpress-theme/21837720) (kontekst branżowy). Karty odczytano przez wyszukiwanie; bezpośredni dostęp ze środowiska był blokowany. Implementacja jest autorska, bez użycia płatnego kodu lub zasobów szablonów.
 
 Weryfikacja wersji 26: build, zrzuty desktop/mobile, szerokości 320/390/768/1440 px, obrazy, cztery stany wyboru celu, cztery warianty przewodnika, dialog i Escape, mobilne menu, przejście do serwisu oraz zachowanie głównej.
+
+## Wersja 27 — centrum możliwości
+
+`/wersja-27/` to osobny projekt o strukturze serwisu handlowego: menu rozwijane z kategoriami, ręcznie przełączany baner fotograficzny, kalkulator i suwak kwoty, osiem kategorii z wyszukiwaniem i filtrami, panel szczegółów, porównanie ścieżek usług dla 2–3 kategorii, cztery instrukcje procesu, powiększenie wnętrza oraz panel kontaktu. Porównanie dotyczy usług, nie dostępności produktów ani ich cen. Kalkulator zachowuje stawki lombardgorzow.com: 15 dni / 2,5% oraz 30 dni / 5%, z informacją o umowie na 31 dni i potwierdzeniu warunków w punkcie.
+
+Przed projektowaniem odczytano https://sezamgold.pl/beta/ i https://sezam.com.pl/beta/ przez narzędzie WWW, a następnie odtworzono lokalnie i obejrzano ich źródła z repozytoriów właściciela `angsm111-dot/sezamgold` oraz `angsm111-dot/sezam.com.pl` (`dist/w1/`). Bezpośredni dostęp HTTP ze środowiska był blokowany. Kategorie fotograficzne, zdjęcie pierścionków, wnętrze i grafiki przedmiotów pochodzą z tych projektów Sezamu; kopie zoptymalizowano w `public/images/portal27/`. Nie zmieniano repozytoriów źródłowych ani bet na hostingu. Dodatkowy punkt odniesienia dla struktury usług: https://www.cashconverters.co.uk/.
+
+`npm run test:portal` sprawdza pięć szerokości 320–1440 px, obrazy, menu, trzy tematy banera, kalkulator i suwak, wyszukiwanie z pustym wynikiem, filtry, panele kategorii, limit i tabelę porównania, cztery procesy, galerię, panel kontaktowy, mobilną nawigację i zachowanie głównej oraz wersji 26. Zrzuty są w `/tmp/sezam27-*.png`.
