@@ -133,3 +133,11 @@ Nowa seria zachowuje oryginalne logo, dane i podstrony. Nie zmienia głównej an
 Punkty odniesienia: [Bulletproof](https://www.awwwards.com/sites/bulletproof) — wyrazistość marki; [SANTAL](https://www.awwwards.com/sites/santal) — architektoniczny porządek; [Grids](https://www.awwwards.com/sites/grids-1) — eksperymenty z siatką. Odczytano karty Awwwards; serwer obrazów odmówił dostępu, więc nie weryfikowano ich wizualnych detali. Godly i Land-book również odmówiły dostępu. Projekty nie kopiują realizacji.
 
 `npm run test:lab` sprawdza pięć stron, 20 kombinacji szerokości, obrazy, menu mobilne, klawiaturę, przejścia do usług i działanie pięciu narzędzi. Generuje również podglądy JPEG w `public/previews/` oraz zrzuty całych stron w `/tmp/sezam-lab-*.png`. Po wygenerowaniu podglądów ponów build przed publikacją. Zmienna `TEST_URL` i `CHROMIUM_PATH` działają jak w pozostałych testach.
+
+## Wersja 26 — Dobry ruch
+
+`/wersja-26/` jest osobną propozycją o miękkiej kompozycji bento, zaokrąglonych panelach, warstwowych zdjęciach, subtelnych cieniach i animacji respektującej ograniczenie ruchu. Wybór celu zmienia opis i ścieżkę usługi; natywny dialog pomaga przygotować się do wizyty. Zachowano oryginalne logo, dane kontaktowe i podstrony. Nowy moduł `src/soft26.js` i style `src/soft26.css` nie zmieniają dotychczasowych propozycji.
+
+Przejrzano karty ThemeForest: [Frameloft](https://themeforest.net/item/frameloft-creative-agency-photography-react-template/65651542) (bento i interaktywne sekcje) oraz [Cashelrie](https://themeforest.net/item/cashelrie-pawn-shop-wordpress-theme/21837720) (kontekst branżowy). Karty odczytano przez wyszukiwanie; bezpośredni dostęp ze środowiska był blokowany. Implementacja jest autorska, bez użycia płatnego kodu lub zasobów szablonów.
+
+Weryfikacja wersji 26: build, zrzuty desktop/mobile, szerokości 320/390/768/1440 px, obrazy, cztery stany wyboru celu, cztery warianty przewodnika, dialog i Escape, mobilne menu, przejście do serwisu oraz zachowanie głównej.
