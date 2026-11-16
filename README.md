@@ -177,3 +177,9 @@ Nawigacja wersji 31: przyklejony pasek, kapsułowe skróty do sekcji z oznaczeni
 ### Odciążenie wersji 31
 
 Usunięto duże metaliczne gradienty i ciemnozłote napisy. Tło jest białe, nagłówki grafitowe i szaroniebieskie, główne przyciski grafitowe. Jasne szampańskie złoto zostało w ikonach i krótkiej linii pod tytułem. Uproszczono powierzchnie kart, kalkulatora i menu; ograniczono cienie, rozjaśniono obramowania i dodano przestrzeń. Zachowano funkcje i sprawdzenie `test:silver` dla pięciu szerokości. Czytelne teksty informacyjne mają ciemniejszy odcień szarości od dekoracyjnych detali.
+
+## Wersja 32 — fotografia i cztery sprawy
+
+`/wersja-32/` to nowa kompozycja: duża fotografia po lewej, cztery rozwijane ścieżki usług po prawej i poziomy kalkulator pod pierwszym ekranem. Wybór usługi zmienia zdjęcie, szczegóły i trzy wskazówki „Przed wizytą”. Instrukcje można również przełączać bez powrotu do góry. Jasna, oszczędna paleta: biel, chłodne szarości, grafit i złoto tylko w drobnych detalach. Zdjęcia pochodzą z zasobów Sezamu; nie reprezentują aktualnego stanu magazynowego. Nowe pliki: `src/concept32.js`, `src/concept32.css`, `public/images/concept32/`.
+
+Sprawdzono build, 320/390/768/1024/1440 px, obrazy, cztery panele i zdjęcia, synchronizację wskazówek, kalkulator obu okresów i błędne kwoty, mobilne menu, Escape i przejście do serwisu. Zrzuty: `/tmp/sezam32-*.png`. Starsze propozycje zachowano.
