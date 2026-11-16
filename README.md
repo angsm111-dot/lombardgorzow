@@ -1,6 +1,6 @@
 # Sezam — nowa odsłona
 
-Wielostronicowa strona Sezamu w Gorzowie: grafit, limonkowy akcent, lokalne fonty Outfit i Manrope, zaokrąglone bryły, przestrzenna prezentacja przedmiotów, animacje przy przewijaniu i interaktywne kategorie. Zachowano podstrony i dane biznesowe.
+Wielostronicowa strona Sezamu w Gorzowie: jasne neutralne tło, oszczędny terakotowy akcent, lokalne fonty Outfit i Manrope, zaokrąglone bryły, przestrzenna prezentacja przedmiotów, animacje przy przewijaniu i interaktywne kategorie. Zachowano podstrony i dane biznesowe.
 
 ## Uruchomienie
 
@@ -51,6 +51,8 @@ Brak backendu i fikcyjnych formularzy. Kontakt przez telefon, WhatsApp, Facebook
 Test sprawdza 12 stron, 48 kombinacji strony i szerokości ekranu (320, 390, 768, 1440 px), kalkulator i błędne dane, cennik i przedziały wagowe, obsługę klawiatury, FAQ, galerię, teksty bloga, menu mobilne, ładowanie obrazów i kotwice. Zrzuty kontrolne trafiają do `/tmp/sezam-v3-*.png`.
 
 ## Kierunek wizualny
+
+Aktualna wersja: białe tło, lekkie powierzchnie w kolorze kości słoniowej, delikatne cienie, ciemny tekst i pojedynczy ciepły akcent. Zachowano warstwowe kompozycje, zaokrąglenia i animacje.
 
 Przejrzane inspiracje: [Cruip Simple](https://github.com/cruip/tailwind-landing-page-template) (świetlne tła, warstwy, animacje wejścia) i [Shadcn Landing Page](https://github.com/leoMirandaa/shadcn-landing-page) (pływające elementy, głębia, zaokrąglenia). Nie skopiowano szablonu ani jego treści. Kompozycje i implementacja są własne, z zachowaniem zdjęć i danych Sezamu.
 
