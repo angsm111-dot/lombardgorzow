@@ -213,3 +213,18 @@ Samodzielny portal handlowy: gęstsza nawigacja, duża fotograficzna mozaika, ek
 Wyszukiwanie rozpoznaje kategorie i intencje usługowe, a dla nieznanego hasła wyświetla wyjaśnienie i telefon. Kategorie aktualizują zdjęcie, opis i właściwą ścieżkę usługi. Zachowano starsze wersje, a przełącznik obejmuje 38 propozycji i obecną główną.
 
 Próby dostępu do lombard-slonce.pl, Allegro i Back Market zostały zablokowane przez środowisko; nie oparto projektu na nieobejrzanych widokach. `npm run test:market`: pięć szerokości 320–1440 px, obrazy, kategorie, wyszukiwarka i brak wyników, mobilne menu, Escape, FAQ i integracja przełącznika. Weryfikacja wizualna: `/tmp/sezam38-390.png` i `/tmp/sezam38-1440.png`.
+
+
+## Wersje 39–43 — pięć niezależnych kierunków materiałowych
+
+Nowe propozycje powstały w osobnym module `src/material-five.js` i `src/material-five.css`. Nie korzystają z rendererów ani kompozycji poprzednich wersji. Zachowano logo, zweryfikowane treści, dane punktu, fotografie i istniejące usługi. `public/images/materials/marble.svg` jest własną, dekoracyjną teksturą marmuru.
+
+- `/wersja-39/` — **Marmurowy salon**: architektoniczna, łukowa kompozycja zdjęć, szeryfowa typografia, mineralna biel i matowe złoto. Przewodnik w modalnym oknie dobiera przygotowanie do rodzaju przedmiotu.
+- `/wersja-40/` — **Srebrny pulpit**: boczna nawigacja, zwarta plansza usług, szczotkowane srebro i grafit. Dwa pola dobierają usługę i kroki wizyty; naprawa wymusza telefon. Na mobile nawigacja przechodzi do dolnego paska.
+- `/wersja-41/` — **Rzeczy — magazyn**: duży masthead, fotograficzna okładka i asymetryczny skład redakcyjny. Interaktywny indeks przedmiotów pokazuje odpowiednie działania i przygotowanie.
+- `/wersja-42/` — **Panorama Sezamu**: fotografia na cały ekran, szklany panel i dolny dok usług. Sceny przełączają jednocześnie zdjęcie, treść, link i kolejne kroki. Bez automatycznego przewijania; dostępne strzałki i klawiatura.
+- `/wersja-43/` — **Obiekty w obiegu**: centralny postument ze srebra, ciepła aureola i wielka konturowa typografia. Wybór obiektu otwiera właściwe możliwości sprzedaży, zastawu, zakupu i — wyłącznie dla telefonu — naprawy.
+
+Kontekst inspiracyjny: dostępne strony opisów realizacji Awwwards [Santal](https://www.awwwards.com/sites/santal/), [Delta Cafés](https://www.awwwards.com/sites/delta-cafes/) i [Bulletproof](https://www.awwwards.com/sites/bulletproof/). Kierunki pracy: architektoniczne kadrowanie i materiał, rytm opowiadania o kategorii, odważna skala typografii. Nie kopiowano layoutów. Pliki podglądów Awwwards oraz Godly, Land-book i bezpośrednie strony dodatkowych marek były niedostępne w środowisku; nie deklarujemy ich wizualnego przejrzenia.
+
+`npm run test:materials` sprawdza pięć stron przy szerokościach 320/390/768/1024/1440 px, dekodowanie zdjęć, brak poziomego przepełnienia, menu modalne, fokus i Escape, przygotowanie do wizyty, dobór usługi, indeks, panoramę z zawijaniem i obsługą klawiaturą oraz działania dla obiektów. `npm run test:all-versions` weryfikuje wszystkie 44 strony (43 propozycje i obecna główna) i przełącznik. Weryfikacja wizualna: `/tmp/sezam-material-{39..43}-{390,1440}.png`.
