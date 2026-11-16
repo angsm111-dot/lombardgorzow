@@ -77,3 +77,15 @@ Strona główna zawiera wprowadzenie i skróty usług. Rozwinięcie oferty znajd
 Wersje są dodatkowymi propozycjami głównej. Obecna strona pod `/` zachowuje swój układ. Wspólne podstrony usług pozostają funkcjonalne. Pasek porównania pozwala przełączać propozycje i wrócić do obecnej strony. Parametr `?preview=1` ukrywa pasek w miniaturach.
 
 `npm run test:variants` sprawdza pięć propozycji, stronę porównania, 24 kombinacje rozmiaru ekranu, obrazy, przejścia do usług, przełączanie wersji, kalkulator Flow, akordeon Forma oraz zachowanie dotychczasowej głównej. Używa tej samej konfiguracji `TEST_URL` i Chromium co `npm test`.
+
+## Dodatkowe wersje inspirowane Impulsem (nr 2)
+
+`/impuls-wersje/` porównuje pięć kolejnych kierunków. Dotychczasowe propozycje pozostają pod swoimi adresami.
+
+- `/wersja-6/` — Impuls Sprint: żółty plakat, centralny nagłówek i trzy kategorie produktów.
+- `/wersja-7/` — Impuls Metro: kobaltowy hero i panel szybkiego wyboru usługi.
+- `/wersja-8/` — Impuls Pop: pomarańczowy hero, biżuteria w organicznej formie i granatowo-żółte bloki.
+- `/wersja-9/` — Impuls Grid: jasna kompozycja, duża typografia i mozaika usług.
+- `/wersja-10/` — Impuls Plakat: kobaltowy plakat i kolaż zdjęć punktu.
+
+Nowa strona porównania zawiera odnośnik do oryginalnej wersji nr 2. Pasek przełączania działa osobno dla rodzin 1–5 i 6–10. Test `npm run test:variants` obejmuje teraz 10 wersji, dwie strony porównania i 48 kombinacji rozmiarów ekranu.
