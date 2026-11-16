@@ -42,7 +42,7 @@ jobs:
           SITE_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
           set -euo pipefail
-          for path in "" "gotowka/" "skup-zlota/" "kontakt/"; do
+          for path in "" "gotowka/" "skup-zlota/" "kontakt/" "wersje/" "wersja-1/" "wersja-2/" "wersja-3/" "wersja-4/" "wersja-5/"; do
             curl --fail --silent --show-error --retry 6 --retry-delay 5 --retry-all-errors "${SITE_URL%/}/$path" -o /tmp/sezam-page.html
             test -s /tmp/sezam-page.html
           done

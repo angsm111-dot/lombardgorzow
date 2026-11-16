@@ -63,3 +63,17 @@ Fonty serwowane są lokalnie z pakietów Fontsource. Animacje, ruch perspektywic
 Oryginalne logo Sezamu pobrano z `https://lombardgorzow.com/wp-content/uploads/2018/03/SezamLombard_logoRGB-x2.png` i zapisano bez zmian w `public/images/sezam-logo-original.png`. Nagłówek oraz stopka używają tego pliku.
 
 Strona główna zawiera wprowadzenie i skróty usług. Rozwinięcie oferty znajduje się w „Na sprzedaż”, opis kroków w „Gotówka i kalkulator”, opis firmy w „O nas”, FAQ na własnej stronie, a większy blok kontaktu na stronie kontaktowej. Menu zawiera bezpośrednie strony Start, Na sprzedaż, Kontakt oraz rozwijane grupy Usługi i O Sezamie. Wszystkie 12 stron jest dostępnych z nawigacji również na telefonie.
+
+## Pięć wersji głównej do porównania
+
+`/wersje/` otwiera stronę porównania z żywymi miniaturami i odnośnikami do propozycji:
+
+1. `/wersja-1/` — Atelier: butikowa kompozycja, bordowy akcent, szeryfowe nagłówki.
+2. `/wersja-2/` — Impuls: kobalt i żółty, mocna typografia i geometryczna kompozycja.
+3. `/wersja-3/` — Flow: jasny interfejs z działającym kalkulatorem opłaty.
+4. `/wersja-4/` — Po sąsiedzku: zdjęcia punktu, lokalny charakter i ciepła czerwień.
+5. `/wersja-5/` — Forma: graficzna typografia, trzy kategorie produktów i akordeon usług.
+
+Wersje są dodatkowymi propozycjami głównej. Obecna strona pod `/` zachowuje swój układ. Wspólne podstrony usług pozostają funkcjonalne. Pasek porównania pozwala przełączać propozycje i wrócić do obecnej strony. Parametr `?preview=1` ukrywa pasek w miniaturach.
+
+`npm run test:variants` sprawdza pięć propozycji, stronę porównania, 24 kombinacje rozmiaru ekranu, obrazy, przejścia do usług, przełączanie wersji, kalkulator Flow, akordeon Forma oraz zachowanie dotychczasowej głównej. Używa tej samej konfiguracji `TEST_URL` i Chromium co `npm test`.

@@ -4,6 +4,7 @@ import './style.css';
 import './contrast.css';
 import './navigation.css';
 import articles from './articles.json';
+import {comparisonMeta,renderComparison,initComparison} from './variants.js';
 const base = import.meta.env.BASE_URL;
 const url = (path='') => `${base}${path}${path ? '/' : ''}`;
 const image = name => `${base}images/${name}`;
@@ -31,6 +32,7 @@ const faq = [
 const faqHtml = (count=faq.length) => `<div class="questions">${faq.slice(0,count).map(([q,a],i)=>`<details><summary><span class="q-number">0${i+1}</span><span>${q}</span><span class="plus" aria-hidden="true">+</span></summary><p>${a}</p></details>`).join('')}</div>`;
 const route = decodeURI(location.pathname).replace(base,'').replace(/^\/+|\/+$/g,'');
 const meta = {
+ ...comparisonMeta,
  '': ['W Twoich rzeczach jest więcej.',''],
  gotowka: ['Gotówka pod zastaw','01 / GOTÓWKA'],
  'skup-zlota': ['Złoto i srebro','02 / KRUSZCE'],
@@ -89,10 +91,12 @@ const pages = {'':home,gotowka:loans,'skup-zlota':gold,'telefony-laptopy':electr
 if(page!=='404') document.title = `Sezam — ${meta[page][0]}`;
 else document.title = 'Sezam — Nie znaleziono strony';
 const content = pages[page] ? pages[page]() : `<section class="wrap section missing">${label('404 / TU NICZEGO NIE MA')}<h1>Poszukajmy<br>gdzie indziej.</h1>${link('','Wróć na główną','underlink')}</section>`;
-document.querySelector('#app').innerHTML = `<div id="top"></div>${header}<main id="main">${content}</main>${footer}`;
+const comparison = renderComparison(page,{url,image,arrow,icon,olx,maps});
+document.querySelector('#app').innerHTML = comparison || `<div id="top"></div>${header}<main id="main">${content}</main>${footer}`;
+initComparison();
 const menu = document.querySelector('.menu-button');
-function closeMenu(){menu.setAttribute('aria-expanded','false');document.querySelector('#site-nav').classList.remove('open');document.querySelectorAll('.nav-group').forEach(group=>group.open=false);}
-menu.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));document.querySelector('#site-nav').classList.toggle('open',open);});
+function closeMenu(){if(!menu)return;menu.setAttribute('aria-expanded','false');document.querySelector('#site-nav').classList.remove('open');document.querySelectorAll('.nav-group').forEach(group=>group.open=false);}
+menu?.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));document.querySelector('#site-nav').classList.toggle('open',open);});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
 if(page==='gotowka'){
  const input=document.querySelector('#amount'),range=document.querySelector('#amount-range');
