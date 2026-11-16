@@ -186,6 +186,21 @@ Sprawdzono build, 320/390/768/1024/1440 px, obrazy, cztery panele i zdjęcia, sy
 
 ## Wszystkie projekty w jednym miejscu
 
-`/wszystkie-wersje/` to interaktywny przełącznik 32 propozycji i obecnej głównej. Jedna ramka ładuje tylko wybrany projekt. Lista ma wyszukiwanie po numerze lub nazwie, a podgląd oferuje szerokości 1440 px (komputer) i 390 px (telefon), skalowane do dostępnego miejsca. Można przewijać stronę i sprawdzać jej interakcje, przejść strzałkami do sąsiedniego projektu, zresetować podgląd oraz otworzyć wersję osobno.
+`/wszystkie-wersje/` to interaktywny przełącznik 37 propozycji i obecnej głównej. Jedna ramka ładuje tylko wybrany projekt. Lista ma wyszukiwanie po numerze lub nazwie, a podgląd oferuje szerokości 1440 px (komputer) i 390 px (telefon), skalowane do dostępnego miejsca. Można przewijać stronę i sprawdzać jej interakcje, przejść strzałkami do sąsiedniego projektu, zresetować podgląd oraz otworzyć wersję osobno.
 
-Parametry `?wersja=31&widok=telefon` zachowują wybór w linku. Bez parametrów otwiera się najnowsza propozycja. Na telefonie lista projektów otwiera się przyciskiem. `npm run test:all-versions` sprawdza załadowanie wszystkich 33 projektów, nagłówki, linki, zaznaczenie, przełączanie szerokości, strzałki i granice, wyszukiwanie, pusty wynik, cztery rozmiary ekranu, mobilną listę, Escape oraz zachowanie wyboru po odświeżeniu. Zrzuty: `/tmp/sezam-all-*.png`.
+Parametry `?wersja=31&widok=telefon` zachowują wybór w linku. Bez parametrów otwiera się najnowsza propozycja. Na telefonie lista projektów otwiera się przyciskiem. `npm run test:all-versions` sprawdza załadowanie wszystkich 38 projektów, nagłówki, linki, zaznaczenie, przełączanie szerokości, strzałki i granice, wyszukiwanie, pusty wynik, cztery rozmiary ekranu, mobilną listę, Escape oraz zachowanie wyboru po odświeżeniu. Zrzuty: `/tmp/sezam-all-*.png`.
+
+
+## Wersje 33–37 — pięć niezależnych kompozycji
+
+Nowe układy zaprojektowano bez wzorowania się na układach stron Sezamu. Z istniejącego projektu wykorzystano treści, logo, dane kontaktowe i zdjęcia przedmiotów. Główna i wersje 1–32 pozostają dostępne.
+
+- `/wersja-33/` — Mapa spraw: ilustracyjna mapa usług i aktualizowany panel przygotowania do wizyty.
+- `/wersja-34/` — Bilet do Sezamu: wybór potrzeby i przedmiotu tworzy listę na wizytę, którą można skopiować.
+- `/wersja-35/` — Porozmawiajmy: krótki przewodnik prowadzi od potrzeby przez przedmiot do właściwej usługi, z cofaniem i restartem.
+- `/wersja-36/` — Cztery drzwi: rozwijane panele pokazują usługę i jej trzy następne kroki.
+- `/wersja-37/` — Przedmiot × potrzeba: interaktywna tabela dobiera usługę do przedmiotu i zamiaru klienta.
+
+Nie dodano fikcyjnych wycen, rezerwacji ani dostępności produktów. Mapa jest oznaczona jako schemat; rzeczywisty dojazd otwiera Mapy Google. Przewodnik działa lokalnie, bez pozornego AI i wysyłania danych.
+
+`npm run test:new-five` sprawdza 20 zestawień strony i szerokości (320, 390, 768, 1440 px), obrazy, menu i Escape oraz najważniejsze interakcje wszystkich pięciu wersji, w tym kopiowanie listy do schowka. Przełącznik obejmuje teraz 37 propozycji oraz obecną główną. Weryfikacja wizualna: komputer i telefon, zrzuty `/tmp/sezam-new-*.png`.
