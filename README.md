@@ -228,3 +228,16 @@ Nowe propozycje powstały w osobnym module `src/material-five.js` i `src/materia
 Kontekst inspiracyjny: dostępne strony opisów realizacji Awwwards [Santal](https://www.awwwards.com/sites/santal/), [Delta Cafés](https://www.awwwards.com/sites/delta-cafes/) i [Bulletproof](https://www.awwwards.com/sites/bulletproof/). Kierunki pracy: architektoniczne kadrowanie i materiał, rytm opowiadania o kategorii, odważna skala typografii. Nie kopiowano layoutów. Pliki podglądów Awwwards oraz Godly, Land-book i bezpośrednie strony dodatkowych marek były niedostępne w środowisku; nie deklarujemy ich wizualnego przejrzenia.
 
 `npm run test:materials` sprawdza pięć stron przy szerokościach 320/390/768/1024/1440 px, dekodowanie zdjęć, brak poziomego przepełnienia, menu modalne, fokus i Escape, przygotowanie do wizyty, dobór usługi, indeks, panoramę z zawijaniem i obsługą klawiaturą oraz działania dla obiektów. `npm run test:all-versions` weryfikuje wszystkie 44 strony (43 propozycje i obecna główna) i przełącznik. Weryfikacja wizualna: `/tmp/sezam-material-{39..43}-{390,1440}.png`.
+
+
+## Wersje 44–48 — pięć nowych struktur na podstawie kierunku z przesłanych referencji
+
+Nowy, niezależny moduł `src/studio-five.js` / `src/studio-five.css`. Referencjami wizualnymi były przesłane przez użytkownika zrzuty prezentacji szablonów: większa różnorodność kompozycji, warstwy, wyraźne elementy interfejsu, bogatsze kadry i mocniejsza typografia. Nie wykorzystano kodu szablonów ani wcześniejszych rendererów. Zachowano logo, dane, treści, zdjęcia i rzeczywiste ścieżki usług Sezamu.
+
+- **44 / Sezam Connect** — centralny ekran w stylistyce aplikacji, orbitalne linie, pływające karty i panel usług. Cztery przyciski aktualizują opis, zdjęcie, przygotowanie i właściwy link.
+- **45 / Forma i wartość** — wielka trzywierszowa typografia, pionowa fotografia, nakładające się obiekty i metaliczna taśma z aktywną nawigacją. Wybór potrzeby otwiera właściwą ekspozycję usługi.
+- **46 / Dom wartości** — butikowy układ z szeryfową typografią, merchandisingiem kategorii i złotą paletą. Filtry grupują kategorie, a dialog pokazuje konkretne działania, w tym naprawę wyłącznie dla telefonu. To kategorie, nie fikcyjne produkty.
+- **47 / Cześć, Gorzów** — lokalny portal z bocznym indeksem i fotografią rzeczywistego punktu. Przewodnik do wizyty zmienia wskazówki według potrzeby i kopiuje je do schowka; bez formularza rezerwacji i wysyłania danych.
+- **48 / Znajdź swoją sprawę** — wyszukiwanie jako główne działanie, metaliczna ilustracja i rozbudowany katalog. Rozpoznaje intencje usługowe i kategorie, ma gotowe podpowiedzi i uczciwy komunikat dla nieznanego hasła.
+
+Sprawdzono `npm run test:studio`: 5 stron × 5 szerokości 320/390/768/1024/1440 px, obrazy, brak poziomego przepełnienia, modalne menu i fokus/Escape, wszystkie warianty usług, filtry i dialogi, przewodnik i rzeczywisty schowek, wyszukiwarkę i brak dopasowania. Test przełącznika obejmuje wszystkie 49 stron (48 propozycji i obecną główną). Osobno skontrolowano finalny mobilny układ tekstu i grafiki 45/46 po poprawkach wizualnych. Zrzuty: `/tmp/sezam-studio-{44..48}-{390,1440}.png`.

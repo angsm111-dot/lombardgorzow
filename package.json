@@ -18,7 +18,8 @@
     "test:all-versions": "node tests/all-versions.mjs",
     "test:new-five": "node tests/new-five.mjs",
     "test:market": "node tests/market38.mjs",
-    "test:materials": "node tests/material-five.mjs"
+    "test:materials": "node tests/material-five.mjs",
+    "test:studio": "node tests/studio-five.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",

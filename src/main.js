@@ -1,3 +1,4 @@
+import {studioMeta,renderStudio,initStudio} from './studio-five.js';
 import {materialMeta,renderMaterials,initMaterials} from './material-five.js';
 import {renderMarket38,initMarket38} from './market38.js';
 import '@fontsource-variable/outfit';
@@ -46,6 +47,7 @@ const meta = {
  ...labMeta,
  ...newFiveMeta,
  ...materialMeta,
+ ...studioMeta,
  'wersja-38':['Sezam — Nowy obrót','Kategorie, oferty i usługi Sezamu w Gorzowie.'],
  'wersja-26':['Dobry ruch — nowa propozycja Sezamu',''],
  'wersja-27':['Sezam — Twoje centrum możliwości',''],
@@ -113,7 +115,7 @@ const pages = {'':home,gotowka:loans,'skup-zlota':gold,'telefony-laptopy':electr
 if(page!=='404') document.title = `Sezam — ${meta[page][0]}`;
 else document.title = 'Sezam — Nie znaleziono strony';
 const content = pages[page] ? pages[page]() : `<section class="wrap section missing">${label('404 / TU NICZEGO NIE MA')}<h1>Poszukajmy<br>gdzie indziej.</h1>${link('','Wróć na główną','underlink')}</section>`;
-const comparison = renderMaterials(page,{url,image,maps,olx}) || (page==='wersja-38'?renderMarket38({url,image,maps,olx}):null) || renderNewFive(page,{url,image,maps,olx}) || (page==='wszystkie-wersje'?renderAllVersions({url}):null) || (page==='wersja-32'?renderConcept32({url,image,maps,olx}):null) || (['wersja-29','wersja-30','wersja-31'].includes(page)?renderDuo29(Number(page.split('-')[1]),{url,image,maps,olx}):null) || (page==='wersja-28'?renderShowroom28({url,image,maps,olx}):null) || (page==='wersja-27'?renderPortal27({url,image,maps,olx}):null) || (page==='wersja-26'?renderSoft26({url,image,maps,olx}):null) || renderLab(page,{url,image,maps,olx}) || renderComparison(page,{url,image,arrow,icon,olx,maps});
+const comparison = renderStudio(page,{url,image,maps,olx}) || renderMaterials(page,{url,image,maps,olx}) || (page==='wersja-38'?renderMarket38({url,image,maps,olx}):null) || renderNewFive(page,{url,image,maps,olx}) || (page==='wszystkie-wersje'?renderAllVersions({url}):null) || (page==='wersja-32'?renderConcept32({url,image,maps,olx}):null) || (['wersja-29','wersja-30','wersja-31'].includes(page)?renderDuo29(Number(page.split('-')[1]),{url,image,maps,olx}):null) || (page==='wersja-28'?renderShowroom28({url,image,maps,olx}):null) || (page==='wersja-27'?renderPortal27({url,image,maps,olx}):null) || (page==='wersja-26'?renderSoft26({url,image,maps,olx}):null) || renderLab(page,{url,image,maps,olx}) || renderComparison(page,{url,image,arrow,icon,olx,maps});
 document.querySelector('#app').innerHTML = comparison || `<div id="top"></div>${header}<main id="main">${content}</main>${footer}`;
 initComparison({url,image});
 initLab({url,image,maps,olx});
@@ -126,6 +128,7 @@ initAllVersions({url});
 initNewFive({url,image});
 initMarket38({url,image});
 initMaterials({url,image,olx});
+initStudio({url,image,olx});
 const menu = document.querySelector('.menu-button');
 function closeMenu(){if(!menu)return;menu.setAttribute('aria-expanded','false');document.querySelector('#site-nav').classList.remove('open');document.querySelectorAll('.nav-group').forEach(group=>group.open=false);}
 menu?.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));document.querySelector('#site-nav').classList.toggle('open',open);});
