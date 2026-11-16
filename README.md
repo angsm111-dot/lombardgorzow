@@ -163,3 +163,7 @@ Wybory z ekspozycji synchronizują się z „Moim planem”: celem i przedmiotem
 `/wersja-29/` rozwija charakter jasnej referencji użytkownika: ciepłe światło, delikatny punktowy wzór, wyraźna oferta, pomarańczowe działania i boczny panel z rzeczowymi informacjami. `/wersja-30/` ma osobną, centralną kompozycję w ciemnej tonacji, złote działania, kontakt przez WhatsApp oraz pas faktów o punkcie. Oba projekty zachowują oryginalne logo, bez kopiowania układu i treści ze zrzutów. Nie przeniesiono niezweryfikowanych liczb klientów, ocen, czasu obsługi ani twierdzeń o najniższej cenie.
 
 Działają: kalkulator 2,5% / 15 dni i 5% / 30 dni według lombardgorzow.com (z informacją o umowie 31-dniowej), suwak kwoty, wybór kategorii, pytania rozwijane i menu mobilne. Wersje mają wzajemne odnośniki. `npm run test:duo` sprawdza dwa adresy, osiem kombinacji szerokości, obrazy, kalkulator, błędne dane, suwak, trzy kategorie, FAQ, menu, Escape i przejście do serwisu. Zrzuty: `/tmp/sezam-duo-*.png`.
+
+## Wersja 31 — szarości i złoto
+
+`/wersja-31/` zachowuje centralną kompozycję ciemnej wersji 30 w jasnej, chłodnej palecie: białe powierzchnie, perłowe szarości, grafitowa typografia, stonowane szczotkowane złoto, delikatne obramowania i cienie. Ciemna wersja 30 pozostaje dostępna. Sprawdzono 320/390/768/1440 px, obrazy, kalkulator, przełączanie kategorii, menu mobilne i Escape. Zrzuty: `/tmp/sezam31-*.png`.
