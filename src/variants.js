@@ -1,8 +1,10 @@
+import {nextMeta,renderNext,initNext} from './next-variants.js';
 import './variants.css';
 import {freshConcepts,freshMeta,renderFreshVariant,initFreshVariants} from './fresh-variants.js';
 import {impulsConcepts,impulsMeta,renderImpulsVariant} from './impuls-variants.js';
 
 export const comparisonMeta = {
+ ...nextMeta,
  ...freshMeta,
  ...impulsMeta,
  wersje: ['Porównaj pięć wersji głównej', ''],
@@ -22,6 +24,8 @@ export const concepts = [
 
 export function renderComparison(route, {url,image,arrow,icon,olx,maps}) {
  if (!(route in comparisonMeta)) return null;
+ const next=renderNext(route,{url,image,arrow,maps,olx});
+ if(next)return next;
  const n=Number(route.split('-')[1]);
  const isFresh=route==='nowe-wersje'||n>=11;
  const isImpuls=route==='impuls-wersje'||(n>=6&&n<=10);
@@ -50,6 +54,7 @@ export function renderComparison(route, {url,image,arrow,icon,olx,maps}) {
 }
 
 export function initComparison(context){
+ initNext(context);
  initFreshVariants(context);
  const fitPreviews=()=>document.querySelectorAll('.preview-window').forEach(window=>{window.querySelector('iframe').style.transform=`scale(${window.clientWidth/1440})`;});
  fitPreviews();

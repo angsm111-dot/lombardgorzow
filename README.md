@@ -101,3 +101,19 @@ Nowa strona porównania zawiera odnośnik do oryginalnej wersji nr 2. Pasek prze
 - `/wersja-15/` — Studio: boczna nawigacja, magentowy akcent i przesuwana galeria kategorii.
 
 Wszystkie propozycje zachowują oryginalne logo i prowadzą do istniejących podstron usług. Dotychczasowe wersje i strona główna pozostają dostępne. Test `npm run test:variants` obejmuje 15 propozycji, trzy strony porównania, 72 kombinacje rozmiarów ekranu i interakcje nowych projektów.
+
+## Nowa seria 16–20
+
+`/swieze-wersje/` porównuje pięć nowych projektów pod osobnymi adresami:
+
+- `/wersja-16/` — Punkt: biel, czerwień, duża typografia i pozioma kompozycja fotografii.
+- `/wersja-17/` — Obieg: wybór jednego z czterech celów zmienia zdjęcie, opis i dalszą ścieżkę; limonkowy akcent.
+- `/wersja-18/` — Konkretnie: ultramarynowy akcent i duży rozwijany indeks usług.
+- `/wersja-19/` — Na miejscu: pomarańczowy akcent i prawdziwa fotografia punktu z informacją o dojeździe.
+- `/wersja-20/` — Drugi ruch: typograficzna kompozycja z produktami i magentowym akcentem.
+
+Projekty używają własnych układów i osobnego arkusza stylów `src/next-variants.css`. Oryginalne logo, dane kontaktowe i istniejące podstrony pozostają dostępne. Fonty Inter Tight i Space Grotesk są serwowane lokalnie. Menu mobilne obsługuje klawiaturę i Escape; animacje respektują ograniczenie ruchu. Główna pod `/` pozostaje bez zmian.
+
+`npm run test:next` sprawdza 24 kombinacje strony i szerokości, cztery stany wyboru celu, menu mobilne, klawiaturę, linki usług, akordeon, obrazy i zachowanie obecnej głównej.
+
+W tej sesji próby odczytu Awwwards, Godly i Land-book zostały zablokowane przez proxy (403); nie deklarujemy przejrzenia ich bieżących realizacji ani nie przypisujemy projektom niezweryfikowanych inspiracji. Zdjęcia punktu są oryginalnymi plikami źródłowymi o ograniczonej rozdzielczości (500 px).
