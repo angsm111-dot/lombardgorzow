@@ -117,3 +117,19 @@ Projekty używają własnych układów i osobnego arkusza stylów `src/next-vari
 `npm run test:next` sprawdza 24 kombinacje strony i szerokości, cztery stany wyboru celu, menu mobilne, klawiaturę, linki usług, akordeon, obrazy i zachowanie obecnej głównej.
 
 W tej sesji próby odczytu Awwwards, Godly i Land-book zostały zablokowane przez proxy (403); nie deklarujemy przejrzenia ich bieżących realizacji ani nie przypisujemy projektom niezweryfikowanych inspiracji. Zdjęcia punktu są oryginalnymi plikami źródłowymi o ograniczonej rozdzielczości (500 px).
+
+## Pracownia — nowe propozycje 21–25
+
+`/pracownia-wersje/` porównuje pięć autorskich stron pod nowymi adresami:
+
+- `/wersja-21/` — Własny kierunek: plakat i przewodnik z kopiowaniem listy przed wizytą.
+- `/wersja-22/` — Rzeczy z historią: redakcyjna prezentacja przedmiotu i kontekstowe działania.
+- `/wersja-23/` — Jasny rachunek: kalkulator 2,5% / 15 dni i 5% / 30 dni. Wynik jest orientacyjny; informacja o umowie na 31 dni i potwierdzeniu warunków jest widoczna przy kalkulatorze.
+- `/wersja-24/` — Tu, na Pocztowej: prawdziwe zdjęcie gablot i planer wizyty według dnia oraz sposobu dojazdu.
+- `/wersja-25/` — Działaj dalej: nawigacja zadaniowa i przygotowanie do rozmowy z serwisem według objawu usterki.
+
+Nowa seria zachowuje oryginalne logo, dane i podstrony. Nie zmienia głównej ani propozycji 1–20. Klasy nowych kompozycji mają osobne prefiksy. Żadne z narzędzi nie wysyła danych. Zdjęcia kategorii nie stanowią deklaracji dostępności produktów. Podglądy na stronie porównania są zrzutami działających stron, a każdy prowadzi do pełnego projektu.
+
+Punkty odniesienia: [Bulletproof](https://www.awwwards.com/sites/bulletproof) — wyrazistość marki; [SANTAL](https://www.awwwards.com/sites/santal) — architektoniczny porządek; [Grids](https://www.awwwards.com/sites/grids-1) — eksperymenty z siatką. Odczytano karty Awwwards; serwer obrazów odmówił dostępu, więc nie weryfikowano ich wizualnych detali. Godly i Land-book również odmówiły dostępu. Projekty nie kopiują realizacji.
+
+`npm run test:lab` sprawdza pięć stron, 20 kombinacji szerokości, obrazy, menu mobilne, klawiaturę, przejścia do usług i działanie pięciu narzędzi. Generuje również podglądy JPEG w `public/previews/` oraz zrzuty całych stron w `/tmp/sezam-lab-*.png`. Po wygenerowaniu podglądów ponów build przed publikacją. Zmienna `TEST_URL` i `CHROMIUM_PATH` działają jak w pozostałych testach.
