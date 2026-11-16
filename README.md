@@ -1,6 +1,6 @@
 # Sezam — nowa odsłona
 
-Wielostronicowa strona Sezamu w Gorzowie: pastelowa paleta, duża typografia, redakcyjny układ, osobne strony zamiast jednej długiej sekcji z kartami.
+Wielostronicowa strona Sezamu w Gorzowie: grafit, limonkowy akcent, lokalne fonty Outfit i Manrope, zaokrąglone bryły, przestrzenna prezentacja przedmiotów, animacje przy przewijaniu i interaktywne kategorie. Zachowano podstrony i dane biznesowe.
 
 ## Uruchomienie
 
@@ -48,4 +48,10 @@ Brak backendu i fikcyjnych formularzy. Kontakt przez telefon, WhatsApp, Facebook
 
 ## Weryfikacja
 
-Test sprawdza 12 stron, 48 kombinacji strony i szerokości ekranu (320, 390, 768, 1440 px), kalkulator i błędne dane, cennik i przedziały wagowe, obsługę klawiatury, FAQ, galerię, teksty bloga, menu mobilne, ładowanie obrazów i kotwice. Zrzuty kontrolne trafiają do `/tmp/sezam-v2-*.png`.
+Test sprawdza 12 stron, 48 kombinacji strony i szerokości ekranu (320, 390, 768, 1440 px), kalkulator i błędne dane, cennik i przedziały wagowe, obsługę klawiatury, FAQ, galerię, teksty bloga, menu mobilne, ładowanie obrazów i kotwice. Zrzuty kontrolne trafiają do `/tmp/sezam-v3-*.png`.
+
+## Kierunek wizualny
+
+Przejrzane inspiracje: [Cruip Simple](https://github.com/cruip/tailwind-landing-page-template) (świetlne tła, warstwy, animacje wejścia) i [Shadcn Landing Page](https://github.com/leoMirandaa/shadcn-landing-page) (pływające elementy, głębia, zaokrąglenia). Nie skopiowano szablonu ani jego treści. Kompozycje i implementacja są własne, z zachowaniem zdjęć i danych Sezamu.
+
+Fonty serwowane są lokalnie z pakietów Fontsource. Animacje, ruch perspektywiczny i przewijanie respektują `prefers-reduced-motion`. Przełącznik prezentacji na głównej zmienia kategorię zdjęć, a filtr na stronie sprzedaży zawęża widoczne kategorie. Bez automatycznie przesuwającej się karuzeli.
