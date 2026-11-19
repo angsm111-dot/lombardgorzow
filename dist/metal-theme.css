@@ -1,0 +1,30 @@
+/* Match every item-category button to the selected silver metal. */
+.gold-pricing[data-metal="silver"] .price-tabs {
+  border-bottom-color: #cbd1d4;
+}
+
+.gold-pricing[data-metal="silver"] .price-tabs button {
+  background: linear-gradient(115deg, #e1e6e8, #fcfdfd 46%, #e7ecee);
+  border-color: #b8c1c5;
+  color: #48545b;
+  box-shadow: inset 0 1px 0 #fff;
+}
+
+.gold-pricing[data-metal="silver"] .price-tabs button:hover {
+  background: linear-gradient(115deg, #d4dde1, #f9fbfc 46%, #dce4e7);
+  border-color: #89979e;
+  color: #35434b;
+}
+
+.gold-pricing[data-metal="silver"] .price-tabs button[aria-selected="true"] {
+  background: linear-gradient(115deg, #bec9ce, #f1f5f7 46%, #c8d2d7);
+  border-color: #788a94;
+  color: #2f3f49;
+  box-shadow: inset 0 1px 0 #fff, inset 0 -3px 0 #8798a1;
+}
+
+.gold-pricing[data-metal="silver"] .price-tabs button:focus-visible,
+.gold-pricing[data-metal="silver"] .price-metal-tabs button:focus-visible {
+  outline: 2px solid #627b89;
+  outline-offset: 4px;
+}

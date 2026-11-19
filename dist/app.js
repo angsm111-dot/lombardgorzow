@@ -75,7 +75,7 @@ if (menu && nav) {
   document.addEventListener('click',e=>{
     if (!menu.contains(e.target) && !nav.contains(e.target)) closeMenu();
   });
-  window.addEventListener('resize',()=>{if(window.innerWidth>760)closeMenu()});
+  window.addEventListener('resize',()=>{if(window.innerWidth>1120)closeMenu()});
 }
 $$('#main-nav a').forEach(a=>{
   const url=new URL(a.href,window.location.href);

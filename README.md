@@ -25,7 +25,7 @@ Sprawdzone 16.11.2026:
 - https://sezam.com.pl/faq/
 - https://sezam.com.pl/oferta-olx-allegro/
 
-Źródło używa 31 dni w FAQ i 30 dni w tabeli kalkulatora. Nowy kalkulator wiernie stosuje tabelę 15/30 dni i zawiera informację o potwierdzeniu warunków w punkcie. Ceny metali na nowej podstronie `/cennik-zlota/` są pobierane na żywo z tego samego publicznego feedu co sezam.com.pl. Nie podano niezweryfikowanych liczb opinii ani ocen.
+Źródło używa 31 dni w FAQ i 30 dni w tabeli kalkulatora. Nowy kalkulator wiernie stosuje tabelę 15/30 dni i zawiera informację o potwierdzeniu warunków w punkcie. Ceny metali na nowej podstronie `/cennik-zlota/` są pobierane na żywo z tego samego publicznego feedu co sezam.com.pl. Informację „ponad 300 opinii w Google” dodano 20.11.2026 na podstawie danych przekazanych przez właściciela. Nie deklarujemy oceny gwiazdkowej.
 
 ## Grafiki
 Wbudowane ImageGen, grafiki aranżacyjne, nie katalog konkretnych produktów:
@@ -180,7 +180,18 @@ Sprawdzenie aktualizacji: 7 stron na mobilnym viewport 390 px (375 px treści), 
 
 ## Dwa warianty strony głównej
 - `/` — pełna strona główna sprzed podziału na podstrony; zachowane wszystkie sekcje wersji 9, z działającym odnośnikiem do nowego cennika.
-- `/wersja-obecna/` — zachowana skrócona strona główna z wersji 10 (`0f9428ce5652ad21b69c3f41e93319b510fe824d`). Jej główna treść i `src/pages/home-current.html` są identyczne z zapisanym wcześniej wariantem.
+- `/wersja-obecna/` — zachowana skrócona strona główna z wersji 10 (`0f9428ce5652ad21b69c3f41e93319b510fe824d`). Bazą jest zapisany wcześniej wariant; późniejsze wspólne dodatki opisano poniżej. Jego pierwotny stan zachowano w historii oraz kopii GitHub.
 - Wspólny przełącznik pozwala wrócić do obu wariantów z każdej podstrony. Podstrony usług i cennika są wspólne. Drugi wariant ma własny canonical i noindex; nie jest dodawany do sitemap.
 - Oba warianty odtwarza `python3 scripts/build-pages.py`. Zmiany wcześniejszych zestawów projektów nie były potrzebne.
 - Weryfikacja: przełączanie w obie strony, pełna i skrócona treść, układy komputera i telefonu (390 px viewport / 375 px treści), brak poziomego przepełnienia, aktywacja oferty z kafelka i kalkulator 5000 zł / 30 dni = 250 zł, razem 5250 zł. Przejście do kotwicy nie resetuje zakładki oferty. Kontrola ośmiu stron: kompletne lokalne odnośniki i zasoby, jeden main i H1, brak powtórzonych ID. Składnia JS i git diff --check poprawne.
+
+## Kontakt, opinie i przyjmowane przedmioty — 20.11.2026
+- Wspólne menu zawiera „Co przyjmujemy” i bezpośredni przycisk WhatsApp. Wszystkie dziewięć stron wybranego projektu ma zielony pływający przycisk z białym znakiem WhatsApp, czerwoną kropką i dymkiem „Napisz wiadomość”. Numer: +48 601 775 146.
+- Kontakt i pełna strona główna mają „Wyznacz trasę” do Pocztowej 11 oraz bezpośredni przycisk WhatsApp.
+- Obie strony główne i Kontakt zawierają informację „Ponad 300 opinii w Google”, podaną przez właściciela, z odnośnikiem do wizytówki. Nie dodawano niepotwierdzonej oceny.
+- Obie strony główne mają szampański baner „5% za 30 dni dla nowych klientów”, wysoko pod nagłówkiem, z przejściem do kalkulatora.
+- `/co-przyjmujemy/`: sześć kategorii i pięć ilustracji z https://lombard-gorzow.pl/co-przyjmujemy.html, sprawdzone 20.11.2026. Obrazy `accepted-*.webp` pochodzą z repozytorium właściciela `angsm111-dot/lombard-gorzow.pl`. Przyciski przygotowują pytanie o wycenę w WhatsApp; niczego nie wysyłają.
+- W cenniku wybór srebra zmienia wszystkie trzy przyciski rodzaju przedmiotu na srebrne. Złoty wariant zachowuje wcześniejsze kolory.
+- Nowe fragmenty treści: `src/partials/`; style: `enhancements.css`, `categories.css`, `metal-theme.css`. Mobilne menu działa do 1120 px, aby pomieścić nowe pozycje.
+- Weryfikacja: budowanie, składnia JS, zgodność szablonów i wygenerowanych stron, dziewięć stron bez uszkodzonych lokalnych odnośników/zasobów i powtórzonych ID. Przegląd komputera, telefonu 390 px oraz szerokości 320 i 1024 px: brak poziomego przepełnienia i uszkodzonych obrazów. Sprawdzono otwieranie/zamykanie menu oraz srebro → biżuteria/monety/sztabki → złoto. Nie wysyłano wiadomości.
+- Kopia obu wariantów przed tą aktualizacją: `https://github.com/angsm111-dot/lombardgorzow/tree/backup/sezam-dwie-wersje-2026-11-20`.

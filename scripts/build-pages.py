@@ -9,6 +9,7 @@ PAGES = [
     ('home', '', 'Strona główna', 'SEZAM — Daj rzeczom nową wartość. Lombard Gorzów', 'Lombard SEZAM w Gorzowie Wielkopolskim. Pożyczki pod zastaw, skup złota i srebra, biżuteria i elektronika. Odwiedź nas przy Pocztowej 11.'),
     ('home-current', 'wersja-obecna', 'Obecna wersja strony głównej', 'SEZAM — obecna, skrócona strona główna', 'Zachowana skrócona wersja strony głównej SEZAM z odnośnikami do osobnych podstron.'),
     ('oferta', 'oferta', 'Nasza oferta', 'Nasza oferta — skup, zastaw, sprzedaż i serwis | SEZAM Gorzów', 'Sprawdź ofertę SEZAM: skup złota i elektroniki, pożyczki pod zastaw, sprzedaż biżuterii oraz serwis telefonów w Gorzowie.'),
+    ('co-przyjmujemy', 'co-przyjmujemy', 'Co przyjmujemy', 'Co przyjmujemy pod zastaw? | Lombard SEZAM Gorzów', 'Złoto, srebro, platyna, brylanty, telefony, laptopy, konsole, elektronarzędzia i rowery. Sprawdź, co możesz przynieść do wyceny w Lombardzie SEZAM.'),
     ('cennik-zlota', 'cennik-zlota', 'Cennik złota', 'Cennik skupu złota | SEZAM Gorzów', 'Cennik skupu złota w Lombardzie SEZAM. Sprawdź stawki dla poszczególnych prób i oblicz orientacyjną wartość swojego złota.'),
     ('kalkulator', 'kalkulator', 'Kalkulator', 'Kalkulator pożyczki pod zastaw | SEZAM Gorzów', 'Oblicz orientacyjny koszt pożyczki pod zastaw w SEZAM. Wybierz kwotę oraz 15 lub 30 dni i zobacz opłatę oraz łączną kwotę do spłaty.'),
     ('o-nas', 'o-nas', 'Poznaj SEZAM', 'Poznaj SEZAM — Lombard Gorzów Wielkopolski', 'Poznaj Lombard SEZAM przy Pocztowej 11 w Gorzowie. Ponad 25 lat doświadczenia, dyskretna obsługa i jasne zasady.'),
@@ -26,7 +27,9 @@ def build():
         path = '/' + slug + '/' if slug else '/'
         is_home = key in ('home', 'home-current')
         crumbs = '' if is_home else f'<nav class="breadcrumbs wrap" aria-label="Ścieżka nawigacji"><a href="/">Strona główna</a><span aria-hidden="true">/</span><span aria-current="page">{escape(name)}</span></nav>'
-        extra = '<script src="/prices.js" defer></script>' if key == 'cennik-zlota' else ('<link rel="preload" as="image" href="/assets/sezam-jewelry.webp">' if is_home else '')
+        extra = '<script src="/prices.js" defer></script><link rel="stylesheet" href="/metal-theme.css">' if key == 'cennik-zlota' else ('<link rel="preload" as="image" href="/assets/sezam-jewelry.webp">' if is_home else '')
+        if key == 'co-przyjmujemy':
+            extra += '<link rel="stylesheet" href="/categories.css">'
         if key == 'home-current':
             extra += '\n<meta name="robots" content="noindex,follow">'
         original_active = ' aria-current="page"' if key == 'home' else ''
@@ -36,9 +39,13 @@ def build():
                     f'<a href="/"{original_active}>Pierwsza — pełna</a>'
                     f'<a href="/wersja-obecna/"{current_active}>Obecna — skrócona</a>'
                     '</div></div></nav>')
+        content = source.read_text()
+        for partial, filename in [('google_reviews', 'google-reviews'), ('new_customer_offer', 'new-customer-offer')]:
+            if '{{' + partial + '}}' in content:
+                content = content.replace('{{' + partial + '}}', (ROOT / f'src/partials/{filename}.html').read_text())
         values = {'title': escape(title), 'description': escape(description, quote=True), 'canonical': ORIGIN + path,
                   'body_class': 'page-home' if is_home else f'page-subpage page-{key}', 'breadcrumbs': crumbs,
-                  'content': source.read_text(), 'extra_head': extra, 'version_switcher': switcher}
+                  'content': content, 'extra_head': extra, 'version_switcher': switcher}
         page = layout
         for token, value in values.items():
             page = page.replace('{{' + token + '}}', value)
