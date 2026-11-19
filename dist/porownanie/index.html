@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>SEZAM — porównanie czterech wersji</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="compare.css">
+  <script src="compare.js" defer></script>
+</head>
+<body>
+  <header class="masthead">
+    <a href="../" class="wordmark" aria-label="Wróć do aktualnej strony SEZAM">◇ SEZAM</a>
+    <span class="masthead-note">PORÓWNANIE PROJEKTÓW</span>
+    <a href="../koncepcje/" class="current-link">Nowe koncepcje 05–08 <svg class="external-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a>
+  </header>
+  <main>
+    <section class="intro">
+      <div><span class="eyebrow">CZTERY OSTATNIE ODSŁONY</span><h1>Porównaj. Wybierz swój klimat.</h1></div>
+      <p>Te same treści, cztery wykończenia.<br> Obejrzyj je obok siebie lub powiększ wybraną wersję.</p>
+    </section>
+    <div class="controls">
+      <div class="version-tabs" role="group" aria-label="Wybierz wersję do podglądu">
+        <button type="button" data-view="all" aria-pressed="true">Wszystkie 4</button>
+        <button type="button" data-view="pastelowa" aria-pressed="false"><i class="dot plum"></i>01 Pastelowa</button>
+        <button type="button" data-view="klasyczne-zloto" aria-pressed="false"><i class="dot classic"></i>02 Klasyczne złoto</button>
+        <button type="button" data-view="mocne-zloto" aria-pressed="false"><i class="dot gold"></i>03 Mocne złoto</button>
+        <button type="button" data-view="szampanskie-zloto" aria-pressed="false"><i class="dot champagne"></i>04 Szampańskie złoto</button>
+      </div>
+      <div class="tools">
+        <div class="device-switch" role="group" aria-label="Rozmiar podglądu">
+          <button type="button" data-device="desktop" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M8 21h8M12 17v4"/></svg>Komputer</button>
+          <button type="button" data-device="mobile" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></svg>Telefon</button>
+        </div>
+        <label class="section-picker">Przejdź do <select id="section-picker"><option value="main">Pierwszy ekran</option><option value="oferta">Oferta i kafelki</option><option value="kalkulator">Kalkulator</option><option value="o-nas">O nas</option><option value="pytania">Pytania</option><option value="kontakt">Kontakt</option></select></label>
+        <label class="sync-control"><input id="sync-scroll" type="checkbox" checked><span>Przewijaj razem</span></label>
+        <button class="reset-button" id="reset" type="button" aria-label="Wróć na początek wszystkich podglądów">↑ Na początek</button>
+      </div>
+    </div>
+    <p class="view-hint" id="view-hint" aria-live="polite">Cztery wersje obok siebie. Przewijaj dowolny podgląd — pozostałe podążą za nim.</p>
+    <section class="comparison-grid" id="comparison-grid" aria-label="Podglądy czterech wersji">
+      <article class="version-card" data-version="pastelowa">
+        <header class="card-heading"><div class="version-number">01</div><div class="card-title"><h2>Pastelowa</h2><p>Fiolet SEZAM GOLD, mięta, róż i lawenda.</p></div><div class="swatches" aria-label="Fiolet, mięta, róż"><i style="--swatch:#85275f"></i><i style="--swatch:#d1e9df"></i><i style="--swatch:#f4dce7"></i></div></header>
+        <div class="stage"><iframe title="Wersja 01 — pastelowa" src="wersje/pastelowa/index.html"></iframe><span class="loading">Wczytuję podgląd…</span></div>
+        <footer class="card-footer"><span>Fiolet + pastele</span><div><a href="wersje/pastelowa/index.html" target="_blank" rel="noopener">Otwórz osobno <svg class="external-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a><button type="button" data-expand="pastelowa">Powiększ <span aria-hidden="true">⤢</span></button></div></footer>
+      </article>
+      <article class="version-card" data-version="klasyczne-zloto">
+        <header class="card-heading"><div class="version-number">02</div><div class="card-title"><h2>Klasyczne złoto</h2><p>Pierwsza luksusowa wersja, srebro i marmur.</p></div><div class="swatches" aria-label="Grafit, srebro, klasyczne złoto"><i style="--swatch:#292a2b"></i><i style="--swatch:#d9dcde"></i><i style="--swatch:#c4ad80"></i></div></header>
+        <div class="stage"><iframe title="Wersja 02 — klasyczne złoto" src="wersje/klasyczne-zloto/index.html"></iframe><span class="loading">Wczytuję podgląd…</span></div>
+        <footer class="card-footer"><span>Srebro + klasyczne złoto</span><div><a href="wersje/klasyczne-zloto/index.html" target="_blank" rel="noopener">Otwórz osobno <svg class="external-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a><button type="button" data-expand="klasyczne-zloto">Powiększ <span aria-hidden="true">⤢</span></button></div></footer>
+      </article>
+      <article class="version-card" data-version="mocne-zloto">
+        <header class="card-heading"><div class="version-number">03</div><div class="card-title"><h2>Mocne złoto</h2><p>Nasycone gradienty, napisy i złote detale.</p></div><div class="swatches" aria-label="Grafit, nasycone złoto, jasne złoto"><i style="--swatch:#292a2b"></i><i style="--swatch:#bc8a2c"></i><i style="--swatch:#f7dc88"></i></div></header>
+        <div class="stage"><iframe title="Wersja 03 — mocne złoto" src="wersje/mocne-zloto/index.html"></iframe><span class="loading">Wczytuję podgląd…</span></div>
+        <footer class="card-footer"><span>Wyraziste złote akcenty</span><div><a href="wersje/mocne-zloto/index.html" target="_blank" rel="noopener">Otwórz osobno <svg class="external-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a><button type="button" data-expand="mocne-zloto">Powiększ <span aria-hidden="true">⤢</span></button></div></footer>
+      </article>
+      <article class="version-card" data-version="szampanskie-zloto">
+        <header class="card-heading"><div class="version-number">04</div><div class="card-title"><h2>Szampańskie złoto <span class="latest">OSTATNIA</span></h2><p>Przygaszone złoto i delikatny metaliczny połysk.</p></div><div class="swatches" aria-label="Grafit, szampańskie złoto, perła"><i style="--swatch:#292a2b"></i><i style="--swatch:#b69b73"></i><i style="--swatch:#e9dbc2"></i></div></header>
+        <div class="stage"><iframe title="Wersja 04 — szampańskie złoto" src="wersje/szampanskie-zloto/index.html"></iframe><span class="loading">Wczytuję podgląd…</span></div>
+        <footer class="card-footer"><span>Spokojniejsze szampańskie złoto</span><div><a href="wersje/szampanskie-zloto/index.html" target="_blank" rel="noopener">Otwórz osobno <svg class="external-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a><button type="button" data-expand="szampanskie-zloto">Powiększ <span aria-hidden="true">⤢</span></button></div></footer>
+      </article>
+    </section>
+    <footer class="page-footer"><span>SEZAM / Porównanie kierunków wizualnych</span><span>W podglądach możesz korzystać z menu, kafelków i kalkulatora.</span></footer>
+  </main>
+</body>
+</html>

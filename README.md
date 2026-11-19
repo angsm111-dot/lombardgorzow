@@ -1,259 +1,186 @@
-# Sezam — nowa odsłona
+# SEZAM — nowa wartość
 
-Wielostronicowa strona Sezamu w Gorzowie: jasne neutralne tło, oszczędny terakotowy akcent, lokalne fonty Outfit i Manrope, zaokrąglone bryły, przestrzenna prezentacja przedmiotów, animacje przy przewijaniu i interaktywne kategorie. Zachowano podstrony i dane biznesowe.
+Autorska, responsywna strona informacyjna. Aktualny wariant luksusowy: perłowe szarości, grafit, złoto, srebro i marmurowe powierzchnie. Jasne zdjęcia na kamiennych podestach oraz szeryfowe nagłówki.
 
 ## Uruchomienie
-
-Node 20.19+, 22.12+ lub 24. Sprawdzono na Node 24.
-
-```sh
-npm ci
-npm run dev
-```
-
-`npm run build` generuje `dist/`. `npm run preview` udostępnia build. `npm test` sprawdza działający preview na porcie 4173. Testy wymagają Chromium z `/usr/bin/chromium` (lub `CHROMIUM_PATH`). `TEST_URL` pozwala testować inny adres, także ścieżkę projektu GitHub Pages.
-
-## Podstrony
-
-Strona główna, `/gotowka/`, `/skup-zlota/`, `/telefony-laptopy/`, `/serwis-gsm/`, `/czesci/`, `/na-sprzedaz/`, `/o-nas/`, `/kontakt/`, `/pytania/`, `/galeria/`, `/blog/`.
-
-Build tworzy fizyczne pliki HTML dla każdej podstrony, więc bezpośrednie adresy działają na statycznym hostingu bez reguł przekierowań. Podstrony używają wspólnej aplikacji JavaScript. Lokalna galeria ma powiększanie zdjęć. Blog zachowuje teksty odczytane z oryginału; wpisy, w których oryginalna strona nie udostępnia treści, prowadzą do źródła.
-
-## GitHub Pages
-
-Workflow `.github/workflows/pages.yml` buduje stronę po pushu do `main` i publikuje ją przez oficjalne akcje GitHub Pages.
-
-W repozytorium wybierz **Settings → Pages → Build and deployment → Source: GitHub Actions**. Jeżeli pierwszy workflow zakończył się przed aktywacją Pages, wybierz **Actions → Publish Sezam to GitHub Pages → Run workflow**.
-
-Adres po udanym wdrożeniu: `https://angsm111-dot.github.io/lombardgorzow/`.
-
-Ręczny build dla tej ścieżki:
-
-```sh
-SITE_BASE=/lombardgorzow/ npm run build
-SITE_BASE=/lombardgorzow/ npm run preview
-```
-
-Na własnej domenie użyj zwykłego `npm run build` (domyślna ścieżka `/`).
-
-## Treść i dane
-
-Źródło: lombardgorzow.com, odczyt 16.11.2026. Zdjęcia przechowywane lokalnie. Zachowano dane kontaktowe, usługi, warunki, FAQ, galerię i wpisy. Oferty sprzedaży prowadzą do istniejącego konta OLX, pełne cenniki monet i sztabek do źródła. Starsze wpisy pozostają w oryginalnym archiwum.
-
-Kalkulator używa stawek działającego kalkulatora Sezamu: 2,5% za 15 dni, 5% za 30 dni. Informacje o umowie 31-dniowej i dodatkowych 7 dniach zachowano w FAQ. Starszej, rozbieżnej tabeli oryginału nie przeniesiono; tabela opłat odpowiada kalkulatorowi.
-
-Cennik złota i srebra jest datowanym odczytem, bez automatycznej aktualizacji. Zachowano także nietypowe wartości źródłowe — firma powinna potwierdzić cennik przed wykorzystaniem jako bieżącej oferty. Połączenie z aktualnym źródłem cen wymaga osobnej integracji.
-
-Brak backendu i fikcyjnych formularzy. Kontakt przez telefon, WhatsApp, Facebook i mapy. Strona nie zbiera danych klientów.
-
-## Weryfikacja
-
-Test sprawdza 12 stron, 48 kombinacji strony i szerokości ekranu (320, 390, 768, 1440 px), kalkulator i błędne dane, cennik i przedziały wagowe, obsługę klawiatury, FAQ, galerię, teksty bloga, menu mobilne, ładowanie obrazów i kotwice. Zrzuty kontrolne trafiają do `/tmp/sezam-v3-*.png`.
-
-## Kierunek wizualny
-
-Aktualna wersja: ciepłoszare tło, białe powierzchnie, wyraźny granatowy tekst, ceglasty akcent i kontrastowe stany wyboru. Zachowano warstwowe kompozycje, zaokrąglenia i animacje.
-
-Przejrzane inspiracje: [Cruip Simple](https://github.com/cruip/tailwind-landing-page-template) (świetlne tła, warstwy, animacje wejścia) i [Shadcn Landing Page](https://github.com/leoMirandaa/shadcn-landing-page) (pływające elementy, głębia, zaokrąglenia). Nie skopiowano szablonu ani jego treści. Kompozycje i implementacja są własne, z zachowaniem zdjęć i danych Sezamu.
-
-Fonty serwowane są lokalnie z pakietów Fontsource. Animacje, ruch perspektywiczny i przewijanie respektują `prefers-reduced-motion`. Przełącznik prezentacji na głównej zmienia kategorię zdjęć, a filtr na stronie sprzedaży zawęża widoczne kategorie. Bez automatycznie przesuwającej się karuzeli.
-
-## Logo i podział treści
-
-Oryginalne logo Sezamu pobrano z `https://lombardgorzow.com/wp-content/uploads/2018/03/SezamLombard_logoRGB-x2.png` i zapisano bez zmian w `public/images/sezam-logo-original.png`. Nagłówek oraz stopka używają tego pliku.
-
-Strona główna zawiera wprowadzenie i skróty usług. Rozwinięcie oferty znajduje się w „Na sprzedaż”, opis kroków w „Gotówka i kalkulator”, opis firmy w „O nas”, FAQ na własnej stronie, a większy blok kontaktu na stronie kontaktowej. Menu zawiera bezpośrednie strony Start, Na sprzedaż, Kontakt oraz rozwijane grupy Usługi i O Sezamie. Wszystkie 12 stron jest dostępnych z nawigacji również na telefonie.
-
-## Pięć wersji głównej do porównania
-
-`/wersje/` otwiera stronę porównania z żywymi miniaturami i odnośnikami do propozycji:
-
-1. `/wersja-1/` — Atelier: butikowa kompozycja, bordowy akcent, szeryfowe nagłówki.
-2. `/wersja-2/` — Impuls: kobalt i żółty, mocna typografia i geometryczna kompozycja.
-3. `/wersja-3/` — Flow: jasny interfejs z działającym kalkulatorem opłaty.
-4. `/wersja-4/` — Po sąsiedzku: zdjęcia punktu, lokalny charakter i ciepła czerwień.
-5. `/wersja-5/` — Forma: graficzna typografia, trzy kategorie produktów i akordeon usług.
-
-Wersje są dodatkowymi propozycjami głównej. Obecna strona pod `/` zachowuje swój układ. Wspólne podstrony usług pozostają funkcjonalne. Pasek porównania pozwala przełączać propozycje i wrócić do obecnej strony. Parametr `?preview=1` ukrywa pasek w miniaturach.
-
-`npm run test:variants` sprawdza pięć propozycji, stronę porównania, 24 kombinacje rozmiaru ekranu, obrazy, przejścia do usług, przełączanie wersji, kalkulator Flow, akordeon Forma oraz zachowanie dotychczasowej głównej. Używa tej samej konfiguracji `TEST_URL` i Chromium co `npm test`.
-
-## Dodatkowe wersje inspirowane Impulsem (nr 2)
-
-`/impuls-wersje/` porównuje pięć kolejnych kierunków. Dotychczasowe propozycje pozostają pod swoimi adresami.
-
-- `/wersja-6/` — Impuls Sprint: żółty plakat, centralny nagłówek i trzy kategorie produktów.
-- `/wersja-7/` — Impuls Metro: kobaltowy hero i panel szybkiego wyboru usługi.
-- `/wersja-8/` — Impuls Pop: pomarańczowy hero, biżuteria w organicznej formie i granatowo-żółte bloki.
-- `/wersja-9/` — Impuls Grid: jasna kompozycja, duża typografia i mozaika usług.
-- `/wersja-10/` — Impuls Plakat: kobaltowy plakat i kolaż zdjęć punktu.
-
-Nowa strona porównania zawiera odnośnik do oryginalnej wersji nr 2. Pasek przełączania działa osobno dla rodzin 1–5 i 6–10. Test `npm run test:variants` obejmuje teraz 10 wersji, dwie strony porównania i 48 kombinacji rozmiarów ekranu.
-
-## Pięć nowych kierunków (11–15)
-
-`/nowe-wersje/` zawiera porównanie pięciu niezależnych propozycji:
-
-- `/wersja-11/` — Katalog: zielono-biały układ oferty z przełączaniem kategorii.
-- `/wersja-12/` — Gazeta: redakcyjna kompozycja, szeryfowa typografia i zdjęcie punktu.
-- `/wersja-13/` — Orbita: fioletowa scena z produktami i wyborem ścieżki sprzedaży lub zakupu.
-- `/wersja-14/` — Warsztat: techniczny układ, pomarańczowe akcenty i proces obsługi.
-- `/wersja-15/` — Studio: boczna nawigacja, magentowy akcent i przesuwana galeria kategorii.
-
-Wszystkie propozycje zachowują oryginalne logo i prowadzą do istniejących podstron usług. Dotychczasowe wersje i strona główna pozostają dostępne. Test `npm run test:variants` obejmuje 15 propozycji, trzy strony porównania, 72 kombinacje rozmiarów ekranu i interakcje nowych projektów.
-
-## Nowa seria 16–20
-
-`/swieze-wersje/` porównuje pięć nowych projektów pod osobnymi adresami:
-
-- `/wersja-16/` — Punkt: biel, czerwień, duża typografia i pozioma kompozycja fotografii.
-- `/wersja-17/` — Obieg: wybór jednego z czterech celów zmienia zdjęcie, opis i dalszą ścieżkę; limonkowy akcent.
-- `/wersja-18/` — Konkretnie: ultramarynowy akcent i duży rozwijany indeks usług.
-- `/wersja-19/` — Na miejscu: pomarańczowy akcent i prawdziwa fotografia punktu z informacją o dojeździe.
-- `/wersja-20/` — Drugi ruch: typograficzna kompozycja z produktami i magentowym akcentem.
-
-Projekty używają własnych układów i osobnego arkusza stylów `src/next-variants.css`. Oryginalne logo, dane kontaktowe i istniejące podstrony pozostają dostępne. Fonty Inter Tight i Space Grotesk są serwowane lokalnie. Menu mobilne obsługuje klawiaturę i Escape; animacje respektują ograniczenie ruchu. Główna pod `/` pozostaje bez zmian.
-
-`npm run test:next` sprawdza 24 kombinacje strony i szerokości, cztery stany wyboru celu, menu mobilne, klawiaturę, linki usług, akordeon, obrazy i zachowanie obecnej głównej.
-
-W tej sesji próby odczytu Awwwards, Godly i Land-book zostały zablokowane przez proxy (403); nie deklarujemy przejrzenia ich bieżących realizacji ani nie przypisujemy projektom niezweryfikowanych inspiracji. Zdjęcia punktu są oryginalnymi plikami źródłowymi o ograniczonej rozdzielczości (500 px).
-
-## Pracownia — nowe propozycje 21–25
-
-`/pracownia-wersje/` porównuje pięć autorskich stron pod nowymi adresami:
-
-- `/wersja-21/` — Własny kierunek: plakat i przewodnik z kopiowaniem listy przed wizytą.
-- `/wersja-22/` — Rzeczy z historią: redakcyjna prezentacja przedmiotu i kontekstowe działania.
-- `/wersja-23/` — Jasny rachunek: kalkulator 2,5% / 15 dni i 5% / 30 dni. Wynik jest orientacyjny; informacja o umowie na 31 dni i potwierdzeniu warunków jest widoczna przy kalkulatorze.
-- `/wersja-24/` — Tu, na Pocztowej: prawdziwe zdjęcie gablot i planer wizyty według dnia oraz sposobu dojazdu.
-- `/wersja-25/` — Działaj dalej: nawigacja zadaniowa i przygotowanie do rozmowy z serwisem według objawu usterki.
-
-Nowa seria zachowuje oryginalne logo, dane i podstrony. Nie zmienia głównej ani propozycji 1–20. Klasy nowych kompozycji mają osobne prefiksy. Żadne z narzędzi nie wysyła danych. Zdjęcia kategorii nie stanowią deklaracji dostępności produktów. Podglądy na stronie porównania są zrzutami działających stron, a każdy prowadzi do pełnego projektu.
-
-Punkty odniesienia: [Bulletproof](https://www.awwwards.com/sites/bulletproof) — wyrazistość marki; [SANTAL](https://www.awwwards.com/sites/santal) — architektoniczny porządek; [Grids](https://www.awwwards.com/sites/grids-1) — eksperymenty z siatką. Odczytano karty Awwwards; serwer obrazów odmówił dostępu, więc nie weryfikowano ich wizualnych detali. Godly i Land-book również odmówiły dostępu. Projekty nie kopiują realizacji.
-
-`npm run test:lab` sprawdza pięć stron, 20 kombinacji szerokości, obrazy, menu mobilne, klawiaturę, przejścia do usług i działanie pięciu narzędzi. Generuje również podglądy JPEG w `public/previews/` oraz zrzuty całych stron w `/tmp/sezam-lab-*.png`. Po wygenerowaniu podglądów ponów build przed publikacją. Zmienna `TEST_URL` i `CHROMIUM_PATH` działają jak w pozostałych testach.
-
-## Wersja 26 — Dobry ruch
-
-`/wersja-26/` jest osobną propozycją o miękkiej kompozycji bento, zaokrąglonych panelach, warstwowych zdjęciach, subtelnych cieniach i animacji respektującej ograniczenie ruchu. Wybór celu zmienia opis i ścieżkę usługi; natywny dialog pomaga przygotować się do wizyty. Zachowano oryginalne logo, dane kontaktowe i podstrony. Nowy moduł `src/soft26.js` i style `src/soft26.css` nie zmieniają dotychczasowych propozycji.
-
-Przejrzano karty ThemeForest: [Frameloft](https://themeforest.net/item/frameloft-creative-agency-photography-react-template/65651542) (bento i interaktywne sekcje) oraz [Cashelrie](https://themeforest.net/item/cashelrie-pawn-shop-wordpress-theme/21837720) (kontekst branżowy). Karty odczytano przez wyszukiwanie; bezpośredni dostęp ze środowiska był blokowany. Implementacja jest autorska, bez użycia płatnego kodu lub zasobów szablonów.
-
-Weryfikacja wersji 26: build, zrzuty desktop/mobile, szerokości 320/390/768/1440 px, obrazy, cztery stany wyboru celu, cztery warianty przewodnika, dialog i Escape, mobilne menu, przejście do serwisu oraz zachowanie głównej.
-
-## Wersja 27 — centrum możliwości
-
-`/wersja-27/` to osobny projekt o strukturze serwisu handlowego: menu rozwijane z kategoriami, ręcznie przełączany baner fotograficzny, kalkulator i suwak kwoty, osiem kategorii z wyszukiwaniem i filtrami, panel szczegółów, porównanie ścieżek usług dla 2–3 kategorii, cztery instrukcje procesu, powiększenie wnętrza oraz panel kontaktu. Porównanie dotyczy usług, nie dostępności produktów ani ich cen. Kalkulator zachowuje stawki lombardgorzow.com: 15 dni / 2,5% oraz 30 dni / 5%, z informacją o umowie na 31 dni i potwierdzeniu warunków w punkcie.
-
-Przed projektowaniem odczytano https://sezamgold.pl/beta/ i https://sezam.com.pl/beta/ przez narzędzie WWW, a następnie odtworzono lokalnie i obejrzano ich źródła z repozytoriów właściciela `angsm111-dot/sezamgold` oraz `angsm111-dot/sezam.com.pl` (`dist/w1/`). Bezpośredni dostęp HTTP ze środowiska był blokowany. Kategorie fotograficzne, zdjęcie pierścionków, wnętrze i grafiki przedmiotów pochodzą z tych projektów Sezamu; kopie zoptymalizowano w `public/images/portal27/`. Nie zmieniano repozytoriów źródłowych ani bet na hostingu. Dodatkowy punkt odniesienia dla struktury usług: https://www.cashconverters.co.uk/.
-
-`npm run test:portal` sprawdza pięć szerokości 320–1440 px, obrazy, menu, trzy tematy banera, kalkulator i suwak, wyszukiwanie z pustym wynikiem, filtry, panele kategorii, limit i tabelę porównania, cztery procesy, galerię, panel kontaktowy, mobilną nawigację i zachowanie głównej oraz wersji 26. Zrzuty są w `/tmp/sezam27-*.png`.
-
-## Wersja 28 — interaktywna witryna
-
-`/wersja-28/` przedstawia autorską przestrzenną ekspozycję: centralny przedmiot na podium, drugi plan, cztery kategorie przełączane przyciskami i strzałkami, hotspot z przygotowaniem przedmiotu, cztery cele wizyty zmieniające treść i akcent kolorystyczny. Nie korzysta z układu źródeł beta ani ze struktury wersji 27. Zdjęcia kategorii pochodzą z istniejących zasobów Sezamu.
-
-Wybory z ekspozycji synchronizują się z „Moim planem”: celem i przedmiotem wizyty, wskazówkami, checklistą i paskiem postępu. Zmiana wyboru zeruje przygotowania; plan można skopiować do schowka. Wybór naprawy ustawia telefon, a przejście do innego przedmiotu wraca do zastawu. Dla sprzedaży telefonu i laptopa link kieruje do elektroniki. Plan działa lokalnie, bez wysyłania danych i bez fikcyjnej rezerwacji. Ruch i paralaksa respektują `prefers-reduced-motion`.
-
-`npm run test:showroom` sprawdza pięć szerokości 320–1440 px, obrazy, cztery cele i przedmioty, strzałki, hotspot, synchronizację planu, checklistę, postęp i reset, rzeczywistą zawartość schowka, zdjęcie w dialogu, mobilne menu, Escape i przejście do serwisu. Zrzuty są w `/tmp/sezam28-*.png`. Pozostałe propozycje i główna pozostają dostępne.
-
-## Wersje 29 i 30 — jasny i ciemny kierunek
-
-`/wersja-29/` rozwija charakter jasnej referencji użytkownika: ciepłe światło, delikatny punktowy wzór, wyraźna oferta, pomarańczowe działania i boczny panel z rzeczowymi informacjami. `/wersja-30/` ma osobną, centralną kompozycję w ciemnej tonacji, złote działania, kontakt przez WhatsApp oraz pas faktów o punkcie. Oba projekty zachowują oryginalne logo, bez kopiowania układu i treści ze zrzutów. Nie przeniesiono niezweryfikowanych liczb klientów, ocen, czasu obsługi ani twierdzeń o najniższej cenie.
-
-Działają: kalkulator 2,5% / 15 dni i 5% / 30 dni według lombardgorzow.com (z informacją o umowie 31-dniowej), suwak kwoty, wybór kategorii, pytania rozwijane i menu mobilne. Wersje mają wzajemne odnośniki. `npm run test:duo` sprawdza dwa adresy, osiem kombinacji szerokości, obrazy, kalkulator, błędne dane, suwak, trzy kategorie, FAQ, menu, Escape i przejście do serwisu. Zrzuty: `/tmp/sezam-duo-*.png`.
-
-## Wersja 31 — szarości i złoto
-
-`/wersja-31/` zachowuje centralną kompozycję ciemnej wersji 30 w jasnej, chłodnej palecie: białe powierzchnie, perłowe szarości, grafitowa typografia, stonowane szczotkowane złoto, delikatne obramowania i cienie. Ciemna wersja 30 pozostaje dostępna. Sprawdzono 320/390/768/1440 px, obrazy, kalkulator, przełączanie kategorii, menu mobilne i Escape. Zrzuty: `/tmp/sezam31-*.png`.
-
-### Rozwinięcie wersji 31 — metaliczne powierzchnie i nawigacja
-
-Dodano chłodne gradienty szarości i srebra w tle, pasie faktów, kartach, kalkulatorze i sekcji kontaktowej; złote gradienty tytułu, przycisków i ikon; krawędzie ze światłem i warstwowe cienie. Złote wypełnienia pod białymi napisami są ciemniejsze dla czytelności. Przyciski mają przejście świetlne po najechaniu, karty unoszą się, a menu łagodnie się rozwija. Ruch jest ograniczany przez `prefers-reduced-motion`.
-
-Nawigacja wersji 31: przyklejony pasek, kapsułowe skróty do sekcji z oznaczeniem oglądanej sekcji, rozwijane menu z opisami usług i kontaktem telefonicznym, zamykanie przez Escape i kliknięcie poza menu. Wersje 29 i 30 zachowują dotychczasowy układ. `npm run test:silver` sprawdza 5 szerokości, widoczność przycisku menu także przy 320 px, przejście do kalkulatora, kalkulację, kategorie, menu mobilne, Escape, kliknięcie poza menu i przejście do usługi. Zrzuty: `/tmp/sezam31-polish-*.png`.
-
-### Odciążenie wersji 31
-
-Usunięto duże metaliczne gradienty i ciemnozłote napisy. Tło jest białe, nagłówki grafitowe i szaroniebieskie, główne przyciski grafitowe. Jasne szampańskie złoto zostało w ikonach i krótkiej linii pod tytułem. Uproszczono powierzchnie kart, kalkulatora i menu; ograniczono cienie, rozjaśniono obramowania i dodano przestrzeń. Zachowano funkcje i sprawdzenie `test:silver` dla pięciu szerokości. Czytelne teksty informacyjne mają ciemniejszy odcień szarości od dekoracyjnych detali.
-
-## Wersja 32 — fotografia i cztery sprawy
-
-`/wersja-32/` to nowa kompozycja: duża fotografia po lewej, cztery rozwijane ścieżki usług po prawej i poziomy kalkulator pod pierwszym ekranem. Wybór usługi zmienia zdjęcie, szczegóły i trzy wskazówki „Przed wizytą”. Instrukcje można również przełączać bez powrotu do góry. Jasna, oszczędna paleta: biel, chłodne szarości, grafit i złoto tylko w drobnych detalach. Zdjęcia pochodzą z zasobów Sezamu; nie reprezentują aktualnego stanu magazynowego. Nowe pliki: `src/concept32.js`, `src/concept32.css`, `public/images/concept32/`.
-
-Sprawdzono build, 320/390/768/1024/1440 px, obrazy, cztery panele i zdjęcia, synchronizację wskazówek, kalkulator obu okresów i błędne kwoty, mobilne menu, Escape i przejście do serwisu. Zrzuty: `/tmp/sezam32-*.png`. Starsze propozycje zachowano.
-
-## Wszystkie projekty w jednym miejscu
-
-`/wszystkie-wersje/` to interaktywny przełącznik 37 propozycji i obecnej głównej. Jedna ramka ładuje tylko wybrany projekt. Lista ma wyszukiwanie po numerze lub nazwie, a podgląd oferuje szerokości 1440 px (komputer) i 390 px (telefon), skalowane do dostępnego miejsca. Można przewijać stronę i sprawdzać jej interakcje, przejść strzałkami do sąsiedniego projektu, zresetować podgląd oraz otworzyć wersję osobno.
-
-Parametry `?wersja=31&widok=telefon` zachowują wybór w linku. Bez parametrów otwiera się najnowsza propozycja. Na telefonie lista projektów otwiera się przyciskiem. `npm run test:all-versions` sprawdza załadowanie wszystkich 38 projektów, nagłówki, linki, zaznaczenie, przełączanie szerokości, strzałki i granice, wyszukiwanie, pusty wynik, cztery rozmiary ekranu, mobilną listę, Escape oraz zachowanie wyboru po odświeżeniu. Zrzuty: `/tmp/sezam-all-*.png`.
-
-
-## Wersje 33–37 — pięć niezależnych kompozycji
-
-Nowe układy zaprojektowano bez wzorowania się na układach stron Sezamu. Z istniejącego projektu wykorzystano treści, logo, dane kontaktowe i zdjęcia przedmiotów. Główna i wersje 1–32 pozostają dostępne.
-
-- `/wersja-33/` — Mapa spraw: ilustracyjna mapa usług i aktualizowany panel przygotowania do wizyty.
-- `/wersja-34/` — Bilet do Sezamu: wybór potrzeby i przedmiotu tworzy listę na wizytę, którą można skopiować.
-- `/wersja-35/` — Porozmawiajmy: krótki przewodnik prowadzi od potrzeby przez przedmiot do właściwej usługi, z cofaniem i restartem.
-- `/wersja-36/` — Cztery drzwi: rozwijane panele pokazują usługę i jej trzy następne kroki.
-- `/wersja-37/` — Przedmiot × potrzeba: interaktywna tabela dobiera usługę do przedmiotu i zamiaru klienta.
-
-Nie dodano fikcyjnych wycen, rezerwacji ani dostępności produktów. Mapa jest oznaczona jako schemat; rzeczywisty dojazd otwiera Mapy Google. Przewodnik działa lokalnie, bez pozornego AI i wysyłania danych.
-
-`npm run test:new-five` sprawdza 20 zestawień strony i szerokości (320, 390, 768, 1440 px), obrazy, menu i Escape oraz najważniejsze interakcje wszystkich pięciu wersji, w tym kopiowanie listy do schowka. Przełącznik obejmuje teraz 37 propozycji oraz obecną główną. Weryfikacja wizualna: komputer i telefon, zrzuty `/tmp/sezam-new-*.png`.
-
-
-## Wersja 38 — Nowy obrót
-
-Samodzielny portal handlowy: gęstsza nawigacja, duża fotograficzna mozaika, ekspozycje skupu i serwisu, przewijane kategorie, przegląd możliwości oraz zdjęcie rzeczywistego punktu. Paleta śliwki, kremu i złota, warstwowe fotografie i mocniejsza typografia zastępują oszczędne układy wcześniejszych wersji. Mobilny pasek oferuje telefon, dojazd, kategorie i prawdziwe ogłoszenia OLX. Nie dodano fikcyjnych produktów ani cen.
-
-Wyszukiwanie rozpoznaje kategorie i intencje usługowe, a dla nieznanego hasła wyświetla wyjaśnienie i telefon. Kategorie aktualizują zdjęcie, opis i właściwą ścieżkę usługi. Zachowano starsze wersje, a przełącznik obejmuje 38 propozycji i obecną główną.
-
-Próby dostępu do lombard-slonce.pl, Allegro i Back Market zostały zablokowane przez środowisko; nie oparto projektu na nieobejrzanych widokach. `npm run test:market`: pięć szerokości 320–1440 px, obrazy, kategorie, wyszukiwarka i brak wyników, mobilne menu, Escape, FAQ i integracja przełącznika. Weryfikacja wizualna: `/tmp/sezam38-390.png` i `/tmp/sezam38-1440.png`.
-
-
-## Wersje 39–43 — pięć niezależnych kierunków materiałowych
-
-Nowe propozycje powstały w osobnym module `src/material-five.js` i `src/material-five.css`. Nie korzystają z rendererów ani kompozycji poprzednich wersji. Zachowano logo, zweryfikowane treści, dane punktu, fotografie i istniejące usługi. `public/images/materials/marble.svg` jest własną, dekoracyjną teksturą marmuru.
-
-- `/wersja-39/` — **Marmurowy salon**: architektoniczna, łukowa kompozycja zdjęć, szeryfowa typografia, mineralna biel i matowe złoto. Przewodnik w modalnym oknie dobiera przygotowanie do rodzaju przedmiotu.
-- `/wersja-40/` — **Srebrny pulpit**: boczna nawigacja, zwarta plansza usług, szczotkowane srebro i grafit. Dwa pola dobierają usługę i kroki wizyty; naprawa wymusza telefon. Na mobile nawigacja przechodzi do dolnego paska.
-- `/wersja-41/` — **Rzeczy — magazyn**: duży masthead, fotograficzna okładka i asymetryczny skład redakcyjny. Interaktywny indeks przedmiotów pokazuje odpowiednie działania i przygotowanie.
-- `/wersja-42/` — **Panorama Sezamu**: fotografia na cały ekran, szklany panel i dolny dok usług. Sceny przełączają jednocześnie zdjęcie, treść, link i kolejne kroki. Bez automatycznego przewijania; dostępne strzałki i klawiatura.
-- `/wersja-43/` — **Obiekty w obiegu**: centralny postument ze srebra, ciepła aureola i wielka konturowa typografia. Wybór obiektu otwiera właściwe możliwości sprzedaży, zastawu, zakupu i — wyłącznie dla telefonu — naprawy.
-
-Kontekst inspiracyjny: dostępne strony opisów realizacji Awwwards [Santal](https://www.awwwards.com/sites/santal/), [Delta Cafés](https://www.awwwards.com/sites/delta-cafes/) i [Bulletproof](https://www.awwwards.com/sites/bulletproof/). Kierunki pracy: architektoniczne kadrowanie i materiał, rytm opowiadania o kategorii, odważna skala typografii. Nie kopiowano layoutów. Pliki podglądów Awwwards oraz Godly, Land-book i bezpośrednie strony dodatkowych marek były niedostępne w środowisku; nie deklarujemy ich wizualnego przejrzenia.
-
-`npm run test:materials` sprawdza pięć stron przy szerokościach 320/390/768/1024/1440 px, dekodowanie zdjęć, brak poziomego przepełnienia, menu modalne, fokus i Escape, przygotowanie do wizyty, dobór usługi, indeks, panoramę z zawijaniem i obsługą klawiaturą oraz działania dla obiektów. `npm run test:all-versions` weryfikuje wszystkie 44 strony (43 propozycje i obecna główna) i przełącznik. Weryfikacja wizualna: `/tmp/sezam-material-{39..43}-{390,1440}.png`.
-
-
-## Wersje 44–48 — pięć nowych struktur na podstawie kierunku z przesłanych referencji
-
-Nowy, niezależny moduł `src/studio-five.js` / `src/studio-five.css`. Referencjami wizualnymi były przesłane przez użytkownika zrzuty prezentacji szablonów: większa różnorodność kompozycji, warstwy, wyraźne elementy interfejsu, bogatsze kadry i mocniejsza typografia. Nie wykorzystano kodu szablonów ani wcześniejszych rendererów. Zachowano logo, dane, treści, zdjęcia i rzeczywiste ścieżki usług Sezamu.
-
-- **44 / Sezam Connect** — centralny ekran w stylistyce aplikacji, orbitalne linie, pływające karty i panel usług. Cztery przyciski aktualizują opis, zdjęcie, przygotowanie i właściwy link.
-- **45 / Forma i wartość** — wielka trzywierszowa typografia, pionowa fotografia, nakładające się obiekty i metaliczna taśma z aktywną nawigacją. Wybór potrzeby otwiera właściwą ekspozycję usługi.
-- **46 / Dom wartości** — butikowy układ z szeryfową typografią, merchandisingiem kategorii i złotą paletą. Filtry grupują kategorie, a dialog pokazuje konkretne działania, w tym naprawę wyłącznie dla telefonu. To kategorie, nie fikcyjne produkty.
-- **47 / Cześć, Gorzów** — lokalny portal z bocznym indeksem i fotografią rzeczywistego punktu. Przewodnik do wizyty zmienia wskazówki według potrzeby i kopiuje je do schowka; bez formularza rezerwacji i wysyłania danych.
-- **48 / Znajdź swoją sprawę** — wyszukiwanie jako główne działanie, metaliczna ilustracja i rozbudowany katalog. Rozpoznaje intencje usługowe i kategorie, ma gotowe podpowiedzi i uczciwy komunikat dla nieznanego hasła.
-
-Sprawdzono `npm run test:studio`: 5 stron × 5 szerokości 320/390/768/1024/1440 px, obrazy, brak poziomego przepełnienia, modalne menu i fokus/Escape, wszystkie warianty usług, filtry i dialogi, przewodnik i rzeczywisty schowek, wyszukiwarkę i brak dopasowania. Test przełącznika obejmuje wszystkie 49 stron (48 propozycji i obecną główną). Osobno skontrolowano finalny mobilny układ tekstu i grafiki 45/46 po poprawkach wizualnych. Zrzuty: `/tmp/sezam-studio-{44..48}-{390,1440}.png`.
-
-
-### Przebudowa 44–48 po wskazaniu ThemeForest
-
-Wersje 44–48 przebudowano pod istniejącymi adresami. Dodano odrębny arkusz `src/themeforest-direction.css`, zmieniono konstrukcje pierwszych ekranów 46 i 48 oraz układy i stylistykę 44, 45 i 47. Kierunki: Nosic (panel w perspektywie), Bulkit (trzy pionowe kadry), Vuexy (pulpit usług z nawigacją i widgetami), City Listing (fotograficzny nagłówek i zaokrąglone karty) i Appoi (turkusowe pole oraz telefon z działającą nawigacją). Nie dodano fikcyjnych statystyk, ofert ani modułów logowania.
-
-Przeszukano oficjalny ThemeForest.net i otwarto karty Bulkit, Nosic, City Listing, Leverage i Landrick oraz ich strony demo przez wyszukiwarkę. Bezpośredni podgląd przeglądarki nie zadziałał; nie deklarujemy przetestowania interakcji zewnętrznych dem. Dla stylu wizualnego wykorzystano przesłane przez użytkownika screeny; kod i materiały szablonów nie zostały skopiowane.
-
-Źródła:
-- https://themeforest.net/item/nosic-responsive-bootstrap-5-landing-page-template/53366900
-- https://themeforest.net/item/bulkit-agency-startup-and-saas-template/21278677
-- https://themeforest.net/item/city-listing-directory-template/19468136
-- https://themeforest.net/item/leverage-creative-agency-corporate-and-startups-multipurpose-template/25988106
-- https://themeforest.net/item/landrick-responsive-saas-and-software-template/24438577
-
-Ponownie sprawdzono pięć szerokości, interakcje, dialogi, schowek i wyszukiwarkę; dodatkowo zweryfikowano cztery prawdziwe linki w telefonie wersji 48. Podgląd wizualny zestawienia: `/tmp/themeforest-five-overview.jpg`; poszczególne zrzuty: `/tmp/sezam-studio-{44..48}-{390,1440}.png`.
+Statyczna zawartość znajduje się w `dist/`. Serwuj katalog dowolnym serwerem HTTP. Brak zależności JavaScript. Po zmianach w `src/` uruchom `python3 scripts/build-pages.py`. Generator tworzy strony w `dist/` ze wspólnego szablonu.
+
+## Działające elementy
+- Cztery zakładki usług z obsługą klawiatury.
+- Kalkulator: 50–100 000 zł; domyślnie 2 000 zł i 15 dni. Stawki 2,5% za 15 dni oraz 5% za 30 dni, zgodne z tabelą źródłową. Walidacja kwoty.
+- Podgląd szczegółów monet, sztabek i biżuterii.
+- Formularz przygotowujący wiadomość w WhatsApp; niczego sam nie wysyła ani nie zapisuje.
+- Godziny według grafiku w strefie Europe/Warsaw, z informacją o potwierdzeniu godzin świątecznych.
+- Menu mobilne, FAQ, telefon, linki do cennika i dojazdu.
+
+## Źródła treści
+Sprawdzone 16.11.2026:
+- https://sezam.com.pl/
+- https://sezam.com.pl/kalkulator-oplat/
+- https://sezam.com.pl/contact-us-3/
+- https://sezam.com.pl/skup-sprzedaz-zlota/
+- https://sezam.com.pl/pozyczki-pod-zastaw/
+- https://sezam.com.pl/skup-sprzedaz-telefonow/
+- https://sezam.com.pl/serwis-telefonow-komorkowych/
+- https://sezam.com.pl/faq/
+- https://sezam.com.pl/oferta-olx-allegro/
+
+Źródło używa 31 dni w FAQ i 30 dni w tabeli kalkulatora. Nowy kalkulator wiernie stosuje tabelę 15/30 dni i zawiera informację o potwierdzeniu warunków w punkcie. Ceny metali na nowej podstronie `/cennik-zlota/` są pobierane na żywo z tego samego publicznego feedu co sezam.com.pl. Nie podano niezweryfikowanych liczb opinii ani ocen.
+
+## Grafiki
+Wbudowane ImageGen, grafiki aranżacyjne, nie katalog konkretnych produktów:
+- `dist/assets/sezam-jewelry.webp`: photorealistic yellow gold wedding bands, solitaire ring and chain on a cool white-gray stone circular plinth, soft window light, architectural arch, no text or logos.
+- `dist/assets/sezam-tech.webp`: graphite and silver smartphones with a silver laptop on a pale marble circular plinth, cool white architectural studio, no navy, no text or logos.
+Odrzucone zdjęcie kobaltowe nie jest częścią strony.
+
+## Sprawdzenie
+- Przegląd desktop 1363 px i mobilnego viewportu 390 px (375 px treści po odjęciu przewijania).
+- Brak przewijania poziomego, wszystkie obrazy załadowane.
+- 5 000 zł / 30 dni = 250 zł opłaty, 5 250 zł łącznie.
+- 10 000 zł / 30 dni = 500 zł opłaty, 10 500 zł łącznie.
+- 2 000 zł / 15 dni = 50 zł opłaty, 2 050 zł łącznie.
+- Kwota 100 001 zł wyświetla błąd i wyłącza kontakt z nieprawidłowym wynikiem.
+- Sprawdzono przełączanie oferty, FAQ, modal szczegółów, przejście do formularza i zamykanie menu mobilnego.
+- Nie wysyłano wiadomości do firmy podczas testów.
+
+## Poprzednia aktualizacja pastelowa (zachowana w historii Git)
+- Dokładny kolor ze strony https://sezamgold.pl/beta/: `--plum: #85275f`, ciemny wariant `#632047` (odczyt stylów przeglądarki 16.11.2026).
+- Kafelki usług: lawenda, mięta, róż, błękit; karty produktowe: pastelowe złoto, mięta, lawenda.
+- Kolor panelu zmienia się z usługą; pastelowy kalkulator, sekcja doświadczenia i kontakt.
+- Zdjęcia produktów pochodzą z publicznej strony SEZAM GOLD: `krugerrand-cutout.webp`, `gold-bars-cutout.webp`, `jewelry-cutout.webp`, pobrane do lokalnych assets.
+- Zdjęcie biżuterii na jasnym podeście zachowane w hero.
+
+## Aktualizacja luksusowa — 16.11.2026
+- Perłowe szarości i grafit z akcentami złota `#8a7047` oraz srebra `#d9dcde`.
+- Marmurowe tła, metaliczne przyciski, cienkie ramki i prostokątne kafelki.
+- Nagłówki P052 / URW Base35, lokalne pliki WOFF i dołączona licencja.
+- Nowa tekstura `assets/pearl-marble.webp` wygenerowana w ImageGen: jasny marmur z delikatnymi szarymi i złotymi żyłkami.
+- Układ komponentów wydzielony w `components.css`, aktualne wykończenie w `luxury.css`.
+- Zachowane zdjęcie biżuterii na kamiennym podeście i wszystkie funkcje strony.
+- Ponownie sprawdzono desktop 1363 px i mobilną szerokość 375 px, brak poziomego przewijania, przełączanie oferty, modal sztabek oraz kalkulator 5 000 zł / 30 dni = 250 zł opłaty, 5 250 zł łącznie.
+- Podgląd zatwierdzonego wyglądu: `docs/sezam-luxury-preview.jpg`.
+
+### Mocniejsze złoto
+Na prośbę użytkownika nasycono metaliczne złote gradienty i dopasowano złote napisy, logo, linie, obramowania oraz aktywne elementy do jednej cieplejszej palety. Przegląd wizualny wykonano w podglądzie przeglądarki.
+
+### Korekta złota szampańskiego
+Po uwadze o zbyt żółtym kolorze obniżono nasycenie złotych akcentów, zachowując metaliczny połysk. Gradienty, litery, ikony, linie i obramowania mają teraz spójny szampański odcień.
+
+## Porównanie czterech ostatnich wersji
+Strona `/porownanie/` prezentuje cztery dokładne kopie opublikowanych wersji: pastelową, klasyczne złoto, mocne złoto i szampańskie złoto. Mapowanie do commitów znajduje się w `dist/porownanie/versions.json`. Strona główna pozostaje w aktualnej wersji szampańskiej.
+
+Porównanie obejmuje siatkę 2×2, powiększenie wybranej wersji, widoki komputer/telefon, wspólne przejście do sekcji, synchronizację przewijania i otwieranie każdej wersji osobno. Podglądy zachowują działające menu, formularze i kalkulatory.
+
+Sprawdzono wszystkie cztery załadowane podglądy, przejście do kalkulatora, wspólne przewijanie, powiększenie, przełączanie urządzenia z zachowaniem sekcji oraz brak poziomego przewijania strony porównania przy szerokości 375 px. Zweryfikowano zgodność wszystkich plików historycznych z commitami i istnienie lokalnych zasobów.
+
+
+## Cztery nowe koncepcje 05–08 — 16.11.2026
+Strona `/koncepcje/` prezentuje cztery odrębne architektury, z oddzielnymi układami i stylami:
+- **05 Katalog** (`/koncepcje/katalog/`): wyszukiwarka, boczne filtry, siatka kategorii, ceglasty akcent i pastelowe karty. Wyszukiwanie reaguje na polskie znaki, obsługuje pusty wynik i reset filtrów.
+- **06 Atelier** (`/koncepcje/atelier/`): pionowa nawigacja, ciemna galeria z trzema ekspozycjami, duża typografia szeryfowa, oliwkowe i szałwiowe tony.
+- **07 Punkt** (`/koncepcje/punkt/`): miętowy pierwszy ekran z wyborem usługi w trzech krokach. Formularz podpowiada następny krok i otwiera przygotowaną wiadomość w WhatsApp; nie wysyła danych samodzielnie.
+- **08 Magazyn** (`/koncepcje/magazyn/`): nagłówek w stylu wydawnictwa, kolumny redakcyjne, fotografia na kamieniu, kremowy papier i bordo.
+
+Każdy projekt ma ofertę, kalkulator, historię, pytania i kontakt. HTML generuje `python3 scripts/build-concepts.py`; osobne style każdego projektu pozostają w jego katalogu. Wspólne są wyłącznie elementy bazowe i funkcje (`shared/`), nie konstrukcja strony. Nie dodano fikcyjnych stanów magazynowych ani aktualnych cen.
+
+Nowe porównanie ma układ 2×2, powiększanie, widoki telefonu i komputera, przejście do tego samego tematu oraz opcjonalne wspólne przewijanie. Synchronizacja uwzględnia różną kolejność sekcji. Domyślnie każdą koncepcję przewija się osobno. Zachowano wcześniejsze wersje 01–04 pod `/porownanie/` i dodano przejście między zestawami.
+
+### Inspiracje organizacją treści
+Sprawdzono 16.11.2026 treść i strukturę https://www.otomoto.pl/, https://www.mobile.de/, https://allegro.pl/ i https://www.olx.pl/. Obejrzenie układu w przeglądarce było możliwe dla Otomoto i OLX; mobile.de zwróciło Access Denied, Allegro błąd HTTP2. Porównanie wyszukiwania, filtrów, kategorii i ścieżek użytkownika posłużyło do zaprojektowania różnych koncepcji SEZAM; nie kopiowano layoutów ani identyfikacji tych serwisów. Treść usług pochodzi z opisanych wcześniej źródeł SEZAM.
+
+### Weryfikacja nowych koncepcji
+- Przejrzano wszystkie pierwsze ekrany na komputerze i telefonie oraz cztery sekcje kalkulatorów.
+- Mobilna szerokość każdej strony: 375 px; szerokość dokumentu 375 px, brak poziomego przepełnienia. Wszystkie obrazy załadowane.
+- Wyszukiwanie „telefon” zwraca dwie kategorie; zapytanie bez wyników pokazuje stan pusty; reset przywraca sześć kategorii.
+- Galeria przechodzi z biżuterii do monet. Modal oferty poprawnie otwiera się i zamyka.
+- Wybór usługi „Potrzebuję pożyczki” → „Telefon” pokazuje właściwe zalecenia; reset przywraca nieaktywny przycisk do czasu wyboru.
+- Kalkulator: 5000 zł / 30 dni = 250 zł opłaty i 5250 zł łącznie; kwota 0 wyświetla błąd i usuwa odnośnik kontaktowy z nieprawidłowym wynikiem.
+- Poprawiono odstępy w tekstach po ukryciu łamań linii i odmianę licznika kategorii.
+- Składnia obu skryptów JS, lokalne odnośniki/zasoby i `git diff --check`: bez błędów.
+- Podgląd: `docs/sezam-new-concepts-preview.jpg`.
+
+
+## Pięć odważnych projektów 09–13 — 16.11.2026
+Nowy zestaw dostępny pod `/odwazne/`, przygotowany na podstawie trzech załączonych przez użytkownika zrzutów inspiracji (Ticker/Lateral, TopLevel/Tovo, Rocket LMS/Grupo/StoreGo). Przejęto kierunek wizualny — nasycone kolory, ukośne kompozycje, nakładające się panele, światło, głębię i fotografię pełnoekranową. Nie kopiowano cudzych nazw, tekstów, kodu ani identyfikacji.
+
+| Projekt | Układ i charakter | Interakcja |
+| --- | --- | --- |
+| 09 Pryzmat | Fioletowa scena, neonowy łuk, wyśrodkowany nagłówek, wachlarz trzech barwnych kart | Wybór karty aktywuje ją i wysuwa na pierwszy plan |
+| 10 Fala | Turkusowa organiczna przestrzeń, asymetryczna kompozycja ukośnych paneli, jasna strona | Wybór przedmiotu pokazuje wskazówki przed wyceną i odpowiedni odnośnik WhatsApp |
+| 11 Noc | Fotografia zegarka na cały ekran, ciemna scenografia i czerwone akcenty, pasek trzech historii | Zmiana historii aktualizuje nagłówek, opis i działanie; zegar pokazuje czas Europe/Warsaw |
+| 12 Orbita | Ciemna zieleń, limonkowa typografia, szklane kafle wokół przestrzennego znaku, przesunięte rzędy usług | Cztery usługi na orbicie zmieniają opis i otwierane szczegóły |
+| 13 Studio | Koralowo-różowy plakat, duże litery, kolaż produktów, naklejki i pasek tekstu | Filtry Kruszec/Technologia/Wszystko zmieniają widoczne kategorie |
+
+Każdy projekt ma osobny HTML i CSS. Wspólne są podstawowe style, sprawdzone opisy oferty, modal i kalkulator. Generator `python3 scripts/build-bold.py` odtwarza pięć stron. Podgląd `/odwazne/` ma powiększanie, widok komputera/telefonu i wspólne przejście do oferty, kalkulatora oraz kontaktu. Starsze zestawy zachowano, z przejściami między porównaniami.
+
+### Nowe grafiki
+Wbudowany ImageGen; aranżacje, nie deklaracja dostępności konkretnych produktów. Zoptymalizowane WebP i używane lokalnie:
+- `dist/assets/nocturne-watch.webp` — 1774×887, RGB. Prompt: panoramic cinematic unbranded steel wristwatch on black polished stone, right-side diagonal composition, dark left negative space, crimson and copper rim lighting, sharp metal texture, no text/logos.
+- `dist/assets/color-tech.webp` — 1254×1254, RGBA. Prompt: transparent photoreal cutout of generic black phone, open silver laptop and white earbuds, dynamic diagonal composition, turquoise/violet/coral rim lighting, abstract screen wallpaper, individual soft shadows, no text/logos.
+
+### Weryfikacja
+- Przejrzano pięć pierwszych ekranów oraz sekcje ofert na komputerze i pięć mobilnych kompozycji.
+- Wszystkie mobilne dokumenty mają 375 px szerokości treści i 375 px scrollWidth, wszystkie obrazy załadowane.
+- Sprawdzono każdą z pięciu odrębnych interakcji, szczegóły monet i zamykanie modalu.
+- Kalkulator: 5000 zł / 30 dni = 250 zł opłaty, 5250 zł łącznie. Wartość 0 pokazuje błąd i usuwa odnośnik z nieprawidłowym wynikiem.
+- Sprawdzono powiększenie projektu oraz skok do sekcji w porównaniu.
+- Poprawiono mobilną wielkość nagłówka Studio, zastąpiono automatyczne kolorowe emoji kontrolowanymi znakami SVG i odsunięto skrajny kafel Orbity od krawędzi.
+- Składnia JS, identyfikatory, kotwice i lokalne ścieżki zasobów oraz `git diff --check` sprawdzone bez błędów. Nie wysyłano wiadomości podczas testów.
+- Końcowy podgląd: `docs/sezam-five-bold-preview.jpg`.
+
+
+## Dziesięć kolejnych projektów 14–23 — 16.11.2026
+Nowa galeria `/kolejne/` uzupełnia dotychczasowe zestawy. Każdy projekt ma własny układ HTML i osobny arkusz CSS. Generator `python3 scripts/build-ten.py` odtwarza strony na podstawie współdzielonych, zweryfikowanych elementów treści z `scripts/design_utils.py`.
+
+| Projekt | Kompozycja i sposób przeglądania |
+| --- | --- |
+| 14 Aurora | Opalizujące pastele, centralna typografia szeryfowa i trzy okrągłe wyspy przedmiotów; wybór kategorii zmienia scenę i główne zdjęcie |
+| 15 Mozaika | Asymetryczna ściana barwnych kafli; osobne akcje skupu, elektroniki, biżuterii i kalkulatora |
+| 16 Panorama | Trzy fotograficzne panele rozwijane w poziomie; na telefonie układ pionowy |
+| 17 Chrom | Srebrno-liliowe studio, duże konturowe litery i karuzela trzech kategorii |
+| 18 Rytm | Cztery pełne szerokości pasy typograficzne z rozwijaną treścią: Sprzedaj, Kup, Zastaw, Napraw |
+| 19 Ogrody | Album z przechylonym zdjęciem, taśmą, okrągłym kadrem i naturalnymi odcieniami oliwki oraz terakoty |
+| 20 Impuls | Limonkowa fotografia, duży plakatowy nagłówek i dolny panel wyboru usługi |
+| 21 Aksamit | Bordowo-różowa fotografia biżuterii, wielka typografia szeryfowa i kartka z zaproszeniem |
+| 22 Sygnał | Interaktywny wybór tematu w kompozycji rozmowy; lokalne odpowiedzi i przejście do konkretnej usługi |
+| 23 Horyzont | Monumentalny napis wypełniony fotografią złota, szeroki kadr i poziomy indeks usług |
+
+Porównanie pozwala obejrzeć wszystkie projekty, powiększyć jeden, wybrać komputer/telefon, przejść wspólnie do oferty lub kontaktu oraz zsynchronizować przewijanie. Kalkulator w każdej wersji otwiera się w oknie. Zachowano wcześniejsze serie i dodano do nowej galerii link z `/odwazne/`.
+
+### Nowe grafiki aranżacyjne
+Przygotowane we wbudowanym ImageGen, lokalne WebP; nie stanowią deklaracji dostępności pokazanych produktów:
+- `rose-jewels.webp`, 1536×1024: unbranded gold sculptural necklace, cuff and ring on layered deep rose/magenta velvet, dramatic pink/red rim light, tactile luxury editorial photography, no text/logos.
+- `amber-macro.webp`, 1774×887: cinematic closeup gold chain and brushed ring on translucent amber glass, copper glow, textured metal, dark left third for copy, no text/logos.
+- `tech-lime.webp`, 1536×1024: black game controller, silver/white headphones and smartphone on vivid lime architectural steps, violet edge shadows, realistic commercial studio photo, no text/logos.
+
+### Weryfikacja
+- Przejrzano wszystkie 10 pierwszych ekranów na komputerze i telefonie oraz sekcje ofert na komputerze.
+- Każdy mobilny dokument ma clientWidth = scrollWidth = 375 px; wszystkie obrazy załadowane.
+- Sprawdzono zmianę kategorii Aurora, panel Panorama, karuzelę Chrom, akordeon Rytm, panel Impuls i odpowiedzi Sygnał.
+- Sprawdzono szczegóły oferty Ogrody i Aksamit oraz otwieranie i zamykanie kalkulatora Mozaika i Horyzont.
+- Kalkulator: 5000 zł / 30 dni = 250 zł opłaty i 5250 zł łącznie; kwota 0 pokazuje błąd i usuwa nieprawidłowy odnośnik kontaktowy. Nie wysyłano wiadomości.
+- Sprawdzono powiększenie projektu, przełączanie urządzenia i wspólne przejście do sekcji oferty. Poprawiono zbyt szeroki mobilny nagłówek Chrom.
+- 11 dokumentów HTML: jeden main i h1, brak powielonych identyfikatorów, kompletne kotwice i lokalne zasoby. Składnia JS oraz `git diff --check` bez błędów.
+- Podgląd końcowy: `docs/sezam-ten-more-preview.jpg`.
+
+
+## Podstrony i cennik — 19.11.2026
+Wybrany projekt: `sezam-nowa-wartosc-gorzow.angsm111.chatgpt.site`.
+Strona główna zachowuje pełną kompozycję zaakceptowanej wersji sprzed podziału: hero, cztery kafelki, ofertę z zakładkami i kartami metali, kalkulator, O nas, baner sprzedaży, FAQ i kontakt. Te same sekcje mają również osobne adresy:
+`/oferta/`, `/cennik-zlota/`, `/kalkulator/`, `/o-nas/`, `/pytania/`, `/kontakt/`.
+Menu, stopka i breadcrumbs prowadzą do podstron. Kotwice na stronie głównej przewijają do przywróconych sekcji, a kafelki usług wybierają odpowiednią zakładkę oferty. Przycisk cennika i odnośnik w FAQ otwierają nowy cennik. Wybrana usługa na podstronie oferty jest zapisana w `?usluga=`. Każda strona ma własny tytuł, opis, canonical i jeden H1. Generator aktualizuje sitemap.
+
+Cennik korzysta z publicznego endpointu używanego przez aktualną stronę SEZAM:
+`https://skup-zlota-gorzow.angsm111.workers.dev/api/prices`.
+Złoto/srebro, biżuteria i złom, monety oraz sztabki. Ceny są końcowymi cenami skupu z feedu — nie dodajemy kolejnej marży. Kalkulator mnoży cenę za gram przez masę lub cenę produktu przez liczbę sztuk. Brak ceny i nieznana próba wymagają indywidualnej wyceny.
+
+Odświeżanie co 5 minut, timeout 12 sekund, maksymalny wiek feedu 15 minut. Przeterminowane lub zastępcze dane nie są prezentowane jako aktualne. CORS endpointu sprawdzony. Wyświetlany czas aktualizacji jest w Europe/Warsaw. Bez JavaScript dostępna informacja i telefon, bez fikcyjnych stałych cen.
+
+Sprawdzenie aktualizacji: 7 stron na mobilnym viewport 390 px (375 px treści), bez poziomego przewijania i uszkodzonych obrazów; menu mobilne, aktywna pozycja, ponowne otwarcie wybranej usługi, FAQ, otwarcie i zamknięcie formularza. Kalkulator pożyczki 5000/30 = 250 zł i 5250 zł łącznie; walidacja zera. Cennik: świeży feed, złoto/srebro, wyszukiwarka i wybór monet, sztabki, mnożenie ilości, błędna waga, edycja podczas ładowania. Kontrole Node: świeży/stary/błędny feed, brak dodatkowej marży, nieznane produkty, syntax check. Formularzy nie wysyłano.
+
+## Dwa warianty strony głównej
+- `/` — pełna strona główna sprzed podziału na podstrony; zachowane wszystkie sekcje wersji 9, z działającym odnośnikiem do nowego cennika.
+- `/wersja-obecna/` — zachowana skrócona strona główna z wersji 10 (`0f9428ce5652ad21b69c3f41e93319b510fe824d`). Jej główna treść i `src/pages/home-current.html` są identyczne z zapisanym wcześniej wariantem.
+- Wspólny przełącznik pozwala wrócić do obu wariantów z każdej podstrony. Podstrony usług i cennika są wspólne. Drugi wariant ma własny canonical i noindex; nie jest dodawany do sitemap.
+- Oba warianty odtwarza `python3 scripts/build-pages.py`. Zmiany wcześniejszych zestawów projektów nie były potrzebne.
+- Weryfikacja: przełączanie w obie strony, pełna i skrócona treść, układy komputera i telefonu (390 px viewport / 375 px treści), brak poziomego przepełnienia, aktywacja oferty z kafelka i kalkulator 5000 zł / 30 dni = 250 zł, razem 5250 zł. Przejście do kotwicy nie resetuje zakładki oferty. Kontrola ośmiu stron: kompletne lokalne odnośniki i zasoby, jeden main i H1, brak powtórzonych ID. Składnia JS i git diff --check poprawne.

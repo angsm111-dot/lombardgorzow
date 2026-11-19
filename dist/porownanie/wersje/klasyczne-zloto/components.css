@@ -1,0 +1,115 @@
+/* Component layout, neutral palette. */
+:root{--lavender:#e9e9e9;--mint:#ededed;--rose:#e9e9e9;--sky:#ededed;--butter:#f0f0f0}
+.topbar{background:#ececec;color:#585858}
+.hero{isolation:isolate}
+.hero-copy{position:relative}
+.hero-copy:before{content:'';position:absolute;z-index:-1;width:470px;height:470px;max-width:100%;left:-35px;top:-30px;background:radial-gradient(ellipse,#ebebebaa 0%,#f5f5f577 40%,transparent 70%);pointer-events:none}
+.hero .eyebrow{color:var(--accent)}
+.hero-visual{box-shadow:12px 12px 0 #ebebeb;border:1px solid #e1e1e1}
+.years-badge{background:#f4f4f4df;color:var(--accent);border-color:white}
+.trust-icon{background:var(--lavender)}
+.hero-trust strong{color:#5a5a5a}
+.cash-note{border-color:#ebebeb;box-shadow:0 12px 40px #31313110}
+.quick-heading{display:flex;justify-content:space-between;align-items:center;margin-top:5px;margin-bottom:17px;gap:20px}
+.quick-heading .eyebrow{font-size:9px;color:var(--accent)}
+.quick-heading>span:last-child{font-size:12px;color:#6c6c6c}
+.quick-links{padding:0;border:0;gap:17px}
+.quick-links>a,.quick-links>a:first-child,.quick-links>a:last-child{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:20px;min-height:205px;padding:24px 25px;border:1px solid transparent;border-radius:17px;overflow:hidden;isolation:isolate;transition:transform .25s,box-shadow .25s,border-color .25s}
+.quick-links>a:nth-child(1){background:var(--lavender);--tile-ink:#5b5b5b}
+.quick-links>a:nth-child(2){background:var(--mint);--tile-ink:#696969}
+.quick-links>a:nth-child(3){background:var(--rose);--tile-ink:#707070}
+.quick-links>a:nth-child(4){background:var(--sky);--tile-ink:#777777}
+.quick-links>a:before{content:'';position:absolute;width:155px;height:155px;right:-62px;top:-70px;border:1px solid #ffffff90;border-radius:50%;box-shadow:0 0 0 21px #ffffff18,0 0 0 42px #ffffff18;z-index:-1;transition:transform .35s}
+.quick-links .quick-icon{width:42px;height:42px;background:#ffffff99;color:var(--tile-ink);border-radius:12px;box-shadow:0 4px 15px #4c4c4c05}
+.quick-links .quick-icon svg{width:23px;height:23px}
+.quick-links small{font-size:8px;letter-spacing:.07em;margin-bottom:7px;color:var(--tile-ink)}
+.quick-links strong{font-size:19px;letter-spacing:-.035em;line-height:1.25;color:var(--ink)}
+.quick-description{display:block;font-size:11px;line-height:1.5;margin-top:8px;color:#6e6e6e}
+.quick-links .quick-arrow{position:absolute;right:22px;top:27px;width:28px;height:28px;display:grid;place-items:center;border-radius:50%;color:var(--tile-ink);transition:background .25s,transform .25s}
+.quick-links>a:hover,.quick-links>a:focus-visible{transform:translateY(-5px);box-shadow:0 13px 28px #4b4b4b12;border-color:#ffffff}
+.quick-links>a:hover .quick-arrow{background:#ffffffcc;transform:rotate(5deg)}
+.quick-links>a:hover:before{transform:scale(1.15)}
+.quick-links>a:hover .quick-icon{background:#ffffff}
+.offer{padding-top:90px}
+.offer .soft,.about .soft,.faq .soft{color:#919191}
+.offer-tabs{padding:7px;background:#f8f8f8;border:1px solid #e8e8e8;border-radius:13px;gap:7px;margin-bottom:20px}
+.offer-tabs button{padding:15px 17px;border-radius:8px;transition:background .2s,box-shadow .2s;color:#737373}
+.offer-tabs button:after{display:none}
+.offer-tabs button[aria-selected=true]{background:var(--lavender);box-shadow:0 2px 6px #5656560c;color:var(--accent)}
+.offer-tabs [data-tab=loan][aria-selected=true]{background:var(--mint);color:#5f5f5f}
+.offer-tabs [data-tab=buy][aria-selected=true]{background:var(--rose);color:#555555}
+.offer-tabs [data-tab=repair][aria-selected=true]{background:var(--sky);color:#656565}
+.offer-panel{background:#eeeeee;border-radius:20px;border:1px solid #e8e8e8;transition:background .3s,border-color .3s}
+.offer-panel[data-service=loan]{background:#f1f1f1;border-color:#eaeaea}
+.offer-panel[data-service=buy]{background:#f0f0f0;border-color:#e4e4e4}
+.offer-panel[data-service=repair]{background:#f1f1f1;border-color:#e9e9e9}
+.pill{border-color:#cacaca;color:#656565;background:#ffffff80}
+.item-chips span{border-color:#d4d4d4;background:#ffffffa0;color:#686868}
+.offer-panel .btn-dark{background:var(--accent);color:#ffffff}
+.offer-panel .btn-dark:hover{background:var(--accent-dark)}
+.offer-panel .text-link{color:var(--accent)}
+.offer-art .art-bottom{background:#ffffffe0;border:1px solid white;box-shadow:0 5px 20px #2e2e2e08}
+.specialties{grid-template-columns:1fr 1fr 1fr;gap:19px;margin-top:24px}
+.specialties .specialty-card{position:relative;min-height:330px;display:flex;flex-direction:column;align-items:flex-start;padding:27px;border:1px solid #ffffff;border-radius:19px;overflow:hidden;isolation:isolate;transition:transform .3s,box-shadow .3s}
+.specialties .coins-card{background:linear-gradient(145deg,#f2f2f2,#e8e8e8)}
+.specialties .bars-card{background:linear-gradient(145deg,#f4f4f4,#e9e9e9)}
+.specialties .jewelry-card{background:linear-gradient(145deg,#efefef,#dedede)}
+.specialties .specialty-card:before{content:'';position:absolute;width:220px;height:220px;border-radius:50%;background:#ffffff45;right:-42px;top:48px;z-index:-1}
+.specialties .specialty-card>.card-kicker{font-size:8px;letter-spacing:.09em;color:#6e6e6e;position:relative;z-index:2;font-weight:400}
+.specialty-card>img{position:absolute;width:195px;height:195px;object-fit:contain;right:8px;top:42px;filter:drop-shadow(0 14px 6px #42424215);transition:transform .4s;pointer-events:none}
+.specialty-card.jewelry-card>img{width:210px;height:210px;top:35px;right:3px}
+.specialties .specialty-card>.specialty-copy{display:flex;flex-direction:column;gap:10px;margin-top:auto;position:relative;z-index:2;color:var(--ink);padding-right:20px}
+.specialty-copy strong{font-size:28px;line-height:1.06;letter-spacing:-.04em;font-weight:600}
+.specialty-copy>span{font-size:11px;font-weight:400;color:#6e6e6e;line-height:1.5}
+.specialties .specialty-card>i{position:absolute;right:23px;bottom:26px;margin:0;background:#ffffffb5;border:1px solid white;width:34px;height:34px;display:grid;place-items:center;border-radius:50%;color:var(--accent)}
+.specialties .specialty-card:hover{transform:translateY(-5px);box-shadow:0 16px 35px #42424212;border-color:#ffffff}
+.specialties .specialty-card:hover>img{transform:translateY(-5px) rotate(-3deg)}
+.calculator-section{background:linear-gradient(115deg,#eaeaea 0%,#f1f1f1 45%,#f2f2f2 100%);position:relative;isolation:isolate;overflow:hidden}
+.calculator-section:before{content:'';position:absolute;z-index:-1;width:650px;height:650px;border:1px solid #ffffff90;border-radius:50%;left:-350px;top:10%;box-shadow:0 0 0 50px #ffffff20,0 0 0 100px #ffffff18}
+.calculator{border-color:#ffffff;box-shadow:0 20px 60px #5151510d;border-radius:24px}
+.rate-note{background:#ffffff85;padding:22px 26px;border:1px solid #ffffff;border-radius:15px;min-width:310px;box-shadow:0 5px 25px #65656505}
+.calc-result{background:#f5f5f5;border:1px solid #e6e6e6;border-radius:11px;padding:17px}
+.calc-result .total-row{border-color:#d5d5d5}
+.amount-presets button{background:#fafafa;border-color:#e1e1e1}
+.amount-presets button.selected{background:#e8e8e8}
+.about-visual{background:linear-gradient(150deg,#e7e7e7,#d8d8d8);color:var(--accent);border-radius:100px 23px 23px 23px;border:1px solid #d8d8d8;box-shadow:inset 0 0 80px #ffffff45}
+.about-visual:after{border-color:#ffffff90;box-shadow:0 0 0 45px #ffffff18,0 0 0 90px #ffffff12}
+.big-years>span{color:#959595}
+.about-visual .eyebrow{color:#6f6f6f}
+.about-bottom{color:#565656}
+.about-points{gap:11px}
+.about-points>div{padding:17px 18px;border-radius:12px;background:#f1f1f1;border:1px solid #ebebeb}
+.about-points>div:nth-child(2){background:#f3f3f3;border-color:#ededed}
+.about-points>div:nth-child(3){background:#f3f3f3;border-color:#ececec}
+.shop-banner{background:linear-gradient(115deg,#eaeaea,#e8e8e8 70%,#e4e4e4);border:1px solid #e3e3e3;box-shadow:0 10px 40px #55555508}
+.shop-banner h2{color:#4e4e4e}
+.banner-orbit{border-color:#b0b0b080;box-shadow:0 0 0 45px #ffffff33,0 0 0 90px #ffffff22}
+.faq-list{border:0;display:flex;flex-direction:column;gap:10px}
+.faq-list details{border:1px solid #e8e8e8;background:#f8f8f8;border-radius:11px;padding:21px 23px}
+.faq-list details[open]{background:#ededed;border-color:#dadada}
+.faq-list summary{font-weight:600}
+.contact-section{background:#ececec;color:var(--ink);border-top:1px solid #e2e2e2}
+.contact-section .eyebrow{color:var(--accent)}
+.contact-section h2{color:#4c4c4c}
+.open-status{background:#ffffffa5;border-color:#dddddd;color:#5b5b5b}
+.open-status.open .tiny-dot{background:#848484}
+.contact-grid{gap:20px;grid-template-columns:1fr 1.1fr 1.1fr}
+.contact-grid>div{padding:28px;border-radius:18px;background:#ffffffa5;border:1px solid #ffffff}
+.contact-grid .contact-location{background:#ededed}
+.contact-grid .contact-hours{background:#ffffff99}
+.contact-grid .contact-direct{background:#e9e9e9}
+.contact-label{color:#6d6d6d}
+.contact-location h3,.large-phone{color:var(--accent)}
+.contact-location p,.contact-direct p,.contact-hours small{color:#6f6f6f}
+.contact-grid .btn-outline-white{color:var(--accent);border-color:#c6c6c6;background:#ffffff88}
+.contact-grid .btn-outline-white:hover{background:white}
+.contact-grid .btn-white{border-color:#ffffff;color:#686868}
+.footer-top{border-color:#e7e7e7}
+@media(max-width:1200px){.quick-links{gap:13px}.quick-links>a,.quick-links>a:first-child,.quick-links>a:last-child{padding:22px 20px;min-height:205px}.quick-links strong{font-size:17px}.quick-description{font-size:10px}.specialties .specialty-card{padding:23px;min-height:310px}.specialty-card>img{width:170px;height:170px;top:46px}.specialty-card.jewelry-card>img{width:185px;height:185px}.specialty-copy strong{font-size:25px}.specialty-copy>span{font-size:10px}.contact-grid>div{padding:23px}.contact-grid{gap:15px}.contact-hours dl>div{flex-wrap:wrap;gap:4px}.contact-grid .btn{padding:12px 13px;gap:13px}}
+@media(max-width:960px){.quick-links{grid-template-columns:repeat(2,1fr);gap:16px}.quick-links>a,.quick-links>a:first-child,.quick-links>a:last-child{padding:24px;min-height:195px;gap:17px}.quick-links strong{font-size:21px}.quick-description{font-size:12px}.quick-links small{font-size:9px}.offer-tabs button{padding:14px 12px;gap:8px}.specialties{gap:12px}.specialties .specialty-card{padding:21px;min-height:300px}.specialty-card>img{width:145px;height:145px;top:45px;right:4px}.specialty-card.jewelry-card>img{width:155px;height:155px;top:40px}.specialty-copy strong{font-size:22px}.specialties .specialty-card>i{width:28px;height:28px;right:16px;bottom:20px}.specialties .specialty-card>.card-kicker{font-size:6px}.specialty-copy>span{max-width:145px;font-size:9px}.contact-grid{grid-template-columns:1fr 1fr}.contact-grid .contact-direct{display:grid;grid-template-columns:1fr 1fr;gap:0 30px}.contact-grid .contact-hours dl>div{flex-wrap:nowrap}.contact-grid>div{padding:26px}}
+@media(max-width:760px){.hero-visual{box-shadow:7px 7px 0 #ebebeb}.hero-copy:before{top:-50px;left:-15px;width:370px;height:370px}.quick-heading{margin-top:12px;margin-bottom:13px;align-items:flex-start;gap:10px}.quick-heading .eyebrow{font-size:8px}.quick-heading>span:last-child{font-size:9px}.quick-links{gap:11px}.quick-links>a,.quick-links>a:first-child,.quick-links>a:last-child{min-height:190px;padding:18px 16px;gap:17px;border-radius:13px}.quick-links .quick-icon{width:37px;height:37px;border-radius:10px}.quick-links .quick-icon svg{width:20px;height:20px}.quick-links strong{font-size:17px;line-height:1.15;max-width:145px}.quick-links small{font-size:7px;letter-spacing:.015em;line-height:1.4;margin-bottom:8px}.quick-description{font-size:10px;line-height:1.5;margin-top:8px;max-width:145px}.quick-links .quick-arrow{right:13px;top:20px;width:23px;height:23px}.quick-links .quick-arrow svg{width:13px;height:13px}.offer{padding-top:62px}.offer-tabs{padding:5px;gap:3px;border-radius:10px}.offer-tabs button{font-size:9px;padding:12px 4px}.offer-panel{border-radius:17px}.offer-detail{padding:25px 22px}.offer-detail h3{font-size:30px}.specialties{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:19px}.specialties .specialty-card{min-height:275px;padding:18px 16px;border-radius:15px;gap:0}.specialties .coins-card{grid-column:1/-1;min-height:235px}.specialty-card>img{width:135px;height:135px;top:34px;right:0}.specialty-card.jewelry-card>img{width:145px;height:145px;top:28px;right:0}.specialty-card.coins-card>img{width:200px;height:200px;top:19px;right:0}.specialties .specialty-card>.card-kicker{font-size:6px;letter-spacing:.035em;min-width:0}.specialty-copy strong{font-size:22px}.coins-card .specialty-copy strong{font-size:29px}.specialty-copy>span{font-size:10px;max-width:115px}.coins-card .specialty-copy>span{max-width:180px}.specialties .specialty-card>.specialty-copy{gap:8px;padding-right:12px}.specialties .specialty-card>i{width:25px;height:25px;right:12px;bottom:19px;background:#ffffff99}.specialties .specialty-card>i svg{width:12px;height:12px}.specialty-card:before{width:150px;height:150px;top:45px;right:-35px}.rate-note{padding:18px 23px;min-width:270px;border-radius:13px}.calculator{border-radius:18px}.calculator .calc-result{padding:15px}.calculator .calc-result strong{font-size:25px}.calculator .total-row strong{font-size:19px}.about-visual{border-radius:80px 20px 20px 20px}.about-points>div{padding:17px 15px}.shop-banner{padding:29px 24px}.faq-list details{padding:20px 17px}.faq-list details>p{margin-right:10px}.contact-grid{display:flex;gap:15px}.contact-grid>div{padding:26px 23px;border-radius:15px}.contact-grid .contact-direct{display:block}.contact-grid .contact-hours{padding-top:26px}.contact-grid .contact-hours dl>div{font-size:12px}.contact-section .section-heading{margin-bottom:26px}.contact-grid .btn{font-size:12px}.contact-label{font-size:9px}.large-phone{font-size:29px}.contact-grid .contact-direct p{margin-top:14px}}
+@media(prefers-reduced-motion:reduce){.quick-links>a:hover,.specialties .specialty-card:hover{transform:none}.specialty-card:hover>img{transform:none!important}}
+.specialties .coins-card:hover{background:linear-gradient(145deg,#f2f2f2,#e8e8e8)}
+.specialties .bars-card:hover{background:linear-gradient(145deg,#f4f4f4,#e9e9e9)}
+.specialties .jewelry-card:hover{background:linear-gradient(145deg,#efefef,#dedede)}
+@media(max-width:760px){.specialty-card.coins-card>img{width:175px;height:175px;top:20px;right:2px}.specialty-card>img{width:120px;height:120px;top:35px;right:4px}.specialty-card.jewelry-card>img{width:128px;height:128px;top:32px;right:4px}.specialty-copy strong{font-size:20px}.specialties .specialty-card>.specialty-copy{padding-right:0}.coins-card .specialty-copy strong{font-size:27px}.specialty-copy>span{font-size:9px;max-width:105px}.coins-card .specialty-copy>span{font-size:10px;max-width:180px}}

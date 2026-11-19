@@ -1,0 +1,50 @@
+<!-- Structure and pricing rules adapted from sezam.com.pl/skup-sprzedaz-zlota/.
+     Final purchase prices are loaded by /prices.js from SEZAM's public price feed. -->
+<section class="section wrap gold-pricing" id="cennik-zlota" data-metal="gold">
+  <div class="section-heading price-heading">
+    <div><span class="eyebrow muted">ZŁOTO · SREBRO · MONETY · SZTABKI</span><h1>Sprawdź, ile<br><span class="soft">warte są Twoje skarby.</span></h1></div>
+    <p>Aktualny cennik skupu i prosta wycena.<br>Tak jak w SEZAM przy Pocztowej 11.</p>
+  </div>
+  <div class="price-selector">
+    <p class="price-step"><span>01</span> Wybierz kruszec</p>
+    <div class="price-metal-tabs" role="group" aria-label="Wybierz kruszec">
+      <button type="button" data-price-metal="gold" aria-pressed="true"><span class="price-metal-symbol" aria-hidden="true">Au</span><span><strong>Złoto</strong><small>Biżuteria, monety i sztabki</small></span><span class="price-metal-check" aria-hidden="true">✓</span></button>
+      <button type="button" data-price-metal="silver" aria-pressed="false"><span class="price-metal-symbol" aria-hidden="true">Ag</span><span><strong>Srebro</strong><small>Biżuteria, monety i sztabki</small></span><span class="price-metal-check" aria-hidden="true">✓</span></button>
+    </div>
+    <p class="price-step"><span>02</span> Co chcesz sprzedać?</p>
+    <div class="price-tabs" role="tablist" aria-label="Rodzaj przedmiotu">
+      <button type="button" role="tab" id="price-tab-scrap" data-price-kind="scrap" aria-controls="price-panel" aria-selected="true" tabindex="0"><svg aria-hidden="true"><use href="#i-gem"/></svg>Biżuteria i złom</button>
+      <button type="button" role="tab" id="price-tab-coins" data-price-kind="coins" aria-controls="price-panel" aria-selected="false" tabindex="-1"><span aria-hidden="true">◎</span>Monety</button>
+      <button type="button" role="tab" id="price-tab-bars" data-price-kind="bars" aria-controls="price-panel" aria-selected="false" tabindex="-1"><span aria-hidden="true">▱</span>Sztabki</button>
+    </div>
+  </div>
+  <div class="price-status-row"><p class="price-status" id="price-status" role="status" aria-live="polite" data-state="loading">Pobieranie aktualnego cennika…</p><button type="button" class="text-link price-refresh" id="price-refresh">Odśwież ceny <span aria-hidden="true">↻</span></button></div>
+  <noscript><p class="price-help">Włącz JavaScript, aby zobaczyć aktualne ceny i obliczyć wycenę. Możesz też <a href="tel:+48601775146">zadzwonić: 601 775 146</a>.</p></noscript>
+  <div class="price-layout" id="price-panel" role="tabpanel" aria-labelledby="price-tab-scrap" tabindex="0">
+    <div class="price-data">
+      <div class="price-table-heading"><h2 id="price-table-title">Cennik skupu złota</h2><span class="price-unit" id="price-unit">PLN / g</span></div>
+      <div id="price-scrap-view">
+        <div class="price-table-scroll"><table class="price-table"><caption class="sr-only" id="price-table-caption">Aktualne ceny skupu złota za gram</caption><thead id="price-table-head"><tr><th scope="col">Próba złota</th><th scope="col">Zawartość złota</th><th scope="col">Cena za gram</th></tr></thead><tbody id="price-table-body"><tr><td colspan="3">Pobieranie aktualnych cen…</td></tr></tbody></table></div>
+      </div>
+      <div id="price-products-view" hidden>
+        <div class="price-form-field" id="price-search-field"><label for="price-search">Znajdź monetę</label><input type="search" id="price-search" placeholder="Szukaj nazwy, np. Krugerrand" autocomplete="off"></div>
+        <p class="price-help">Wybierz pozycję z listy — pojawi się w kalkulatorze.</p>
+        <div class="price-product-list" id="price-product-list" role="group" aria-label="Wybierz przedmiot do wyceny"></div>
+      </div>
+      <p class="price-help">Cennik aktualizuje się automatycznie. Ostateczna wycena po sprawdzeniu próby, masy i rodzaju wyrobu w punkcie.</p>
+      <a class="text-link" href="tel:+48601775146">Potwierdź cenę: 601 775 146 <span aria-hidden="true"><svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 19 19 5M5 5h14v14"/></svg></span></a>
+    </div>
+    <form class="metal-calculator" id="metal-calculator">
+      <span class="eyebrow">TWOJA WYCENA</span><h2 id="price-calc-title">Ile możesz otrzymać?</h2>
+      <div class="price-form-field" id="price-purity-field"><label for="price-purity">Próba złota</label><select id="price-purity" disabled><option value="">Pobieranie prób…</option></select></div>
+      <div class="price-form-field" id="price-product-field" hidden><label for="price-product">Wybierz monetę</label><select id="price-product" disabled><option value="">Wybierz monetę z listy</option></select></div>
+      <div class="price-form-field" id="price-other-field" hidden><label for="price-other-name">Nazwa lub opis monety <span>(opcjonalnie)</span></label><input id="price-other-name" type="text" maxlength="120" placeholder="Nazwa, nominał lub rok"></div>
+      <div class="price-form-field" id="price-weight-field"><label for="price-weight">Waga w gramach</label><div class="amount-field"><input id="price-weight" type="number" min="0.01" max="100000" step="0.01" value="10" inputmode="decimal" aria-describedby="price-result-help"><span>g</span></div></div>
+      <div class="price-form-field" id="price-quantity-field" hidden><label for="price-quantity">Liczba sztuk</label><input id="price-quantity" type="number" min="1" max="10000" step="1" value="1" inputmode="numeric" aria-describedby="price-result-help"></div>
+      <div class="price-estimate" aria-live="polite" aria-atomic="true"><p>Orientacyjna wartość skupu</p><output id="price-total" for="price-purity price-weight price-product price-quantity">—</output><p id="price-result-help">Pobieranie aktualnych cen…</p></div>
+      <div class="price-actions"><a class="btn price-whatsapp" id="price-whatsapp" href="https://wa.me/48601775146" target="_blank" rel="noopener">Zapytaj na WhatsApp <span aria-hidden="true"><svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 19 19 5M5 5h14v14"/></svg></span></a><a class="btn btn-dark" href="tel:+48601775146">Zadzwoń: 601 775 146 <span aria-hidden="true"><svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 19 19 5M5 5h14v14"/></svg></span></a></div>
+      <p class="price-help">Wycena jest orientacyjna. Ostateczną kwotę potwierdzimy po sprawdzeniu przedmiotu.</p>
+    </form>
+  </div>
+  <div class="price-contact"><div><span class="eyebrow muted">POROZMAWIAJMY NA MIEJSCU</span><h2>Nie znasz próby?<br>Sprawdzimy ją razem.</h2><p>Przynieś biżuterię, monety lub sztabki do SEZAM przy ul. Pocztowej 11 w Gorzowie Wielkopolskim. Przyjmujemy także uszkodzoną biżuterię.</p></div><a class="btn btn-gold" href="/kontakt/">Sprawdź, jak do nas trafić <span aria-hidden="true"><svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 19 19 5M5 5h14v14"/></svg></span></a></div>
+</section>
