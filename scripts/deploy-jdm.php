@@ -20,11 +20,14 @@ function requireCondition(bool $condition, string $message): void {
 
 function ownedDirectory(string $path, int $uid, bool $create = false, int $mode = 0700): void {
     requireCondition(!is_link($path), 'Refusing symbolic-link directory.');
+    $created = false;
     if (!file_exists($path) && $create) {
         requireCondition(mkdir($path, $mode), 'Cannot create deployment directory.');
+        $created = true;
     }
     clearstatcache(true, $path);
-    requireCondition(is_dir($path) && fileowner($path) === $uid, 'Directory ownership mismatch.');
+    requireCondition(!is_link($path) && is_dir($path) && fileowner($path) === $uid, 'Directory ownership mismatch.');
+    if ($created) { requireCondition(chmod($path, $mode), 'Cannot set deployment-directory permissions.'); }
 }
 
 function guardWebRoot(string $home, string $web, int $uid): void {
