@@ -1,4 +1,4 @@
-/* Decorative snow, with a persistent pause control and reduced-motion support. */
+/* Falling stars, with a persistent pause control and reduced-motion support. */
 (() => {
   const layer = document.querySelector('.holiday-snow');
   const toggle = document.querySelector('.snow-toggle');
@@ -9,7 +9,7 @@
   for (let i = 0; i < 28; i++) {
     const flake = document.createElement('span');
     flake.className = 'snowflake';
-    flake.style.cssText = `--x:${(i * 37 + 8) % 100}%;--size:${3 + i % 5}px;--duration:${14 + i % 11}s;--delay:-${i * 1.73}s;--drift:${(i % 2 ? 1 : -1) * (18 + i % 6 * 8)}px;--opacity:${.38 + i % 5 * .09}`;
+    flake.style.cssText = `--x:${(i * 37 + 8) % 100}%;--size:${2 * (3 + i % 5)}px;--duration:${14 + i % 11}s;--delay:-${i * 1.73}s;--drift:${(i % 2 ? 1 : -1) * (18 + i % 6 * 8)}px;--opacity:${.38 + i % 5 * .09}`;
     layer.append(flake);
   }
   function render() {

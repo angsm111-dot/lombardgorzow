@@ -23,7 +23,8 @@
 .snow-toggle:hover{background:#ffffff15}.snow-toggle:focus-visible{outline:2px solid #eee0c2;outline-offset:3px}
 .holiday-snow{position:fixed;inset:0;z-index:24;pointer-events:none;overflow:hidden;contain:strict}
 .holiday-snow[hidden],.snow-toggle[hidden]{display:none}
-.snowflake{position:absolute;left:var(--x);top:-12px;width:var(--size);height:var(--size);border-radius:50%;background:#fff;box-shadow:0 0 2px #8c9ba675;opacity:var(--opacity);animation:sezam-snowfall var(--duration) var(--delay) linear infinite;will-change:transform}
+.snowflake{position:absolute;left:var(--x);top:-20px;width:var(--size);height:var(--size);opacity:var(--opacity);filter:drop-shadow(0 0 1px #8c785f80);animation:sezam-snowfall var(--duration) var(--delay) linear infinite;will-change:transform}
+.snowflake::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#fff 20%,#eadcbb 100%);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 95%,50% 72%,21% 95%,32% 57%,2% 35%,39% 35%)}
 .holiday-snow.paused .snowflake{animation-play-state:paused}
 @keyframes sezam-snowfall{from{transform:translate3d(0,-10px,0)}to{transform:translate3d(var(--drift),calc(100vh + 25px),0)}}
 @media(max-width:1120px){
