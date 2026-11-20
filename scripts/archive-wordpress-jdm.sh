@@ -5,8 +5,8 @@ umask 077
 export LC_ALL=C
 
 MODE="${1:---check}"
-[[ $# -le 1 && ( "$MODE" == --check || "$MODE" == --apply || "$MODE" == --diagnose ) ]] || {
-  printf 'Usage: bash archive-wordpress-jdm.sh [--check|--diagnose|--apply]\n' >&2
+[[ $# -le 1 && ( "$MODE" == --check || "$MODE" == --apply || "$MODE" == --diagnose || "$MODE" == --diagnose-table ) ]] || {
+  printf 'Usage: bash archive-wordpress-jdm.sh [--check|--diagnose|--diagnose-table|--apply]\n' >&2
   exit 2
 }
 readonly ACCOUNT='lombard1'
@@ -196,6 +196,87 @@ WP_CLI::line("JDM_DIAG_NO_WP:" . json_encode(array("php_version" => PHP_VERSION,
 PHP
 write_php diagnostic-wordpress-bootstrap.php <<'PHP'
 global $sezam_archive_precore_constants; WP_CLI::line("JDM_DIAG_BOOTSTRAP:" . json_encode(array("config_hook_present" => isset($sezam_archive_precore_constants) && is_array($sezam_archive_precore_constants), "php_version" => PHP_VERSION, "mysqli_available" => extension_loaded("mysqli"))));
+PHP
+
+write_php table-diagnostic-guard.php <<'PHP'
+$r=json_decode(stream_get_contents(STDIN),true);
+$allowed=array('http://lombardgorzow.com','https://lombardgorzow.com','http://www.lombardgorzow.com','https://www.lombardgorzow.com');
+if(!is_array($r) || $r['table_prefix']!=='wp_' || $r['tables_without_primary_key']!==1 || $r['blockers']!==array('Some prefixed tables lack a primary key; WP-CLI would skip them.') || !in_array(rtrim($r['home'],'/'),$allowed,true) || !in_array(rtrim($r['siteurl'],'/'),$allowed,true)){exit(1);}
+PHP
+write_php diagnose-table.php <<'PHP'
+global $wpdb;
+$wpdb->suppress_errors(true);
+if ($wpdb->prefix !== 'wp_' || $wpdb->base_prefix !== 'wp_' || is_multisite()) { WP_CLI::error('Unexpected table diagnostic boundary.'); }
+$tables=$wpdb->get_col($wpdb->prepare('SHOW TABLES LIKE %s',$wpdb->esc_like('wp_').'%'));
+$missing=array();
+foreach($tables as $table){
+    if(!preg_match('/^wp_[A-Za-z0-9_]+$/D',$table)){WP_CLI::error('Unexpected table identifier.');}
+    $keys=$wpdb->get_results("SHOW KEYS FROM `".$table."` WHERE Key_name = 'PRIMARY'");
+    if($wpdb->last_error){WP_CLI::error('Table key query failed.');}
+    if(!$keys){$missing[]=$table;}
+}
+if(count($missing)!==1){WP_CLI::error('Expected exactly one table without a primary key.');}
+$table=$missing[0];
+$structure=$wpdb->get_results('SHOW FULL COLUMNS FROM `'.$table.'`',ARRAY_A);
+if($wpdb->last_error || !$structure || count($structure)>32){WP_CLI::error('Column metadata exceeds diagnostic bounds.');}
+$columns=array();$lengths=array();$projection=array();
+foreach($structure as $column){
+    $name=$column['Field'];
+    if(!preg_match('/^[A-Za-z0-9_]+$/D',$name) || !preg_match('/^([A-Za-z]+)/',$column['Type'],$type)){WP_CLI::error('Unexpected column metadata.');}
+    // Only the base type is exposed: enum/set definitions and defaults can hold values.
+    $columns[]=array('name'=>$name,'type'=>strtolower($type[1]),'nullable'=>$column['Null']==='YES','unique_key'=>$column['Key']==='UNI','auto_increment'=>strpos($column['Extra'],'auto_increment')!==false,'old_origin_occurrences'=>0,'matching_cells'=>0);
+    $lengths[]='COALESCE(OCTET_LENGTH(CAST(`'.$name.'` AS BINARY)),0)';
+    $projection[]='LEFT(CAST(`'.$name.'` AS BINARY),65537) AS `'.$name.'`';
+}
+$summary_sql='SELECT COUNT(*) AS row_count, COALESCE(SUM('.implode('+',$lengths).'),0) AS byte_count FROM `'.$table.'`';
+$before=$wpdb->get_row($summary_sql,ARRAY_A);
+if($wpdb->last_error || !is_array($before)){WP_CLI::error('Table size query failed.');}
+$row_count=(int)$before['row_count'];$bytes=(int)$before['byte_count'];
+$result=array('table'=>$table,'has_primary_key'=>false,'row_count'=>$row_count,'columns'=>$columns,'scan_complete'=>false,'limit_reason'=>null,'scanned_rows'=>0,'scanned_bytes'=>0,'old_origin_occurrences'=>0,'matching_rows'=>0,'matching_cells'=>0);
+if($row_count>5000 || $bytes>8388608){
+    $result['limit_reason']='table_size_limit';
+}else{
+    $pattern=<<<'REGEX'
+~https?:\\?/\\?/(?:www\.)?lombardgorzow\.com(?![A-Za-z0-9.-])~i
+REGEX;
+    for($offset=0;$offset<$row_count;$offset+=16){
+        $rows=$wpdb->get_results('SELECT '.implode(',',$projection).' FROM `'.$table.'` LIMIT 16 OFFSET '.(int)$offset,ARRAY_A);
+        if($wpdb->last_error || !is_array($rows)){WP_CLI::error('Bounded table scan failed.');}
+        foreach($rows as $row){
+            $row_matches=false;
+            foreach($result['columns'] as $index=>$column){
+                $value=$row[$column['name']];
+                if($value===null){continue;}
+                $length=strlen($value);
+                if($length>65536 || $result['scanned_bytes']+$length>8388608){$result['limit_reason']='cell_or_byte_limit';break 3;}
+                $result['scanned_bytes']+=$length;
+                $matches=preg_match_all($pattern,$value);
+                if($matches===false){WP_CLI::error('URL pattern scan failed.');}
+                if($matches){$result['columns'][$index]['matching_cells']++;$result['columns'][$index]['old_origin_occurrences']+=$matches;$result['matching_cells']++;$result['old_origin_occurrences']+=$matches;$row_matches=true;}
+            }
+            $result['scanned_rows']++;
+            if($row_matches){$result['matching_rows']++;}
+        }
+    }
+    $after=$wpdb->get_row($summary_sql,ARRAY_A);
+    if($wpdb->last_error || !is_array($after)){WP_CLI::error('Table size recheck failed.');}
+    if($before!==$after || $result['scanned_rows']!==$row_count){$result['limit_reason']=$result['limit_reason']?:'table_changed_during_scan';}
+    $result['scan_complete']=$result['limit_reason']===null;
+}
+// Diagnostics are not a transaction snapshot. A later migration must recheck.
+WP_CLI::line('JDM_ARCHIVE_TABLE_REPORT:'.json_encode($result,JSON_UNESCAPED_SLASHES));
+PHP
+write_php table-diagnostic-public.php <<'PHP'
+$r=json_decode(stream_get_contents(STDIN),true);
+$keys=array('table','has_primary_key','row_count','columns','scan_complete','limit_reason','scanned_rows','scanned_bytes','old_origin_occurrences','matching_rows','matching_cells');
+if(!is_array($r) || array_keys($r)!==$keys || !preg_match('/^wp_[A-Za-z0-9_]+$/D',$r['table']) || $r['has_primary_key']!==false || !is_bool($r['scan_complete']) || !in_array($r['limit_reason'],array(null,'table_size_limit','cell_or_byte_limit','table_changed_during_scan'),true) || !is_array($r['columns']) || count($r['columns'])>32){exit(1);}
+foreach(array('row_count','scanned_rows','scanned_bytes','old_origin_occurrences','matching_rows','matching_cells') as $key){if(!is_int($r[$key]) || $r[$key]<0){exit(1);}}
+foreach($r['columns'] as $c){
+    if(!is_array($c) || array_keys($c)!==array('name','type','nullable','unique_key','auto_increment','old_origin_occurrences','matching_cells') || !preg_match('/^[A-Za-z0-9_]+$/D',$c['name']) || !preg_match('/^[a-z]+$/D',$c['type'])){exit(1);}
+    foreach(array('nullable','unique_key','auto_increment') as $key){if(!is_bool($c[$key])){exit(1);}}
+    foreach(array('old_origin_occurrences','matching_cells') as $key){if(!is_int($c[$key]) || $c[$key]<0){exit(1);}}
+}
+echo json_encode($r,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),"\n";
 PHP
 
 audit() {
@@ -396,6 +477,14 @@ PHP
 fi
 
 report="$(audit)"
+if [[ "$MODE" == --diagnose-table ]]; then
+  STAGE='read-only-table-diagnostic'
+  printf '%s' "$report" | php "$runtime_dir/table-diagnostic-guard.php" 2>/dev/null || fail 'Table diagnostic requires exactly the known single no-primary-key blocker and the old site URL.'
+  "${WP[@]}" eval-file "$runtime_dir/diagnose-table.php" >"$runtime_dir/table.stdout.log" 2>"$runtime_dir/table.stderr.log" || fail 'Read-only table diagnostic failed; raw logs remain private.'
+  sed -n 's/^JDM_ARCHIVE_TABLE_REPORT://p' "$runtime_dir/table.stdout.log" | php "$runtime_dir/table-diagnostic-public.php" 2>/dev/null || fail 'Invalid sanitized table diagnostic result.'
+  printf 'mode=diagnose-table\nresult=read_only_table_diagnostic_complete\n'
+  exit 0
+fi
 # Public-safe report excludes even non-secret database identity/table fingerprints.
 printf '%s' "$report" | php "$runtime_dir/public-report.php"
 blockers="$(printf '%s' "$report" | php "$runtime_dir/count-blockers.php")"

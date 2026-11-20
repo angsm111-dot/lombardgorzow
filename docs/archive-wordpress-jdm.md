@@ -2,7 +2,7 @@
 
 Pomocnik `scripts/archive-wordpress-jdm.sh` dotyczy wyłącznie istniejącej witryny JDM **11344**, konta **lombard1**, serwera **web16** (`157.90.133.54`) i katalogu `/home/lombard1/public_html`. Nie przenosi plików WordPressa ani nie eksportuje bazy. Alias `stara.lombardgorzow.com` ma wskazywać ten sam istniejący WordPress; nowa strona działa osobno.
 
-**Stan: dotychczasowe próby `--check`/`--diagnose` zatrzymały się przed zmianami WordPressa. Potwierdzono, że wrapper PHP na JDM rozdziela argumenty zawierające spacje. Pomocnik został dostosowany do uruchamiania kodu z prywatnych plików; poprawione `--check` wymaga jeszcze sprawdzenia na JDM. `--apply` nie został wykonany.** Nie uruchamiać `--apply`, dopóki docelowa domena nie pokazuje zweryfikowanej nowej wersji 5. Skrypt przed uruchomieniem WP-CLI blokuje lokalne i nadrzędne pliki `wp-cli.yml`/`wp-cli.local.yml`, ponieważ mogą zawierać własne hooki lub kierować polecenia na inny serwer. Dodatkowo sprawdza nową stronę HTTPS: marker `page-home-calculator`, domenę docelową i brak zależności `/wp-content/`. Błędny wynik zatrzymuje pracę przed zmianami WordPressa.
+**Stan: poprawione `--check` działa na JDM. Wykryto 42 tabele, 41 wpisów, 17 stron i 979 załączników; jedyną blokadą jest jedna tabela bez klucza głównego. `--apply` nie został wykonany.** Potwierdzono, że wrapper PHP na JDM rozdziela argumenty zawierające spacje, dlatego pomocnik uruchamia kod z prywatnych plików. Nie uruchamiać `--apply`, dopóki docelowa domena nie pokazuje zweryfikowanej nowej wersji 5. Skrypt przed uruchomieniem WP-CLI blokuje lokalne i nadrzędne pliki `wp-cli.yml`/`wp-cli.local.yml`, ponieważ mogą zawierać własne hooki lub kierować polecenia na inny serwer. Dodatkowo sprawdza nową stronę HTTPS: marker `page-home-calculator`, domenę docelową i brak zależności `/wp-content/`. Błędny wynik zatrzymuje pracę przed zmianami WordPressa.
 
 ## Kontrola — domyślne działanie
 
@@ -32,6 +32,20 @@ Raport błędu powstaje w Bashu i nie zależy od możliwości odczytu prywatnych
 Surowe stdout/stderr trafiają do nowego katalogu `run.*` w `/home/lombard1/sezam-wp-archive-state/diagnostics/`, poza `public_html`. Katalogi mają `0700`, a logi `0600`. Logi mogą zawierać wewnętrzne szczegóły błędu; nie kopiować ich do pliku publicznego. Publiczny wynik zawiera wyłącznie zdefiniowane nazwy etapów, kod zakończenia, kategorię błędu, informacje o obecności znacznika, ostrzeżeń/deprecjacji, liczbę bajtów oraz ogólne kategorie komponentów. Już próba bez WordPressa pokazuje zweryfikowany format wersji PHP używanej przez WP-CLI i dostępność mysqli. Udany bootstrap dodatkowo pokazuje logiczną informację o obecności hooka konfiguracji. Nazwy baz, użytkowników DB, hasła, treść konfiguracji, SQL, ścieżki z tracebacków i fragmenty surowych błędów nie są przekazywane do raportu.
 
 Przykłady interpretacji: `eval_without_wordpress=ok` i błąd `wordpress_bootstrap` wskazują na ładowanie WordPressa lub jego drop-ins/MU plugins. Udany bootstrap i błąd `full_readonly_audit` wskazują na konkretny warunek lub zapytanie audytu. `config_hook_missing` nazywa dokładny warunek ochronny helpera. `expected_marker_missing` przy exit0 pozwala odróżnić brak oczekiwanego wyjścia od błędu procesu. Dodatkowy `php_classifier_probe` jednokrotnie sprawdza klasyfikator PHP uruchamiany z prywatnego pliku, zachowuje jego stderr prywatnie i publikuje już tylko kategorię rozpoznaną w Bashu (np. `filesystem_open_basedir`, `cli_argv_unavailable`, `php_file_read_unavailable`). Jego błąd nie przerywa kolejnych prób. Kategoria `unclassified_failure` oznacza potrzebę prywatnego przeglądu, nie zgodę na pokazanie całego logu.
+
+## Odczyt tabeli bez klucza głównego
+
+```bash
+bash /PRYWATNA-SCIEZKA/archive-wordpress-jdm.sh --diagnose-table
+```
+
+Tryb wymaga dokładnie jednego znanego blokera `tables_without_primary_key=1`, prefiksu `wp_` i pierwotnego adresu witryny. Zachowuje wszystkie wcześniejsze kontrole konta, hosta, katalogu, stałych i granic bazy. Sam ponownie odnajduje jedną tabelę bez PK. Kończy się przed `search-replace`, instalacją wtyczki i aktualizacją opcji.
+
+Publiczny raport zawiera nazwę tabeli, liczbę rekordów, nazwy kolumn, podstawowe typy (bez wartości enum/set i bez defaults), informację o NULL/unikalnym kluczu/auto_increment oraz liczniki dopasowanych dawnych adresów. `old_origin_occurrences` liczy każde wystąpienie; `matching_cells` i `matching_rows` liczą odpowiednio komórki oraz rekordy. Używa tej samej reguły HTTP/HTTPS/www i escapowanych slashy co planowana migracja. Wartości rekordów nie są wypisywane ani zapisywane do plików; istnieją tylko chwilowo w pamięci procesu.
+
+Odczyt wartości ma limity: 32 kolumny, 5000 rekordów, 8 MiB danych, 64 KiB na komórkę; dane są pobierane porcjami po 16 rekordów. Wcześniejsza agregacja SQL ustala liczbę rekordów i bajtów bez przekazywania treści do raportu. Przekroczenie limitu daje `scan_complete=false` i `limit_reason`; częściowy lub zerowy licznik w takim wyniku **nie oznacza braku adresów**. Surowe komunikaty WP-CLI są przechowywane wyłącznie w prywatnym katalogu runtime. Wynik nie jest transakcyjnym obrazem bazy: liczniki rozmiaru są sprawdzane ponownie, a przed ewentualną zmianą trzeba powtórzyć kontrolę.
+
+Diagnoza nie usuwa blokera i niczego nie naprawia automatycznie. Jeżeli tabela jest pusta albo pełny odczyt potwierdzi brak dawnych adresów, można rozważyć osobno zatwierdzone wykluczenie dokładnie tej tabeli z migracji, z ponowną kontrolą struktury i treści. Zachowuje to wszystkie dane bez dodawania klucza. Jeżeli tabela zawiera dawne adresy, należy najpierw ustalić jej rolę i sposób identyfikowania rekordów; nie dodawać automatycznie PK i nie usuwać tabeli.
 
 ## Zastosowanie po przełączeniu domeny
 
