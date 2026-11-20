@@ -7,7 +7,7 @@ const SOURCE_HOME='/home/molo11';
 const EXCHANGE=SOURCE_HOME.'/private/sezam-catalog-transfer';
 const TARGET='lombardgorzow.com';
 const DEPENDENCIES=[
-    'bootstrap-lombardgorzow.php'=>'02814f6bad0b894d26b5c61f6e5de7e68710a9a8d2e3af6725230c316dfc8636',
+    'bootstrap-lombardgorzow.php'=>'7ffddda717927517c63220d55c2dd98837586069f9ea5a4df3e346eec516f457',
     'send-lombardgorzow.php'=>'33ba90f2e61e9be1fd9429dc6af505d1cee5dc215949799c29d26e525700cc70',
     // Exact GitHub blob c51c951a3a297afea4f9a142c5fdd994e9cd9a57 (no extra reference-snapshot LF).
     'send.php'=>'1cf985ab762d945bedd9a133373700243e41b09e7a19044084a7fbd5644b0056',
