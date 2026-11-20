@@ -6,9 +6,17 @@ Kod rozwijanej strony jest na gałęzi `work/sezam-kontakt-cennik`, nie na `main
 
 ## Warunek serwera przed wdrożeniem
 
-Weryfikacja panelu JDM z 20 listopada 2026 wykazała, że nowa strona nr `23048` zawiera nieuruchomiony instalator WordPress 7.1.5, mimo wyboru pustej strony podczas tworzenia. Nie spełnia więc jeszcze warunku niezależnego, pustego katalogu HTML. Wdrożenia oraz zadania Cron nie wolno uruchamiać, dopóki katalog nowej subdomeny nie zostanie bezpiecznie przygotowany i ponownie sprawdzony. Zabezpieczenia skryptu mają pozostać włączone.
+Weryfikacja panelu JDM z 20 listopada 2026 wykazała, że nowa strona nr `23048` zawiera nieuruchomiony instalator WordPress 7.1.5, mimo wyboru pustej strony podczas tworzenia. Nie spełnia więc jeszcze warunku niezależnego, pustego katalogu HTML. Wdrożenia ani publikującego zadania Cron nie wolno uruchamiać, dopóki katalog nowej subdomeny nie zostanie bezpiecznie przygotowany i ponownie sprawdzony. Zabezpieczenia skryptu mają pozostać włączone.
 
 Przygotowanie może dotyczyć wyłącznie nowej strony `nowa.lombardgorzow.com`; nie wolno zmieniać działającego WordPressa pod `lombardgorzow.com` ani wykonywać jego kopii lub archiwum. Rekord DNS nowej subdomeny i HTTPS również wymagają oddzielnego potwierdzenia przed publikacją.
+
+## Jednorazowe przygotowanie nowego katalogu HTML
+
+Skrypt `scripts/prepare-jdm-static.php` jest ograniczony do konta `vvictgzv` i jego własnego katalogu `public_html`. Domyślnie wykonuje wyłącznie kontrolę; ten sam tryb można jawnie wybrać argumentem `--check`. Wymaga PHP CLI z `posix` i `proc_open` oraz zainstalowanego, należącego do administratora WP-CLI w `/usr/local/bin/wp` albo `/usr/bin/wp`. Sprawdza właścicieli i typy plików, odrzuca dowiązania, niepusty katalog uploads, dodatkowe treści i istniejącą stronę statyczną. Oficjalne sumy plików WordPressa muszą być zgodne, a `wp core is-installed` musi jednoznacznie potwierdzić brak skonfigurowanej instalacji. Błąd, brak narzędzia lub niejednoznaczny wynik zatrzymuje procedurę.
+
+Najpierw należy pobrać skrypt z zatwierdzonego commitu GitHub do prywatnego katalogu `~/.sezam-nowa-deploy/`, potwierdzić ustaloną sumę SHA-256 i wykonać `php -l`, a następnie `php przygotowany-plik.php --check`. Tymczasowe zadanie Cron może wykonywać wyłącznie ten test. Jego bezpieczny komunikat wynikowy można udostępnić jako `public_html/sezam-bootstrap-check.txt`; przed kolejnym sprawdzeniem trzeba przenieść wyłącznie ten własny plik diagnostyczny do prywatnego katalogu, aby nie naruszał kontroli pustego instalatora. Pełny wynik kontroli pozostaje prywatny. Po odczytaniu wyniku tymczasowy Cron należy wyłączyć.
+
+Dopiero po przeglądzie pomyślnego wyniku można oddzielnie uruchomić `--apply`. Ten argument przenosi cały katalog nowego instalatora przez zmianę nazwy na `~/.jdm-unused-installer-23048`, ustawia mu uprawnienia `0700` i tworzy nowy pusty `public_html` z uprawnieniami `0755`. Nie kopiuje plików, nie tworzy archiwum, nie usuwa danych i nie wykonuje operacji na bazie danych. Jeśli utworzenie świeżego katalogu się nie powiedzie, przywraca wcześniejszą nazwę. Powtórne uruchomienie rozpoznaje przygotowany pusty katalog lub opublikowaną stronę SEZAM i niczego ponownie nie przenosi. Wspólna blokada zapobiega nakładaniu tej operacji z wdrożeniem.
 
 ## Przygotowanie paczki
 
