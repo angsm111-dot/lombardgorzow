@@ -2,6 +2,8 @@
 """Build the selected SEZAM website from shared layout and page sources."""
 from pathlib import Path
 from html import escape
+from check_frozen_versions import verify
+from version_navigation import version_navigation
 
 ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = 'https://sezam-nowa-wartosc-gorzow.angsm111.chatgpt.site'
@@ -24,6 +26,7 @@ PAGES = [
 ]
 
 def build():
+    verify()
     layout = (ROOT / 'src/layout.html').read_text()
     paths = []
     for key, slug, name, title, description in PAGES:
@@ -35,7 +38,7 @@ def build():
         crumbs = '' if is_home else f'<nav class="breadcrumbs wrap" aria-label="Ścieżka nawigacji"><a href="/">Strona główna</a><span aria-hidden="true">/</span><span aria-current="page">{escape(name)}</span></nav>'
         if slug.startswith('blog/'):
             crumbs = f'<nav class="breadcrumbs wrap" aria-label="Ścieżka nawigacji"><a href="/">Strona główna</a><span aria-hidden="true">/</span><a href="/blog/">Blog</a><span aria-hidden="true">/</span><span aria-current="page">{escape(name)}</span></nav>'
-        extra = '<script src="/prices.js" defer></script><link rel="stylesheet" href="/metal-theme.css"><link rel="stylesheet" href="/pricing-layout.css">' if key == 'cennik-zlota' else ('<link rel="preload" as="image" href="/assets/sezam-jewelry-bullion.webp">' if is_home else '')
+        extra = '<script src="/prices.js" defer></script><link rel="stylesheet" href="/metal-theme.css"><link rel="stylesheet" href="/pricing-layout.css">' if key == 'cennik-zlota' else ('<link rel="preload" as="image" href="/assets/sezam-jewelry-hafner.webp">' if is_home else '')
         if key == 'co-przyjmujemy':
             extra += '<link rel="stylesheet" href="/categories.css">'
         if key == 'obraczki':
@@ -44,13 +47,7 @@ def build():
             extra += '<link rel="stylesheet" href="/blog.css">'
         if key == 'home-current':
             extra += '\n<meta name="robots" content="noindex,follow">'
-        original_active = ' aria-current="page"' if key == 'home' else ''
-        current_active = ' aria-current="page"' if key == 'home-current' else ''
-        switcher = ('<nav class="version-switcher" aria-label="Porównaj wersje strony głównej"><div class="wrap">'
-                    '<span class="version-switcher-label">Porównaj stronę główną</span><div class="version-switcher-links">'
-                    f'<a href="/"{original_active}>Pierwsza — pełna</a>'
-                    f'<a href="/wersja-obecna/"{current_active}>Obecna — skrócona</a>'
-                    '</div></div></nav>')
+        switcher = version_navigation(1 if key == 'home' else 2 if key == 'home-current' else None)
         content = source.read_text()
         for partial, filename in [('google_reviews', 'google-reviews'), ('new_customer_offer', 'new-customer-offer')]:
             if '{{' + partial + '}}' in content:

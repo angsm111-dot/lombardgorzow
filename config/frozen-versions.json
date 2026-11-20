@@ -1,0 +1,33 @@
+{
+  "versions": [
+    {
+      "name": "3 — pierwotny projekt",
+      "source_commit": "95518111742391729b954dc75710b88cdab8b71a",
+      "route": "/wersja-pierwotna/",
+      "files": {
+        "dist/wersja-pierwotna/index.html": "33229f5a277ac48ac6a526874f6bc37d9d3fa6c7282011de9283c03351d7efa2",
+        "dist/wersja-pierwotna/projekt/app.js": "752f4b83e66538929e6c39e294a931ff427b5072b2cbc76e019e8f66b30832f5",
+        "dist/wersja-pierwotna/projekt/assets/EDITORIAL-FONT-LICENSE.txt": "1315a62758a603a3e6e87a79b8389563789c59c1740b9db8bc2b20e2e2145458",
+        "dist/wersja-pierwotna/projekt/assets/FONT-LICENSE.txt": "f32df582a2aab128c07b2f7e36e7b928dc5f6bd82657b905c04f91459f9e5cf9",
+        "dist/wersja-pierwotna/projekt/assets/SYMBOL-FONT-LICENSE.txt": "63d3ba759d12804c5b31a9d5940d855c1820d1f5999e6b0872eb1c7ff045fbc9",
+        "dist/wersja-pierwotna/projekt/assets/arrows.woff": "74735167c8885333be9006ae40600d76fbdf7ed589585174762ec4c9f1d5c76b",
+        "dist/wersja-pierwotna/projekt/assets/coins.webp": "218f0ef2d854a0c9cbfb9255936f0232b6d6d703b30829477706045a7414c77d",
+        "dist/wersja-pierwotna/projekt/assets/editorial-italic.woff": "d92daf3a528955bf2a86057894e0c69f7f0d5febffc1f7f7da586495377b31c6",
+        "dist/wersja-pierwotna/projekt/assets/editorial-regular.woff": "bec715bfdf94157b908d03b751aeab363db0611c81ab2aedc1454d3912f2d244",
+        "dist/wersja-pierwotna/projekt/assets/favicon.svg": "ab13d504c3c9eaa7c87591269df13ec4e355e5000422eaedac4c92ee6318df51",
+        "dist/wersja-pierwotna/projekt/assets/gold-bars.webp": "0b45d364679feb6d3393ec985303ecb25a8050676b6e7747d86ed5212f27e709",
+        "dist/wersja-pierwotna/projekt/assets/jewelry-cutout.webp": "5e62a20d3b20092dcea714374c90bb2563510f275dda53e07b88012623a779cd",
+        "dist/wersja-pierwotna/projekt/assets/pearl-marble.webp": "9f361f823cb401694de0d55ae983798baa5295828fb043c1e4bfc1a1fdb8c7d1",
+        "dist/wersja-pierwotna/projekt/assets/sans-bold.woff": "f73798a610ea76c9f49de9bf2c2a727700d4427863f918642b36e2955dd4d4f7",
+        "dist/wersja-pierwotna/projekt/assets/sans.woff": "d6aff6f2c869f1599091623ae32f53b853af8949a8bbe4537df298121d6e0bb7",
+        "dist/wersja-pierwotna/projekt/assets/sezam-jewelry.webp": "942d9705e57e5bc026cc7b27eb1de433b9020f8af6b998fb33cef0cf5b943b63",
+        "dist/wersja-pierwotna/projekt/assets/sezam-tech.webp": "bcdc5bfc3533fa3bb381e7a300e5e5f2dbee544a09d779324b4cdabca486aa7e",
+        "dist/wersja-pierwotna/projekt/components.css": "fab6c2c051e45089f5d4fa22d465d41a754f84113c939c1a7e96ca93f2594dae",
+        "dist/wersja-pierwotna/projekt/index.html": "a37a8ddc24aa3b87ea907efdf1a607ac7c3c5bf367a2e9079f0ed185d5f26474",
+        "dist/wersja-pierwotna/projekt/luxury.css": "b0f428806c66738ce666d17c87e7ede98a0fb2baf99be19d62ec0ed25fdc24a4",
+        "dist/wersja-pierwotna/projekt/styles.css": "3d8c5854e104ae3ac5deef730889269e750f6fe47b38f83beafb04c41bfca13f",
+        "dist/wersja-pierwotna/version-switcher.css": "285ea9e5fb3793d63d542fc283fd0103e396cfb5a7df8ca6bcc642c1e1a25fd4"
+      }
+    }
+  ]
+}

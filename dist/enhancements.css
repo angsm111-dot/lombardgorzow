@@ -67,3 +67,10 @@
 }
 @media(max-width:360px){.header .brand{font-size:21px;gap:6px}.header .brand>svg{width:23px}.header .header-phone{font-size:10px}.header .nav-wrap{gap:7px}.welcome-copy>strong{font-size:17px}.welcome-copy>a{font-size:12px}.welcome-copy>span{font-size:10px}.welcome-rate{padding-right:12px}.hero .welcome-offer{gap:12px;padding-inline:12px}}
 @media(prefers-reduced-motion:reduce){.whatsapp-circle{transition:none}.whatsapp-float:hover .whatsapp-circle{transform:none}}
+/* Keep the bullion visible on narrow screens; the note sits below the photo. */
+@media(max-width:760px){
+  .page-home .hero-visual{margin-bottom:86px}
+  .page-home .hero-visual .cash-note{top:calc(100% + 18px);bottom:auto;left:0;right:0;padding:12px 15px}
+  .page-home .hero-visual .cash-note strong{font-size:14px}
+  .page-home .hero-visual .cash-note small{font-size:11px}
+}
