@@ -4,6 +4,12 @@ Zakres wdrożenia: wyłącznie nowa, niezależna strona HTML pod adresem `https:
 
 Kod rozwijanej strony jest na gałęzi `work/sezam-kontakt-cennik`, nie na `main`. Wszystkie trzy wersje są dostępne przez przełącznik: `/`, `/wersja-obecna/` oraz `/wersja-pierwotna/`. Wersja 3 ma 22 chronione pliki; eksport zachowuje je bajt w bajt.
 
+## Warunek serwera przed wdrożeniem
+
+Weryfikacja panelu JDM z 20 listopada 2026 wykazała, że nowa strona nr `23048` zawiera nieuruchomiony instalator WordPress 7.1.5, mimo wyboru pustej strony podczas tworzenia. Nie spełnia więc jeszcze warunku niezależnego, pustego katalogu HTML. Wdrożenia oraz zadania Cron nie wolno uruchamiać, dopóki katalog nowej subdomeny nie zostanie bezpiecznie przygotowany i ponownie sprawdzony. Zabezpieczenia skryptu mają pozostać włączone.
+
+Przygotowanie może dotyczyć wyłącznie nowej strony `nowa.lombardgorzow.com`; nie wolno zmieniać działającego WordPressa pod `lombardgorzow.com` ani wykonywać jego kopii lub archiwum. Rekord DNS nowej subdomeny i HTTPS również wymagają oddzielnego potwierdzenia przed publikacją.
+
 ## Przygotowanie paczki
 
 Wymagany jest Python 3.9 lub nowszy. Z katalogu repozytorium uruchom:
