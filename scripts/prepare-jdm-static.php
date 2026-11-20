@@ -15,14 +15,24 @@ function prepDirectory(string $path, int $uid): void {
     prepRequire(!is_link($path) && is_dir($path) && fileowner($path) === $uid, 'Directory type or ownership mismatch.');
 }
 
+function prepJdmCacheDropIn(SplFileInfo $item, string $relative, int $uid): bool {
+    /* Observed JDM-provisioned file in NEW site 23048; no other ownership exception. */
+    return $relative === 'wp-content/object-cache.php'
+        && !$item->isLink() && $item->isFile()
+        && $item->getOwner() === 0 && $item->getGroup() === $uid
+        && ($item->getPerms() & 07777) === 0750 && $item->getSize() === 49029;
+}
+
 function prepInventory(string $directory, int $uid): array {
     prepDirectory($directory, $uid);
     $files = [];
     $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST);
     foreach ($iterator as $item) {
         prepRequire(count($files) < 12000, 'Unexpectedly large scaffold.');
-        prepRequire(!$item->isLink() && $item->getOwner() === $uid && ($item->isDir() || $item->isFile()), 'Unexpected path type, symbolic link or owner.');
-        $files[] = substr($item->getPathname(), strlen($directory) + 1);
+        $relative = substr($item->getPathname(), strlen($directory) + 1);
+        $owned = $item->getOwner() === $uid || prepJdmCacheDropIn($item, $relative, $uid);
+        prepRequire(!$item->isLink() && $owned && ($item->isDir() || $item->isFile()), 'Unexpected path type, symbolic link or owner.');
+        $files[] = $relative;
     }
     return $files;
 }
@@ -35,6 +45,10 @@ function prepScaffold(string $web, array $inventory): void {
         prepRequire(strpos($relative, 'wp-content/uploads/') !== 0, 'Uploads directory is not empty.');
         prepRequire(strpos($relative, 'wp-content/mu-plugins/') !== 0, 'Must-use plugins require separate review.');
         if (strpos($relative, 'wp-content/') === 0) {
+            if ($relative === 'wp-content/object-cache.php') {
+                prepRequire(prepJdmCacheDropIn(new SplFileInfo($web . '/' . $relative), $relative, fileowner($web)), 'Unrecognized JDM cache drop-in.');
+                continue;
+            }
             $contentTop = explode('/', substr($relative, 11))[0];
             prepRequire(in_array($contentTop, ['plugins', 'themes', 'uploads', 'mu-plugins', 'languages', 'index.php'], true), 'Unexpected wp-content content or drop-in.');
         }
