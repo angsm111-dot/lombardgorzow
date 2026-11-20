@@ -85,7 +85,13 @@ $$('#main-nav a').forEach(a=>{
 });
 const header=$('.header');
 if (header) {
-  const updateHeader=()=>header.classList.toggle('scrolled',window.scrollY>15);
+  let headerScrolled;
+  const updateHeader=()=>{
+    const scrolled=window.scrollY>15;
+    if(scrolled===headerScrolled)return;
+    headerScrolled=scrolled;
+    header.classList.toggle('scrolled',scrolled);
+  };
   updateHeader();
   window.addEventListener('scroll',updateHeader,{passive:true});
 }

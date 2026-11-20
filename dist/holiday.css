@@ -52,3 +52,10 @@
 }
 @media(max-width:360px){.header .nav-wrap{gap:6px}.header .brand-sezam{font-size:22px}.header .brand-lombard{font-size:10px}.header .header-phone{font-size:11px}.header .header-actions{gap:6px}.header-whatsapp{width:34px}.header .menu-toggle{width:28px;min-width:28px}}
 @media(prefers-reduced-motion:reduce){.holiday-snow{display:none}.snowflake{animation:none}}
+
+/* Solid mobile bars avoid re-blurring the moving page on every scroll frame. */
+@media(max-width:760px),(hover:none) and (pointer:coarse){
+ .header{background:#fcfcfb;-webkit-backdrop-filter:none;backdrop-filter:none}
+ .mobile-bar{background:#fcfcf9;-webkit-backdrop-filter:none;backdrop-filter:none}
+ .snowflake{filter:none}
+}

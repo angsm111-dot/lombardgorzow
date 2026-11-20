@@ -206,7 +206,7 @@ Sprawdzenie aktualizacji: 7 stron na mobilnym viewport 390 px (375 px treści), 
 - Zdjęcie obu stron głównych: nowy `assets/sezam-jewelry-bullion.webp` (1536×1024, 177698 B). Wbudowana edycja obrazu: zachowaj istniejące obrączki, pierścionek, łańcuszek, marmurowy podest, perspektywę i światło; dodaj niewielką sztabkę i realistycznego Krugerranda ze springbokiem, opartych o przednią krawędź płyty, z naturalnymi cieniami. Oryginalny obraz zachowano i wykorzystano na stronie Obrączki.
 - Sprawdzenie: 15 stron z poprawnymi lokalnymi linkami, zasobami, jednym H1/main i unikalnymi ID. Weryfikacja JSON-LD, mapy strony i zgodności generatora. Przegląd nowych układów na komputerze, 390 px oraz szerokości 320 i 1024 px: bez poziomego przewijania i brakujących obrazów. Sprawdzono menu, link do artykułu, pauzowanie/wznawianie śniegu, położenie WhatsApp i srebrne kategorie. Składnia JS i git diff --check bez błędów.
 
-## Cztery wersje strony głównej
+## Pięć wersji strony głównej
 
 | Wersja | Adres | Zawartość |
 | --- | --- | --- |
@@ -214,8 +214,9 @@ Sprawdzenie aktualizacji: 7 stron na mobilnym viewport 390 px (375 px treści), 
 | 2. Skrócona | `/wersja-obecna/` | Skrócona strona główna z bieżącymi poprawkami. |
 | 3. Pierwotna | `/porownanie-wersji/pierwotna/` | Niezmieniony pierwszy projekt w osobnym podglądzie z aktualnym przełącznikiem. |
 | 4. Pośrednia | `/wersja-posrednia/` | Osobna kopia pełnej strony bez sekcji „03 / DOBRZE SIĘ ZNAMY”. |
+| 5. Kalkulator | `/wersja-kalkulator/` | Wariant bez bloków 01 i 03; kalkulator w miejscu bloku 01, a pod nim trzy dotychczasowe kafelki oferty. |
 
-Wersję 4 utrzymuje osobny plik `src/pages/home-intermediate.html`. Usunięcie wskazanej sekcji dotyczy wyłącznie tego wariantu; treść wersji 1 i 2 pozostaje zachowana. Wspólny przełącznik zawiera cztery pozycje, a przy szerokości do 480 px układa przyciski w dwóch rzędach.
+Wersję 4 utrzymuje osobny plik `src/pages/home-intermediate.html`, a wersję 5 — `src/pages/home-calculator.html`. Zmiany układu wersji 5 dotyczą wyłącznie tego wariantu; treść wersji 1, 2 i 4 pozostaje zachowana. Wspólny przełącznik zawiera pięć pozycji. Przy szerokości do 480 px przyciski układają się w dwóch kolumnach, z piątą pozycją na pełnej szerokości, i zachowują minimum 44 px wysokości.
 
 Wersja 3 zachowuje wszystkie 20 plików oryginalnego projektu z commitu `95518111742391729b954dc75710b88cdab8b71a` w `dist/wersja-pierwotna/projekt/`. Manifest `config/frozen-versions.json` chroni również jej wcześniejszy wrapper i arkusz stylów — łącznie 22 pliki. Kontrola `python3 scripts/check_frozen_versions.py` sprawdza ich sumy SHA-256; generator uruchamia ją przed budowaniem stron.
 

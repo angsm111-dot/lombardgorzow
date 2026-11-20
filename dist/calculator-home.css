@@ -1,0 +1,5 @@
+/* Spacing isolated to version 5. Existing card and calculator styling is shared. */
+.page-home-calculator .calculator-section{margin-top:100px}
+.page-home-calculator .homepage-metals{padding-top:44px;padding-bottom:90px}
+.page-home-calculator .homepage-metals .specialties{margin-top:0}
+@media(max-width:760px){.page-home-calculator .calculator-section{margin-top:62px}.page-home-calculator .homepage-metals{padding-top:28px;padding-bottom:62px}}

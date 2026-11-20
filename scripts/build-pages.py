@@ -11,6 +11,7 @@ PAGES = [
     ('home', '', 'Strona główna', 'SEZAM — Daj rzeczom nową wartość. Lombard Gorzów', 'Lombard SEZAM w Gorzowie Wielkopolskim. Pożyczki pod zastaw, skup złota i srebra, biżuteria i elektronika. Odwiedź nas przy Pocztowej 11.'),
     ('home-current', 'wersja-obecna', 'Obecna wersja strony głównej', 'SEZAM — obecna, skrócona strona główna', 'Zachowana skrócona wersja strony głównej SEZAM z odnośnikami do osobnych podstron.'),
     ('home-intermediate', 'wersja-posrednia', 'Pośrednia wersja strony głównej', 'SEZAM — pośrednia wersja strony głównej', 'Wersja pośrednia strony głównej SEZAM: pełna oferta, kalkulator, pytania i kontakt, bez sekcji Dobrze się znamy.'),
+    ('home-calculator', 'wersja-kalkulator', 'Wersja strony głównej z kalkulatorem', 'SEZAM — wersja z kalkulatorem i kafelkami', 'Wersja strony głównej SEZAM z kalkulatorem opłat oraz kafelkami monet, sztabek i biżuterii, bez sekcji 01 i 03.'),
     ('oferta', 'oferta', 'Nasza oferta', 'Nasza oferta — skup, zastaw, sprzedaż i serwis | SEZAM Gorzów', 'Sprawdź ofertę SEZAM: skup złota i elektroniki, pożyczki pod zastaw, sprzedaż biżuterii oraz serwis telefonów w Gorzowie.'),
     ('co-przyjmujemy', 'co-przyjmujemy', 'Co przyjmujemy', 'Co przyjmujemy pod zastaw? | Lombard SEZAM Gorzów', 'Złoto, srebro, platyna, brylanty, telefony, laptopy, konsole, elektronarzędzia i rowery. Sprawdź, co możesz przynieść do wyceny w Lombardzie SEZAM.'),
     ('cennik-zlota', 'cennik-zlota', 'Cennik złota', 'Cennik skupu złota | SEZAM Gorzów', 'Cennik skupu złota w Lombardzie SEZAM. Sprawdź stawki dla poszczególnych prób i oblicz orientacyjną wartość swojego złota.'),
@@ -35,26 +36,28 @@ def build():
         if not source.is_file():
             raise SystemExit(f'Missing page source: {source}')
         path = '/' + slug + '/' if slug else '/'
-        is_home = key in ('home', 'home-current', 'home-intermediate')
+        is_home = key in ('home', 'home-current', 'home-intermediate', 'home-calculator')
         crumbs = '' if is_home else f'<nav class="breadcrumbs wrap" aria-label="Ścieżka nawigacji"><a href="/">Strona główna</a><span aria-hidden="true">/</span><span aria-current="page">{escape(name)}</span></nav>'
         if slug.startswith('blog/'):
             crumbs = f'<nav class="breadcrumbs wrap" aria-label="Ścieżka nawigacji"><a href="/">Strona główna</a><span aria-hidden="true">/</span><a href="/blog/">Blog</a><span aria-hidden="true">/</span><span aria-current="page">{escape(name)}</span></nav>'
         extra = '<script src="/prices.js" defer></script><link rel="stylesheet" href="/metal-theme.css"><link rel="stylesheet" href="/pricing-layout.css">' if key == 'cennik-zlota' else ('<link rel="preload" as="image" href="/assets/sezam-jewelry-hafner.webp">' if is_home else '')
+        if key == 'home-calculator':
+            extra += '<link rel="stylesheet" href="/calculator-home.css">'
         if key == 'co-przyjmujemy':
             extra += '<link rel="stylesheet" href="/categories.css">'
         if key == 'obraczki':
             extra += '<link rel="stylesheet" href="/rings.css">'
         if key == 'blog' or key.startswith('blog-'):
             extra += '<link rel="stylesheet" href="/blog.css">'
-        if key in ('home-current', 'home-intermediate'):
+        if key in ('home-current', 'home-intermediate', 'home-calculator'):
             extra += '\n<meta name="robots" content="noindex,follow">'
-        switcher = version_navigation({'home': 1, 'home-current': 2, 'home-intermediate': 4}.get(key))
+        switcher = version_navigation({'home': 1, 'home-current': 2, 'home-intermediate': 4, 'home-calculator': 5}.get(key))
         content = source.read_text()
         for partial, filename in [('google_reviews', 'google-reviews'), ('new_customer_offer', 'new-customer-offer')]:
             if '{{' + partial + '}}' in content:
                 content = content.replace('{{' + partial + '}}', (ROOT / f'src/partials/{filename}.html').read_text())
         values = {'title': escape(title), 'description': escape(description, quote=True), 'canonical': ORIGIN + path,
-                  'body_class': 'page-home' if is_home else f'page-subpage page-{key}', 'breadcrumbs': crumbs,
+                  'body_class': ('page-home page-home-calculator' if key == 'home-calculator' else 'page-home') if is_home else f'page-subpage page-{key}', 'breadcrumbs': crumbs,
                   'content': content, 'extra_head': extra, 'version_switcher': switcher}
         page = layout
         for token, value in values.items():
@@ -71,7 +74,7 @@ def build():
         destination = ROOT / 'dist' / slug / 'index.html'
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(page)
-        if key not in ('home-current', 'home-intermediate'):
+        if key not in ('home-current', 'home-intermediate', 'home-calculator'):
             paths.append(path)
     comparison = (ROOT / 'src/original-comparison.html').read_text()
     comparison = comparison.replace('{{version_switcher}}', version_navigation(3))
@@ -80,7 +83,7 @@ def build():
     viewer.write_text(comparison)
     urls = '\n'.join(f'  <url><loc>{ORIGIN}{p}</loc></url>' for p in paths)
     (ROOT / 'dist/sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls + '\n</urlset>\n')
-    print('Built:', ', '.join(paths), 'and /wersja-obecna/, /wersja-posrednia/, /porownanie-wersji/pierwotna/')
+    print('Built:', ', '.join(paths), 'and /wersja-obecna/, /wersja-posrednia/, /wersja-kalkulator/, /porownanie-wersji/pierwotna/')
 
 if __name__ == '__main__':
     build()
