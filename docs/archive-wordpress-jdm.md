@@ -2,7 +2,7 @@
 
 Pomocnik `scripts/archive-wordpress-jdm.sh` dotyczy wyłącznie istniejącej witryny JDM **11344**, konta **lombard1**, serwera **web16** (`157.90.133.54`) i katalogu `/home/lombard1/public_html`. Nie przenosi plików WordPressa ani nie eksportuje bazy. Alias `stara.lombardgorzow.com` ma wskazywać ten sam istniejący WordPress; nowa strona działa osobno.
 
-**Stan: wykonano wyłącznie `--check`, który zatrzymał się na błędzie audytu WP-CLI przed zmianami WordPressa. `--apply` nie został wykonany.** Nie uruchamiać `--apply`, dopóki docelowa domena nie pokazuje zweryfikowanej nowej wersji 5. Skrypt przed uruchomieniem WP-CLI blokuje lokalne i nadrzędne pliki `wp-cli.yml`/`wp-cli.local.yml`, ponieważ mogą zawierać własne hooki lub kierować polecenia na inny serwer. Dodatkowo sprawdza nową stronę HTTPS: marker `page-home-calculator`, domenę docelową i brak zależności `/wp-content/`. Błędny wynik zatrzymuje pracę przed zmianami WordPressa.
+**Stan: dotychczasowe próby `--check`/`--diagnose` zatrzymały się przed zmianami WordPressa. Potwierdzono, że wrapper PHP na JDM rozdziela argumenty zawierające spacje. Pomocnik został dostosowany do uruchamiania kodu z prywatnych plików; poprawione `--check` wymaga jeszcze sprawdzenia na JDM. `--apply` nie został wykonany.** Nie uruchamiać `--apply`, dopóki docelowa domena nie pokazuje zweryfikowanej nowej wersji 5. Skrypt przed uruchomieniem WP-CLI blokuje lokalne i nadrzędne pliki `wp-cli.yml`/`wp-cli.local.yml`, ponieważ mogą zawierać własne hooki lub kierować polecenia na inny serwer. Dodatkowo sprawdza nową stronę HTTPS: marker `page-home-calculator`, domenę docelową i brak zależności `/wp-content/`. Błędny wynik zatrzymuje pracę przed zmianami WordPressa.
 
 ## Kontrola — domyślne działanie
 
@@ -12,7 +12,7 @@ Na JDM należy uruchomić jako użytkownik `lombard1`, nie jako root ani konto n
 bash /PRYWATNA-SCIEZKA/archive-wordpress-jdm.sh --check
 ```
 
-Brak argumentu oznacza to samo co `--check`. Kontrola wywołuje odczyty WP-CLI i `search-replace --dry-run`; nie zapisuje ustawień, plików strony ani stanu migracji. Pokazuje dostępność/wersję WP-CLI, `home`, `siteurl`, ustawienia `WP_HOME`/`WP_SITEURL`, prefiks i liczbę tabel, liczbę opublikowanych artykułów/stron/mediów oraz planowaną liczbę zmian. Nie drukuje konfiguracji bazy, danych logowania, zawartości rekordów ani surowych błędów WP/SQL.
+Brak argumentu oznacza to samo co `--check`. Kontrola wywołuje odczyty WP-CLI i `search-replace --dry-run`; nie zapisuje ustawień, plików strony ani metadanych migracji. Tworzy jedynie prywatny katalog roboczy `runtime.*` w `/home/lombard1/sezam-wp-archive-state/` (katalogi `0700`, pliki PHP `0600`). Kod jest uruchamiany przez `php /prywatny/plik.php`, `wp eval-file` i `--require=/prywatny/bootstrap.php`; nie jest przekazywany jako argument źródłowy do wrappera PHP. Katalogi robocze pozostają prywatne do przeglądu. Pokazuje dostępność/wersję WP-CLI, `home`, `siteurl`, ustawienia `WP_HOME`/`WP_SITEURL`, prefiks i liczbę tabel, liczbę opublikowanych artykułów/stron/mediów oraz planowaną liczbę zmian. Nie drukuje konfiguracji bazy, danych logowania, zawartości rekordów ani surowych błędów WP/SQL.
 
 WP-CLI pomija zwykłe wtyczki, motyw i pakiety. WordPress nadal może wczytać swoje istniejące must-use plugins i drop-ins — jest to zachowanie WP-CLI. Pomocnik nie wyłącza ich przez zmianę plików. Raport należy obejrzeć przed zastosowaniem; referencyjna inwentaryzacja starej witryny obejmowała **41 wpisów oraz 17 stron**.
 
@@ -27,11 +27,11 @@ Stałe `WP_HOME` i `WP_SITEURL`, niestandardowe lokalizacje treści, jawne `WP_C
 bash /PRYWATNA-SCIEZKA/archive-wordpress-jdm.sh --diagnose
 ```
 
-Raport błędu powstaje w Bashu i nie zależy od możliwości odczytu prywatnych plików przez PHP. Wykonuje trzy ograniczone próby: `wp eval --skip-wordpress`, samo uruchomienie WordPressa oraz ten sam pełny audyt co `--check`. Nie wykonuje zamiany URL-i ani aktualizacji opcji, nie instaluje wtyczki i nie dotyka plików WordPressa. Nadal obowiązują wszystkie ograniczenia konta, hosta, ścieżki i konfiguracji WP-CLI.
+Raport błędu powstaje w Bashu i nie zależy od możliwości odczytu prywatnych plików przez PHP. Wykonuje trzy ograniczone próby: `wp eval-file --skip-wordpress`, samo uruchomienie WordPressa oraz ten sam pełny audyt co `--check`. Nie wykonuje zamiany URL-i ani aktualizacji opcji, nie instaluje wtyczki i nie dotyka plików WordPressa. Nadal obowiązują wszystkie ograniczenia konta, hosta, ścieżki i konfiguracji WP-CLI.
 
 Surowe stdout/stderr trafiają do nowego katalogu `run.*` w `/home/lombard1/sezam-wp-archive-state/diagnostics/`, poza `public_html`. Katalogi mają `0700`, a logi `0600`. Logi mogą zawierać wewnętrzne szczegóły błędu; nie kopiować ich do pliku publicznego. Publiczny wynik zawiera wyłącznie zdefiniowane nazwy etapów, kod zakończenia, kategorię błędu, informacje o obecności znacznika, ostrzeżeń/deprecjacji, liczbę bajtów oraz ogólne kategorie komponentów. Już próba bez WordPressa pokazuje zweryfikowany format wersji PHP używanej przez WP-CLI i dostępność mysqli. Udany bootstrap dodatkowo pokazuje logiczną informację o obecności hooka konfiguracji. Nazwy baz, użytkowników DB, hasła, treść konfiguracji, SQL, ścieżki z tracebacków i fragmenty surowych błędów nie są przekazywane do raportu.
 
-Przykłady interpretacji: `eval_without_wordpress=ok` i błąd `wordpress_bootstrap` wskazują na ładowanie WordPressa lub jego drop-ins/MU plugins. Udany bootstrap i błąd `full_readonly_audit` wskazują na konkretny warunek lub zapytanie audytu. `config_hook_missing` nazywa dokładny warunek ochronny helpera. `expected_marker_missing` przy exit0 pozwala odróżnić brak oczekiwanego wyjścia od błędu procesu. Dodatkowy `php_classifier_probe` jednokrotnie odtwarza wcześniejszy błąd klasyfikatora PHP, zachowuje jego stderr prywatnie i publikuje już tylko kategorię rozpoznaną w Bashu (np. `filesystem_open_basedir`, `cli_argv_unavailable`, `php_file_read_unavailable`). Jego błąd nie przerywa kolejnych prób. Kategoria `unclassified_failure` oznacza potrzebę prywatnego przeglądu, nie zgodę na pokazanie całego logu.
+Przykłady interpretacji: `eval_without_wordpress=ok` i błąd `wordpress_bootstrap` wskazują na ładowanie WordPressa lub jego drop-ins/MU plugins. Udany bootstrap i błąd `full_readonly_audit` wskazują na konkretny warunek lub zapytanie audytu. `config_hook_missing` nazywa dokładny warunek ochronny helpera. `expected_marker_missing` przy exit0 pozwala odróżnić brak oczekiwanego wyjścia od błędu procesu. Dodatkowy `php_classifier_probe` jednokrotnie sprawdza klasyfikator PHP uruchamiany z prywatnego pliku, zachowuje jego stderr prywatnie i publikuje już tylko kategorię rozpoznaną w Bashu (np. `filesystem_open_basedir`, `cli_argv_unavailable`, `php_file_read_unavailable`). Jego błąd nie przerywa kolejnych prób. Kategoria `unclassified_failure` oznacza potrzebę prywatnego przeglądu, nie zgodę na pokazanie całego logu.
 
 ## Zastosowanie po przełączeniu domeny
 
@@ -61,9 +61,21 @@ Poniższe polecenia są instrukcją cofnięcia; pomocnik **nie wykonuje ich auto
 cd /home/lombard1/public_html
 export WP_CLI_CONFIG_PATH=/dev/null
 ARCHIVE_STATE=/home/lombard1/sezam-wp-archive-state/original-settings.json
-ARCHIVE_OLD_HOME=$(php -r '$s=json_decode(file_get_contents($argv[1]),true); echo $s["home"];' "$ARCHIVE_STATE")
-ARCHIVE_OLD_SITEURL=$(php -r '$s=json_decode(file_get_contents($argv[1]),true); echo $s["siteurl"];' "$ARCHIVE_STATE")
-ARCHIVE_OLD_PUBLIC=$(php -r '$s=json_decode(file_get_contents($argv[1]),true); echo $s["blog_public"];' "$ARCHIVE_STATE")
+umask 077
+ARCHIVE_ROLLBACK_DIR=$(mktemp -d /home/lombard1/sezam-wp-archive-state/rollback.XXXXXXXX)
+cat > "$ARCHIVE_ROLLBACK_DIR/read-setting.php" <<'PHP'
+<?php
+$s = json_decode(file_get_contents($argv[1]), true);
+$key = $argv[2];
+if (!is_array($s) || !in_array($key, array('home', 'siteurl', 'blog_public'), true)) { exit(1); }
+$value = $s[$key] ?? null;
+$allowed = $key === 'blog_public' ? array('0', '1') : array('http://lombardgorzow.com', 'https://lombardgorzow.com', 'http://www.lombardgorzow.com', 'https://www.lombardgorzow.com');
+if (!is_string($value) || !in_array(rtrim($value, '/'), $allowed, true)) { exit(1); }
+echo $value;
+PHP
+ARCHIVE_OLD_HOME=$(php "$ARCHIVE_ROLLBACK_DIR/read-setting.php" "$ARCHIVE_STATE" home)
+ARCHIVE_OLD_SITEURL=$(php "$ARCHIVE_ROLLBACK_DIR/read-setting.php" "$ARCHIVE_STATE" siteurl)
+ARCHIVE_OLD_PUBLIC=$(php "$ARCHIVE_ROLLBACK_DIR/read-setting.php" "$ARCHIVE_STATE" blog_public)
 ARCHIVE_WP=(wp --path=/home/lombard1/public_html --skip-plugins --skip-themes --skip-packages --no-color)
 
 # Najpierw obejrzyj wyłącznie licznik planowanych zmian.
@@ -82,7 +94,15 @@ ARCHIVE_DISABLED="/home/lombard1/sezam-wp-archive-state/sezam-old-site.disabled.
 mv -- /home/lombard1/public_html/wp-content/mu-plugins/sezam-old-site.php "$ARCHIVE_DISABLED"
 
 # Cache tylko tego WordPressa, bez globalnego flush.
-"${ARCHIVE_WP[@]}" eval 'global $wpdb; foreach ($wpdb->get_col("SELECT ID FROM `".$wpdb->posts."`") as $id) { clean_post_cache((int)$id); } foreach ($wpdb->get_col("SELECT option_name FROM `".$wpdb->options."`") as $key) { wp_cache_delete($key,"options"); } wp_cache_delete("alloptions","options"); wp_cache_delete("notoptions","options");'
+cat > "$ARCHIVE_ROLLBACK_DIR/invalidate-cache.php" <<'PHP'
+<?php
+global $wpdb;
+foreach ($wpdb->get_col("SELECT ID FROM `".$wpdb->posts."`") as $id) { clean_post_cache((int)$id); }
+foreach ($wpdb->get_col("SELECT option_name FROM `".$wpdb->options."`") as $key) { wp_cache_delete($key, "options"); }
+wp_cache_delete("alloptions", "options");
+wp_cache_delete("notoptions", "options");
+PHP
+"${ARCHIVE_WP[@]}" eval-file "$ARCHIVE_ROLLBACK_DIR/invalidate-cache.php"
 
 # Kontrola przywróconych wartości (bez odczytu konfiguracji DB).
 "${ARCHIVE_WP[@]}" option get home
@@ -92,4 +112,4 @@ mv -- /home/lombard1/public_html/wp-content/mu-plugins/sezam-old-site.php "$ARCH
 
 Cofnięcie odtwarza dokładne pierwotne wartości trzech ustawień. W treści normalizuje dawne warianty HTTP/HTTPS/www do pierwotnego `home`; nie odtwarza bajt w bajt wcześniejszego wymieszania tych wariantów ani stylu escapowania JSON. Jeżeli potrzebne jest identyczne odtworzenie każdego rekordu, użyj istniejącej kopii JDM z chwili sprzed migracji — pomocnik nie tworzy dodatkowej kopii i nie obiecuje bezstratnego odwrócenia zamiany wiele-do-jednego. Zachowaj metadane migracji do dalszego przeglądu. Routing JDM/DNS do starej witryny przywraca się osobno, po kontroli jej działania.
 
-Oficjalna dokumentacja: [WP-CLI search-replace](https://developer.wordpress.org/cli/commands/search-replace/), [config has](https://developer.wordpress.org/cli/commands/config/has/), [option update](https://developer.wordpress.org/cli/commands/option/update/).
+Oficjalna dokumentacja: [WP-CLI eval-file](https://developer.wordpress.org/cli/commands/eval-file/), [WP-CLI search-replace](https://developer.wordpress.org/cli/commands/search-replace/), [config has](https://developer.wordpress.org/cli/commands/config/has/), [option update](https://developer.wordpress.org/cli/commands/option/update/).

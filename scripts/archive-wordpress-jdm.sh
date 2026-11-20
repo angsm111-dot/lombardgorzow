@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-site archive migration. Default is read-only. See docs/archive-wordpress-jdm.md.
+# One-site archive migration. Default does not change WordPress files or data. See docs/archive-wordpress-jdm.md.
 set -Eeuo pipefail
 umask 077
 export LC_ALL=C
@@ -24,7 +24,7 @@ STAGE='environment-check'
 fail() { printf 'STOP: %s\n' "$1" >&2; exit 1; }
 trap 'printf "STOP: stage=%s. No raw WP/SQL errors are printed. Review the private state and documentation before continuing.\n" "$STAGE" >&2' ERR
 
-for executable in id hostname readlink stat php wp sed; do
+for executable in id hostname readlink stat php wp sed mktemp mkdir chmod cat; do
   command -v "$executable" >/dev/null 2>&1 || fail "Required executable unavailable: $executable"
 done
 [[ "$(id -un)" == "$ACCOUNT" ]] || fail 'Run as account lombard1; do not run as root or another hosting account.'
@@ -39,7 +39,7 @@ done
 if [[ -e "$CONTENT/mu-plugins" ]]; then
   [[ -d "$CONTENT/mu-plugins" && ! -L "$CONTENT/mu-plugins" && "$(stat -c '%U' "$CONTENT/mu-plugins")" == "$ACCOUNT" ]] || fail 'Unexpected mu-plugins path or owner.'
 fi
-if [[ -e "$STATE_DIR" ]]; then
+if [[ -e "$STATE_DIR" || -L "$STATE_DIR" ]]; then
   [[ -d "$STATE_DIR" && ! -L "$STATE_DIR" && "$(stat -c '%U' "$STATE_DIR")" == "$ACCOUNT" ]] || fail 'Unexpected private state directory.'
 fi
 # WP_CLI_CONFIG_PATH suppresses only the global file. Project/ancestor YAML can
@@ -53,12 +53,33 @@ while :; do
   config_dir="${config_dir%/*}"
   [[ -n "$config_dir" ]] || config_dir=/
 done
+STAGE='private-runtime-files'
+# JDM's PHP wrapper splits arguments containing spaces. Execute PHP from private
+# files instead of passing source code in argv, including WP-CLI startup hooks.
+mkdir -p "$STATE_DIR"
+chmod 700 "$STATE_DIR"
+[[ -d "$STATE_DIR" && ! -L "$STATE_DIR" && "$(readlink -f "$STATE_DIR")" == "$STATE_DIR" && "$(stat -c '%U' "$STATE_DIR")" == "$ACCOUNT" ]] || fail 'Unexpected private state directory after creation.'
+runtime_dir="$(mktemp -d "$STATE_DIR/runtime.XXXXXXXX")"
+[[ -d "$runtime_dir" && ! -L "$runtime_dir" && "$(stat -c '%U' "$runtime_dir")" == "$ACCOUNT" ]] || fail 'Unexpected private runtime directory.'
+chmod 700 "$runtime_dir"
+# Each destination is new under this unique owner-only directory; noclobber
+# prevents accidental overwrites. These are helper files, not WordPress files.
+write_php() {
+  local name="$1"
+  [[ "$name" =~ ^[a-z][a-z0-9-]*\.php$ ]] || fail 'Unexpected private PHP filename.'
+  (set -o noclobber; { printf '<?php\n'; cat; } > "$runtime_dir/$name") || fail 'Could not create private PHP helper.'
+  chmod 600 "$runtime_dir/$name"
+}
+write_php bootstrap.php <<'PHP'
+if (!defined("DISABLE_WP_CRON")) { define("DISABLE_WP_CRON", true); } WP_CLI::add_hook("after_wp_config_load", function () { $GLOBALS["sezam_archive_precore_constants"] = array(); foreach (array("WP_CONTENT_URL", "WP_PLUGIN_URL", "UPLOADS") as $name) { if (defined($name)) { $GLOBALS["sezam_archive_precore_constants"][] = $name; } } });
+PHP
+
 cd "$DOCROOT"
 # Avoid package hooks and regular plugins/themes; must-use plugins and drop-ins can
 # still load, as documented by WP-CLI. We do not alter their files or configuration.
 export WP_CLI_CONFIG_PATH=/dev/null
 WP=(wp --path="$DOCROOT" --url="$ARCHIVE" --skip-plugins --skip-themes --skip-packages --no-color --quiet)
-WP+=(--exec='if (!defined("DISABLE_WP_CRON")) { define("DISABLE_WP_CRON", true); } WP_CLI::add_hook("after_wp_config_load", function () { $GLOBALS["sezam_archive_precore_constants"] = array(); foreach (array("WP_CONTENT_URL", "WP_PLUGIN_URL", "UPLOADS") as $name) { if (defined($name)) { $GLOBALS["sezam_archive_precore_constants"][] = $name; } } });')
+WP+=(--require="$runtime_dir/bootstrap.php")
 wp_version="$(wp --skip-packages --version 2>/dev/null)" || fail 'WP-CLI could not start.'
 [[ "$wp_version" =~ ^WP-CLI\ [0-9A-Za-z.+_-]+$ ]] || fail 'Unexpected WP-CLI version output; not printed.'
 printf 'wp_cli_installed=true\nwp_cli=%s\naccount=lombard1\nhost=web16\npath=%s\n' "$wp_version" "$DOCROOT"
@@ -142,11 +163,46 @@ WP_CLI::line('JDM_ARCHIVE_REPORT:' . json_encode($report, JSON_UNESCAPED_SLASHES
 PHP
 )
 
+printf '%s\n' "$AUDIT_PHP" | write_php audit.php
+write_php normalize-report.php <<'PHP'
+$r=json_decode(stream_get_contents(STDIN),true); if (!is_array($r) || !isset($r["blockers"],$r["content_counts"])) { exit(1); } echo json_encode($r,JSON_UNESCAPED_SLASHES);
+PHP
+write_php public-report.php <<'PHP'
+$r=json_decode(stream_get_contents(STDIN),true); unset($r["database_identity_sha256"],$r["table_set_sha256"]); echo json_encode($r,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),"\n";
+PHP
+write_php count-blockers.php <<'PHP'
+$r=json_decode(stream_get_contents(STDIN),true); echo count($r["blockers"]);
+PHP
+write_php reject-existing-archive.php <<'PHP'
+$r=json_decode(stream_get_contents(STDIN),true); foreach(array("home","siteurl") as $k){if(rtrim($r[$k],"/")==="https://stara.lombardgorzow.com"){exit(1);}}
+PHP
+write_php verify-archive-identity.php <<'PHP'
+$r=json_decode(stream_get_contents(STDIN),true); if(!is_array($r) || ($r["id"] ?? null)!==14219 || ($r["slug"] ?? null)!=="lombard-w-gorzowie-telefony-i-laptopy-pod-zastaw"){exit(1);}
+PHP
+write_php prepare-state.php <<'PHP'
+$r=json_decode(stream_get_contents(STDIN),true); $r["state_version"]=1; $r["status"]="prepared"; $r["prepared_at_utc"]=gmdate("c"); $r["archive_origin"]="https://stara.lombardgorzow.com"; $r["mu_plugin_preexisting"]=false; echo json_encode($r,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),"\n";
+PHP
+write_php verify-postflight.php <<'PHP'
+$lines=explode("\n",stream_get_contents(STDIN));$before=json_decode($lines[0],true);$after=json_decode($lines[1],true);if($after["home"]!=="https://stara.lombardgorzow.com" || $after["siteurl"]!=="https://stara.lombardgorzow.com" || $after["blog_public"]!=="0" || $after["blockers"] || $after["content_counts"]!==$before["content_counts"] || $after["database_identity_sha256"]!==$before["database_identity_sha256"] || $after["table_set_sha256"]!==$before["table_set_sha256"]){exit(1);}
+PHP
+write_php complete-state.php <<'PHP'
+$p=$argv[1];$r=json_decode(file_get_contents($p),true);$r["status"]="applied";$r["applied_at_utc"]=gmdate("c");$tmp=$p.".completed";if(file_put_contents($tmp,json_encode($r,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n")===false){exit(1);}chmod($tmp,0600);if(!rename($tmp,$p)){exit(1);}
+PHP
+write_php invalidate-cache.php <<'PHP'
+global $wpdb; foreach ($wpdb->get_col("SELECT ID FROM `".$wpdb->posts."`") as $id) { clean_post_cache((int)$id); } foreach ($wpdb->get_col("SELECT option_name FROM `".$wpdb->options."`") as $key) { wp_cache_delete($key, "options"); } wp_cache_delete("alloptions", "options"); wp_cache_delete("notoptions", "options");
+PHP
+write_php diagnostic-eval-without-wordpress.php <<'PHP'
+WP_CLI::line("JDM_DIAG_NO_WP:" . json_encode(array("php_version" => PHP_VERSION, "mysqli_available" => extension_loaded("mysqli"))));
+PHP
+write_php diagnostic-wordpress-bootstrap.php <<'PHP'
+global $sezam_archive_precore_constants; WP_CLI::line("JDM_DIAG_BOOTSTRAP:" . json_encode(array("config_hook_present" => isset($sezam_archive_precore_constants) && is_array($sezam_archive_precore_constants), "php_version" => PHP_VERSION, "mysqli_available" => extension_loaded("mysqli"))));
+PHP
+
 audit() {
   local raw result
-  raw="$("${WP[@]}" eval "$AUDIT_PHP" 2>/dev/null)" || fail 'WordPress read-only audit failed; raw output withheld.'
+  raw="$("${WP[@]}" eval-file "$runtime_dir/audit.php" 2>/dev/null)" || fail 'WordPress read-only audit failed; raw output withheld.'
   result="$(printf '%s\n' "$raw" | sed -n 's/^JDM_ARCHIVE_REPORT://p')"
-  printf '%s' "$result" | php -r '$r=json_decode(stream_get_contents(STDIN),true); if (!is_array($r) || !isset($r["blockers"],$r["content_counts"])) { exit(1); } echo json_encode($r,JSON_UNESCAPED_SLASHES);' 2>/dev/null || fail 'Invalid sanitized audit result.'
+  printf '%s' "$result" | php "$runtime_dir/normalize-report.php" 2>/dev/null || fail 'Invalid sanitized audit result.'
 }
 # This mode executes only three bounded read-only probes. Raw output is never
 # sent to the public report; private logs are owner-only and outside public_html.
@@ -243,6 +299,7 @@ if (in_array($stage, array('eval_without_wordpress', 'wordpress_bootstrap'), tru
 echo json_encode($report, JSON_UNESCAPED_SLASHES), "\n";
 PHP
 )
+  printf '%s\n' "$CLASSIFY_PHP" | write_php classifier.php
   # The reporter deliberately uses only shell tools. PHP configuration or a
   # failure to read private files cannot suppress the diagnostic result again.
   diagnostic_report() {
@@ -326,22 +383,22 @@ PHP
     # tools and keep its raw stderr private. Its failure never stops the probes.
     if [[ "$name" == eval_without_wordpress ]]; then
       local classifier_code
-      if php -d display_errors=stderr -d log_errors=0 -d html_errors=0 -r "$CLASSIFY_PHP" "$name" "$code" "$diagnostic_run/$name.stdout.log" "$diagnostic_run/$name.stderr.log" "$marker" >"$diagnostic_run/php_classifier_probe.stdout.log" 2>"$diagnostic_run/php_classifier_probe.stderr.log"; then classifier_code=0; else classifier_code=$?; fi
+      if php -d display_errors=stderr -d log_errors=0 -d html_errors=0 "$runtime_dir/classifier.php" "$name" "$code" "$diagnostic_run/$name.stdout.log" "$diagnostic_run/$name.stderr.log" "$marker" >"$diagnostic_run/php_classifier_probe.stdout.log" 2>"$diagnostic_run/php_classifier_probe.stderr.log"; then classifier_code=0; else classifier_code=$?; fi
       chmod 600 "$diagnostic_run/php_classifier_probe.stdout.log" "$diagnostic_run/php_classifier_probe.stderr.log"
       diagnostic_report php_classifier_probe "$classifier_code" "$diagnostic_run/php_classifier_probe.stdout.log" "$diagnostic_run/php_classifier_probe.stderr.log" '"category"'
     fi
   }
-  diagnostic_probe eval_without_wordpress JDM_DIAG_NO_WP: eval 'WP_CLI::line("JDM_DIAG_NO_WP:" . json_encode(array("php_version" => PHP_VERSION, "mysqli_available" => extension_loaded("mysqli"))));' --skip-wordpress
-  diagnostic_probe wordpress_bootstrap JDM_DIAG_BOOTSTRAP: eval 'global $sezam_archive_precore_constants; WP_CLI::line("JDM_DIAG_BOOTSTRAP:" . json_encode(array("config_hook_present" => isset($sezam_archive_precore_constants) && is_array($sezam_archive_precore_constants), "php_version" => PHP_VERSION, "mysqli_available" => extension_loaded("mysqli"))));'
-  diagnostic_probe full_readonly_audit JDM_ARCHIVE_REPORT: eval "$AUDIT_PHP"
+  diagnostic_probe eval_without_wordpress JDM_DIAG_NO_WP: eval-file "$runtime_dir/diagnostic-eval-without-wordpress.php" --skip-wordpress
+  diagnostic_probe wordpress_bootstrap JDM_DIAG_BOOTSTRAP: eval-file "$runtime_dir/diagnostic-wordpress-bootstrap.php"
+  diagnostic_probe full_readonly_audit JDM_ARCHIVE_REPORT: eval-file "$runtime_dir/audit.php"
   printf 'result=read_only_diagnostics_complete\nraw_log_content=private_only\n'
   exit 0
 fi
 
 report="$(audit)"
 # Public-safe report excludes even non-secret database identity/table fingerprints.
-printf '%s' "$report" | php -r '$r=json_decode(stream_get_contents(STDIN),true); unset($r["database_identity_sha256"],$r["table_set_sha256"]); echo json_encode($r,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),"\n";'
-blockers="$(printf '%s' "$report" | php -r '$r=json_decode(stream_get_contents(STDIN),true); echo count($r["blockers"]);')"
+printf '%s' "$report" | php "$runtime_dir/public-report.php"
+blockers="$(printf '%s' "$report" | php "$runtime_dir/count-blockers.php")"
 [[ "$blockers" == 0 ]] || fail 'Preflight blockers are listed above; no changes made.'
 
 SR_ARGS=(--all-tables-with-prefix --skip-columns=guid --precise --recurse-objects --regex --regex-delimiter='~' --regex-flags=i --format=count)
@@ -368,7 +425,7 @@ command -v curl >/dev/null 2>&1 || fail 'curl is required to verify the complete
 command -v flock >/dev/null 2>&1 || fail 'flock is required for one-site migration locking.'
 [[ ! -e "$STATE" && ! -e "$PLUGIN" && ! -L "$PLUGIN" ]] || fail 'Existing migration state/plugin: inspect --check and rollback instructions; automatic re-application is disabled.'
 [[ "$archive_count" == 0 ]] || fail 'Archive URLs already exist in the database; review them before a reversible first migration.'
-printf '%s' "$report" | php -r '$r=json_decode(stream_get_contents(STDIN),true); foreach(array("home","siteurl") as $k){if(rtrim($r[$k],"/")==="https://stara.lombardgorzow.com"){exit(1);}}' || fail 'WordPress is already using the archive origin.'
+printf '%s' "$report" | php "$runtime_dir/reject-existing-archive.php" || fail 'WordPress is already using the archive origin.'
 [[ -w "$CONTENT" && -w "$DOCROOT" ]] || fail 'WordPress content directory is not writable by lombard1.'
 # Hard post-cutover gate: no WordPress URL changes while the old homepage is live.
 production_html="$(curl --fail --silent --proto '=https' --max-redirs 0 --connect-timeout 5 --max-time 20 "$PRODUCTION/")" || fail 'Cannot verify the new HTTPS production homepage.'
@@ -379,7 +436,7 @@ archive_status="$(curl --silent --proto '=https' --head --output /dev/null --wri
 # A 200/301 alone is not enough: the archive alias must expose a known record
 # from this exact legacy WordPress, without following a redirect to another host.
 archive_identity="$(curl --fail --silent --proto '=https' --max-redirs 0 --connect-timeout 5 --max-time 20 "$ARCHIVE/wp-json/wp/v2/posts/14219?_fields=id,slug")" || fail 'Cannot verify the old WordPress REST record through the archive alias.'
-printf '%s' "$archive_identity" | php -r '$r=json_decode(stream_get_contents(STDIN),true); if(!is_array($r) || ($r["id"] ?? null)!==14219 || ($r["slug"] ?? null)!=="lombard-w-gorzowie-telefony-i-laptopy-pod-zastaw"){exit(1);}' || fail 'The archive alias has not been verified as this old WordPress; no changes made.'
+printf '%s' "$archive_identity" | php "$runtime_dir/verify-archive-identity.php" || fail 'The archive alias has not been verified as this old WordPress; no changes made.'
 unset archive_identity
 
 # This is small rollback metadata, not a WordPress copy or database export.
@@ -430,7 +487,7 @@ add_action('wp_footer', 'sezam_old_site_banner', 999);
 PHP
 php -l "$plugin_tmp" >/dev/null 2>&1 || fail 'Archive plugin PHP lint failed; database unchanged.'
 state_tmp="$(mktemp "$STATE_DIR/original-settings.XXXXXX.json")"
-printf '%s' "$report" | php -r '$r=json_decode(stream_get_contents(STDIN),true); $r["state_version"]=1; $r["status"]="prepared"; $r["prepared_at_utc"]=gmdate("c"); $r["archive_origin"]="https://stara.lombardgorzow.com"; $r["mu_plugin_preexisting"]=false; echo json_encode($r,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),"\n";' > "$state_tmp"
+printf '%s' "$report" | php "$runtime_dir/prepare-state.php" > "$state_tmp"
 chmod 600 "$state_tmp"
 mv -n "$state_tmp" "$STATE"
 [[ -f "$STATE" ]] || fail 'Could not preserve original settings.'
@@ -449,12 +506,12 @@ STAGE='archive-options'
 "${WP[@]}" option update siteurl "$ARCHIVE" >/dev/null 2>&1 || fail 'Could not update siteurl; see rollback metadata.'
 "${WP[@]}" option update blog_public 0 >/dev/null 2>&1 || fail 'Could not disable indexing; see rollback metadata.'
 # Invalidate only this site's post/option entries, never a shared global cache.
-"${WP[@]}" eval 'global $wpdb; foreach ($wpdb->get_col("SELECT ID FROM `".$wpdb->posts."`") as $id) { clean_post_cache((int)$id); } foreach ($wpdb->get_col("SELECT option_name FROM `".$wpdb->options."`") as $key) { wp_cache_delete($key, "options"); } wp_cache_delete("alloptions", "options"); wp_cache_delete("notoptions", "options");' >/dev/null 2>&1 || fail 'Scoped cache invalidation failed; inspect the archive before retrying.'
+"${WP[@]}" eval-file "$runtime_dir/invalidate-cache.php" >/dev/null 2>&1 || fail 'Scoped cache invalidation failed; inspect the archive before retrying.'
 STAGE='postflight'
 after="$(audit)"
-printf '%s\n%s' "$report" "$after" | php -r '$lines=explode("\n",stream_get_contents(STDIN));$before=json_decode($lines[0],true);$after=json_decode($lines[1],true);if($after["home"]!=="https://stara.lombardgorzow.com" || $after["siteurl"]!=="https://stara.lombardgorzow.com" || $after["blog_public"]!=="0" || $after["blockers"] || $after["content_counts"]!==$before["content_counts"] || $after["database_identity_sha256"]!==$before["database_identity_sha256"] || $after["table_set_sha256"]!==$before["table_set_sha256"]){exit(1);}' || fail 'Postflight mismatch; review private state before any further changes.'
+printf '%s\n%s' "$report" "$after" | php "$runtime_dir/verify-postflight.php" || fail 'Postflight mismatch; review private state before any further changes.'
 remaining="$(search_count "$OLD_PATTERN" "$ARCHIVE" --dry-run)"
 [[ "$remaining" == 0 ]] || fail 'Old origin references remain outside GUID; inspect before retrying.'
-php -r '$p=$argv[1];$r=json_decode(file_get_contents($p),true);$r["status"]="applied";$r["applied_at_utc"]=gmdate("c");$tmp=$p.".completed";if(file_put_contents($tmp,json_encode($r,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n")===false){exit(1);}chmod($tmp,0600);if(!rename($tmp,$p)){exit(1);}' "$STATE"
+php "$runtime_dir/complete-state.php" "$STATE"
 printf 'mode=apply\nresult=archive_configured\narchive=%s\noriginal_settings=%s\n' "$ARCHIVE" "$STATE"
 printf 'Next: verify archive HTML, assets, login, redirects and X-Robots-Tag over HTTPS; purge only this site’s page/hosting cache if necessary.\n'
