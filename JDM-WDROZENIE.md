@@ -1,72 +1,64 @@
-# Podgląd na nowa.lombardgorzow.com
+# Podgląd JDM — wdrożony
 
-Zakres wdrożenia: wyłącznie nowa, niezależna strona HTML pod adresem `https://nowa.lombardgorzow.com`. Istniejący WordPress na `lombardgorzow.com` pozostaje bez zmian. Nie tworzymy jego kopii ani archiwum i nie przesyłamy żadnych plików do jego katalogu.
+Od 20 listopada 2026 wszystkie trzy wersje działają na niezależnej stronie HTML JDM nr `23048`, pod domeną `nowa.lombardgorzow.com`:
 
-Kod rozwijanej strony jest na gałęzi `work/sezam-kontakt-cennik`, nie na `main`. Wszystkie trzy wersje są dostępne przez przełącznik: `/`, `/wersja-obecna/` oraz `/wersja-pierwotna/`. Wersja 3 ma 22 chronione pliki; eksport zachowuje je bajt w bajt.
+| Wersja | Adres |
+| --- | --- |
+| 1 — główna | https://nowa.lombardgorzow.com/ |
+| 2 — druga strona główna | https://nowa.lombardgorzow.com/wersja-obecna/ |
+| 3 — zachowana wersja pierwotna | https://nowa.lombardgorzow.com/wersja-pierwotna/ |
 
-## Warunek serwera przed wdrożeniem
+Istniejący WordPress na `lombardgorzow.com` pozostał bez zmian. Nie wykonano jego kopii ani archiwum i nie zapisywano plików w jego katalogu. Kod podglądu i aktualizacje są na gałęzi [`work/sezam-kontakt-cennik`](https://github.com/angsm111-dot/lombardgorzow/tree/work/sezam-kontakt-cennik); `main` i gałąź kopii źródeł pozostały bez zmian.
 
-Weryfikacja panelu JDM z 20 listopada 2026 wykazała, że nowa strona nr `23048` zawiera nieuruchomiony instalator WordPress 7.1.5, mimo wyboru pustej strony podczas tworzenia. Nie spełnia więc jeszcze warunku niezależnego, pustego katalogu HTML. Wdrożenia ani publikującego zadania Cron nie wolno uruchamiać, dopóki katalog nowej subdomeny nie zostanie bezpiecznie przygotowany i ponownie sprawdzony. Zabezpieczenia skryptu mają pozostać włączone.
+## Potwierdzone wdrożenie
 
-Przygotowanie może dotyczyć wyłącznie nowej strony `nowa.lombardgorzow.com`; nie wolno zmieniać działającego WordPressa pod `lombardgorzow.com` ani wykonywać jego kopii lub archiwum. Rekord DNS nowej subdomeny i HTTPS również wymagają oddzielnego potwierdzenia przed publikacją.
+Pierwsze zweryfikowane wdrożenie zakończyło się `2026-11-20T12:07:04Z`, z commitu [`6b0fd5b6f39703b15674dccf209ee5d3791ed2ed`](https://github.com/angsm111-dot/lombardgorzow/commit/6b0fd5b6f39703b15674dccf209ee5d3791ed2ed): 210 plików i 22 sprawdzone pliki zamrożonej wersji 3. Kontrola HTTP potwierdziła odpowiedzi 200 dla trzech wersji, oryginalnej strony w ramce i 38 sprawdzonych zasobów; wszystkie 22 chronione pliki miały identyczne SHA-256 jak źródła. W przeglądarce sprawdzono przełączanie wersji, aktualne ceny oraz srebrne przyciski kategorii po wyborze srebra.
 
-## Jednorazowe przygotowanie nowego katalogu HTML
+Cloudflare kieruje rekord `A nowa` na `88.99.51.237` w trybie DNS-only. Dotychczasowe rekordy domeny głównej pozostały bez zmian. HTTPS jest aktywne dla `nowa.lombardgorzow.com` i `www.nowa.lombardgorzow.com`. Na nowej stronie wyłączono i wyczyszczono wszystkie trzy tryby cache NGINX; Redis pozostaje wyłączony. Dotyczy to wyłącznie strony JDM `23048`.
 
-Skrypt `scripts/prepare-jdm-static.php` jest ograniczony do konta `vvictgzv` i jego własnego katalogu `public_html`. Domyślnie wykonuje wyłącznie kontrolę; ten sam tryb można jawnie wybrać argumentem `--check`. Wymaga PHP CLI z `posix` i dokładnego katalogu domowego `/home/vvictgzv`. Sprawdza właścicieli i typy plików, odrzuca dowiązania, niepusty katalog uploads, dodatkowe treści i istniejącą stronę statyczną. Nie uruchamia WordPressa ani WP-CLI i nie łączy się z bazą danych. Kontrola standardowej dystrybucji WordPressa nie jest warunkiem odwracalnego przeniesienia tego konkretnego, nowo utworzonego instalatora JDM.
+Aktualny commit i wynik wdrożenia są dostępne w [deployment-status.json](https://nowa.lombardgorzow.com/deployment-status.json). Krótki komunikat działania skryptu znajduje się w [sezam-deployment-check.txt](https://nowa.lombardgorzow.com/sezam-deployment-check.txt). Kolejne commity dokumentacji także mogą zmienić identyfikator raportowany przez cykliczne wdrożenie, bez zmiany plików strony.
 
-Przed zatwierdzeniem przygotowania, 20 listopada 2026, ponownie sprawdzono panel `https://panel.jdm.pl/website/23048/wordpress`: nagłówek `nowa.lombardgorzow.com`, komunikat „WordPress czeka na konfigurację” oraz instalator WordPress 7.1.5 oczekujący na dokończenie konfiguracji. Przegląd potwierdził konto `vvictgzv` na `web13`; cache i Redis były wyłączone. Ta kontrola dotyczy wyłącznie nowej strony nr `23048`, utworzonej w tym wdrożeniu. W połączeniu z ograniczeniami konta, katalogu, rozpoznanych plików i braku uploads stanowi podstawę przeniesienia całego nowego instalatora. Działający WordPress strony głównej nie jest objęty operacją.
+## Aktualizacje z GitHuba
 
-Kontrola nowej strony na serwerze wykazała jeden plik dostarczony przez JDM: `wp-content/object-cache.php`, należący do UID `0`, z grupą konta strony (`3873`), uprawnieniami `0750` i rozmiarem `49029` bajtów. Przygotowanie dopuszcza wyłącznie ten dokładny plik i te metadane (grupa musi odpowiadać UID konta); dowiązanie, inna lokalizacja, właściciel, grupa, tryb lub rozmiar nadal zatrzymują kontrolę. Plik przenosi się razem z całym nowym instalatorem; nie zmieniamy jego treści, właściciela ani uprawnień. To nie jest ogólne dopuszczenie plików innego właściciela ani dodatkowych wtyczek cache.
+Natywny Cron JDM działa co 5 minut na koncie `vvictgzv`, wyłącznie dla `/home/vvictgzv/public_html`. Pobiera przypięty skrypt `scripts/jdm-apply-deploy-bootstrap.sh`, sprawdza SHA-256 i uruchamia go. Skrypt osobno weryfikuje przypięte pliki PHP i ich składnię. Deployer odczytuje aktualny commit gałęzi roboczej przez publiczne API GitHuba, pobiera archiwum przypięte do tego commitu i publikuje wyłącznie dozwolone statyczne pliki `dist/`. Nie korzysta z tokenów, haseł, GitHub Actions ani SFTP.
 
-Dalsza kontrola potwierdziła elementy instalatora JDM należące do konta strony: `wp-content/install.php` (`0750`, `16165` bajtów), `wp-content/mu-plugins/jdm.php` (`0750`, `1116` bajtów) oraz katalog `wp-content/mu-plugins/jdm-plugins` (`0750`). Dopuszczone są wyłącznie te dwa pliki z podanymi metadanymi oraz zwykłe pliki i katalogi tego konkretnego poddrzewa, należące do tego samego konta i bez dowiązań. Inne MU-pluginy są odrzucane. Wszystkie elementy przenoszą się wraz z nowym instalatorem bez zmiany zawartości.
+Przypięte wersje wykonywalne:
 
-Najpierw należy pobrać skrypt z zatwierdzonego commitu GitHub do prywatnego katalogu `~/.sezam-nowa-deploy/`, potwierdzić ustaloną sumę SHA-256 i wykonać `php -l`, a następnie `php przygotowany-plik.php --check`. Tymczasowe zadanie Cron może wykonywać wyłącznie ten test. Jego bezpieczny komunikat wynikowy można udostępnić jako `public_html/sezam-bootstrap-check.txt`; przed kolejnym sprawdzeniem trzeba przenieść wyłącznie ten własny plik diagnostyczny do prywatnego katalogu, aby nie naruszał kontroli pustego instalatora. Pełny wynik kontroli pozostaje prywatny. Po odczytaniu wyniku tymczasowy Cron należy wyłączyć.
+| Plik | Commit | SHA-256 |
+| --- | --- | --- |
+| `scripts/jdm-apply-deploy-bootstrap.sh` | `6b0fd5b6f39703b15674dccf209ee5d3791ed2ed` | `b93f807fb52c72603aeaacaf7a0ac43cc491751cb0927dad39466982d6529028` |
+| `scripts/prepare-jdm-static.php` | `420e375b259964d2da941a62fe295ea5f7db8dcb` | `ada2b40b7e3152c3091eef85156fd465f1da4388555818388eb6233ccee0c5a3` |
+| `scripts/deploy-jdm.php` | `420e375b259964d2da941a62fe295ea5f7db8dcb` | `68aacc212a591703e8481d2ce27e23ca6b7d4e56a9f70aeb095eb3d5791219d4` |
 
-Gotowy skrypt `scripts/jdm-check-bootstrap.sh` wykonuje tę kontrolę, pobierając PHP z przypiętego commitu i sprawdzając jego SHA-256. Ponieważ panel JDM może odrzucać długie polecenia Cron, w panelu należy użyć krótkiego polecenia, które po sprawdzeniu konta i jego katalogu domowego pobiera sam skrypt powłoki z ustalonego commitu, weryfikuje jego odrębny SHA-256 i dopiero wtedy uruchamia `sh`. Oba poziomy pozostają przypięte do zweryfikowanych wersji; ten mechanizm nie wywołuje `--apply` ani wdrożenia.
+Zmiana skryptów wykonywalnych wymaga przeglądu oraz aktualizacji przypiętych commitów i sum. Ruchoma nazwa gałęzi służy pobieraniu statycznej treści, nie skryptu uruchamianego przez Cron.
 
-Dopiero po przeglądzie pomyślnego wyniku można oddzielnie uruchomić `--apply`. Ten argument przenosi cały katalog nowego instalatora przez zmianę nazwy na `~/.jdm-unused-installer-23048`, ustawia mu uprawnienia `0700` i tworzy nowy pusty `public_html` z uprawnieniami `0755`. Nie kopiuje plików, nie tworzy archiwum, nie usuwa danych i nie wykonuje operacji na bazie danych. Jeśli utworzenie świeżego katalogu się nie powiedzie, przywraca wcześniejszą nazwę. Powtórne uruchomienie rozpoznaje przygotowany pusty katalog lub opublikowaną stronę SEZAM i niczego ponownie nie przenosi. Wspólna blokada zapobiega nakładaniu tej operacji z wdrożeniem.
+Pole polecenia w panelu JDM ma ograniczenia: stosowane polecenie ma 661 znaków i nie zawiera apostrofów, znaku `<` ani `%`. Długie polecenie nie zostało zachowane, apostrofy powodowały problemy z interpretacją, a fragment od `<` do następnego `>` był usuwany. Pełna logika znajduje się więc w zweryfikowanym pliku skryptu, a pole Cron zawiera tylko krótki kod pobrania, kontroli sumy i uruchomienia. Te ograniczenia dotyczą pola panelu, nie zawartości pobranego skryptu.
 
-## Przygotowanie paczki
+Deployer wymaga PHP CLI z `posix`, `curl` i `zip`. Sprawdza konto, właścicieli, typy i ścieżki plików; odrzuca dowiązania oraz WordPress/PHP w katalogu publikacji. Manifest i wszystkie 22 pliki wersji 3 muszą zgadzać się przed zapisem. Nowe katalogi publiczne otrzymują `0755`, prywatne `0700`; istniejące prywatne uprawnienia pozostają bez zmian. Publikacja zastępuje pliki atomowo pojedynczo, a główny `index.html` zapisuje na końcu. Nie usuwa innych plików strony. Blokady zapobiegają nakładaniu uruchomień; identyczny, już wdrożony commit nie wymaga ponownego pobrania archiwum.
 
-Wymagany jest Python 3.9 lub nowszy. Z katalogu repozytorium uruchom:
+## Wykonane przygotowanie nowej strony
+
+Mimo wyboru pustej strony JDM dostarczył początkowy instalator WordPressa. Bezpośrednio przed zatwierdzeniem operacji, 20 listopada 2026, panel `https://panel.jdm.pl/website/23048/wordpress` potwierdził domenę `nowa.lombardgorzow.com`, komunikat „WordPress czeka na konfigurację”, wersję 7.1.5 i konto `vvictgzv` na `web13`. Rozpoznane pliki, brak uploads oraz ograniczenia właścicieli i ścieżek potwierdziły zakres nowego, nieuruchomionego instalatora.
+
+`scripts/prepare-jdm-static.php` przeniósł cały katalog tego nowego instalatora przez zmianę nazwy na `/home/vvictgzv/.jdm-unused-installer-23048` z dostępem `0700`, po czym utworzył pusty `public_html` z `0755`. To przeniesienie, bez kopiowania, archiwizacji czy usuwania plików. Skrypt nie uruchamia WordPressa ani WP-CLI i nie łączy się z bazą danych. Zachowuje rollback na wypadek nieudanego utworzenia nowego katalogu. Prywatny znacznik ukończenia pozwala kolejnym uruchomieniom przejść do aktualizacji statycznej strony bez ponownego przenoszenia instalatora.
+
+Zidentyfikowane wyjątki dostarczone przez JDM pozostają ściśle ograniczone:
+
+- `wp-content/object-cache.php`: zwykły plik, UID `0`, grupa konta `3873`, tryb `0750`, rozmiar `49029` bajtów;
+- `wp-content/install.php`: właściciel konta strony, `0750`, `16165` bajtów;
+- `wp-content/mu-plugins/jdm.php`: właściciel konta strony, `0750`, `1116` bajtów;
+- `wp-content/mu-plugins/jdm-plugins`: katalog `0750` oraz należące do konta zwykłe pliki i katalogi jego poddrzewa, bez dowiązań.
+
+Pozostałe pliki nadal podlegają pełnym kontrolom właściciela i typu. Wymienione elementy przeniesiono wraz z nowym instalatorem bez zmiany ich zawartości. Dawne własne pliki diagnostyczne przenoszone są do prywatnego stanu; skrypty nie przenoszą dowolnych plików z katalogu strony. Przygotowanie jest ograniczone do konta `vvictgzv` i dokładnego domu `/home/vvictgzv`; domyślny tryb to `--check`, a przeniesienie wymaga `--apply`.
+
+## Powtarzalny eksport statyczny
+
+Lokalna alternatywa, wymagająca Pythona 3.9 lub nowszego:
 
 ```sh
 python3 scripts/export-jdm.py
 ```
 
-Skrypt buduje stronę w osobnym katalogu tymczasowym. Nie zmienia źródeł, plików `dist/` ani adresów istniejącego podglądu Sites. W eksporcie podmienia adresy kanoniczne, mapę witryny i dane BlogPosting na nową subdomenę. Do wszystkich plików HTML poza zamrożoną wersją 3 dodaje `noindex,nofollow`; wszystkie pliki wersji 3 pozostają niezmienione. Plik `robots.txt` blokuje pobieranie stron przez respektujące go roboty, ale sam nie gwarantuje wykluczenia adresów z indeksu wyszukiwarki. Jest to ustawienie dla strony testowej, nie docelowej strony produkcyjnej.
+W ignorowanym `output/jdm-nowa/` powstają `site/`, `nowa-lombardgorzow-com.zip` i `verification.json`. Eksport nie zmienia źródeł `dist/` ani istniejącego podglądu Sites. Adresy kanoniczne, sitemap i BlogPosting wskazują nową domenę. HTML poza zamrożoną wersją 3 otrzymuje `noindex,nofollow`; wszystkie 22 chronione pliki pozostają identyczne. `robots.txt` blokuje pobieranie przez respektujące go roboty, ale sam nie gwarantuje wykluczenia adresów z indeksu. Są to ustawienia podglądu testowego.
 
-Wyniki w ignorowanym katalogu `output/jdm-nowa/`:
-
-- `site/` — gotowe pliki statyczne;
-- `nowa-lombardgorzow-com.zip` — paczka do przesłania na JDM;
-- `verification.json` — sumy SHA-256 i wynik kontroli plików oraz linków.
-
-Archiwum ma powtarzalną kolejność plików, daty i uprawnienia. Nie zawiera kodu WordPressa ani jego danych. Na serwerze nie potrzeba Pythona, Node ani bazy danych.
-
-## Wgranie na JDM
-
-1. W panelu wybierz niezależną stronę HTML `nowa.lombardgorzow.com` i sprawdź jej dokładny katalog dokumentów.
-2. Prześlij ZIP wyłącznie do tego katalogu i rozpakuj jego zawartość. `index.html`, `assets/`, `wersja-obecna/` i `wersja-pierwotna/` muszą znajdować się bezpośrednio w katalogu dokumentów subdomeny.
-3. Nie zastępuj konfiguracji ani plików strony `lombardgorzow.com`. Nie uruchamiaj synchronizacji usuwającej pliki w katalogu nadrzędnym.
-4. Włącz certyfikat HTTPS dla nowej subdomeny i sprawdź wszystkie trzy wersje, cennik, menu oraz obrazy na telefonie.
-
-Nie dodano GitHub Actions ani dostępu SFTP. Do kontroli źródła cen używaj żądania GET, ponieważ endpoint cen nie obsługuje HEAD.
-
-## Aktualizacje przez natywny Crontab JDM
-
-Przygotowany `scripts/deploy-jdm.php` służy wyłącznie niezależnej stronie HTML JDM nr `23048`, na koncie systemowym `vvictgzv`. Dopuszczalny cel to `public_html` w katalogu domowym tego konta, odczytanym z systemowego rejestru użytkowników. Inne konto, właściciel, dowiązanie symboliczne, ślady WordPressa albo skrypty PHP w katalogu docelowym przerywają działanie przed wdrożeniem.
-
-Skrypt wymaga PHP CLI z modułami `posix`, `curl` i `zip`. Przed pierwszym uruchomieniem należy sprawdzić go na JDM poleceniem `php -l`, używając właściwej ścieżki do PHP udostępnionej przez hosting. Skrypt nie przyjmuje adresu serwera ani katalogu docelowego z argumentów.
-
-Procedura dla Crontaba:
-
-1. Pobierz sam `scripts/deploy-jdm.php` z zatwierdzonego, konkretnego commitu GitHub do prywatnego katalogu `~/.sezam-nowa-deploy/`, poza `public_html`.
-2. Sprawdź pobrany plik względem ustalonej wcześniej sumy SHA-256, uruchom `php -l`, a następnie uruchom go jako `vvictgzv`. Nie wykonuj pliku po nieudanej kontroli sumy. Wpis Cron nie powinien pobierać wykonywalnego skryptu z ruchomej nazwy gałęzi.
-3. Skrypt przez publiczne API odczyta aktualny commit gałęzi `work/sezam-kontakt-cennik`, a następnie pobierze ZIP przypięty do tego commitu. Nie używa tokenów, haseł ani danych WordPressa. Do katalogu strony trafią jedynie dozwolone pliki statyczne z `dist/`.
-4. Przed zapisem skrypt sprawdza zamrożony manifest i wszystkie 22 oryginalne pliki. Dane do pobrania są ograniczone rozmiarem; ścieżki ZIP, właściciele i typy plików są sprawdzane. Metadane domeny, `noindex` w HTML poza wersją 3 i ograniczenie pobierania przez roboty są stosowane tak samo jak w eksporcie ZIP.
-5. Każdy plik zastępowany jest atomowo, a główny `index.html` trafia na serwer na końcu. Skrypt nie usuwa plików strony ani katalogów nadrzędnych. Blokada `flock` nie dopuszcza nakładających się wdrożeń. Gdy commit jest już opublikowany, nie pobiera ponownie archiwum.
-
-Prywatny stan i tymczasowe pobranie źródeł są w `~/.sezam-nowa-deploy/`; tymczasowe archiwum GitHub jest usuwane po wykonaniu. Nie jest to kopia ani archiwum WordPressa. Publiczny `deployment-status.json` zawiera tylko adres podglądu, identyfikator tej nowej strony, commit, czas i liczbę plików. Skrypt jest przypięty do zatwierdzonej wersji; jego późniejsza zmiana wymaga ponownego przeglądu i aktualizacji przypiętego commitu oraz sumy w zadaniu Cron.
-
-Wpis Crontab należy tworzyć dopiero po potwierdzeniu dokument root i po przeglądzie skryptu. Zewnętrzne DNS domeny obsługuje Cloudflare; nowy rekord `nowa` należy skonfigurować oddzielnie, bez zmiany rekordów działającej strony głównej.
+ZIP ma powtarzalną kolejność, daty i uprawnienia, zawiera wyłącznie statyczną stronę i nie zawiera WordPressa. Na JDM nie potrzeba Pythona ani Node. Do sprawdzania endpointu cen należy używać GET, ponieważ nie obsługuje HEAD.
