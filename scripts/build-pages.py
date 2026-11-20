@@ -3,6 +3,8 @@
 from pathlib import Path
 from html import escape
 import json
+import hashlib
+import re
 from check_frozen_versions import verify
 from version_navigation import version_navigation
 
@@ -31,6 +33,16 @@ PAGES = [
     ('pytania', 'pytania', 'Pytania', 'Pytania i odpowiedzi | Lombard SEZAM Gorzów', 'Odpowiedzi na pytania o zastaw, wycenę, skup złota i zakupy w Lombardzie SEZAM w Gorzowie Wielkopolskim.'),
     ('kontakt', 'kontakt', 'Kontakt', 'Kontakt i dojazd — Pocztowa 11 | SEZAM Gorzów', 'Lombard SEZAM, Pocztowa 11, Gorzów Wielkopolski. Telefon 601 775 146, godziny otwarcia, WhatsApp i wskazówki dojazdu.'),
 ]
+
+def version_assets(page):
+    """Keep long-lived browser caching while refreshing changed local CSS/JS."""
+    def replace(match):
+        asset = (ROOT / 'dist' / match[2].lstrip('/')).resolve()
+        if not asset.is_relative_to((ROOT / 'dist').resolve()) or not asset.is_file():
+            raise SystemExit(f'Missing local stylesheet or script: {match[2]}')
+        revision = hashlib.sha256(asset.read_bytes()).hexdigest()[:12]
+        return f'{match[1]}{match[2]}?v={revision}{match[3]}'
+    return re.sub(r'(<(?:link|script)\b[^>]*?\b(?:href|src)=")(/[^"?#]+\.(?:css|js))(")', replace, page)
 
 def build():
     verify()
@@ -93,6 +105,7 @@ def build():
             page = page.replace('class="brand" href="/"', f'class="brand" href="{path}"')
             page = page.replace('<a href="/">Strona główna</a>', f'<a href="{path}">Strona główna</a>')
         page = page.replace(PREVIEW_ORIGIN, ORIGIN)
+        page = version_assets(page)
         destination = ROOT / 'dist' / slug / 'index.html'
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(page)
@@ -105,7 +118,7 @@ def build():
     comparison = comparison.replace('{{version_switcher}}', version_navigation(3))
     viewer = ROOT / 'dist/porownanie-wersji/pierwotna/index.html'
     viewer.parent.mkdir(parents=True, exist_ok=True)
-    viewer.write_text(comparison)
+    viewer.write_text(version_assets(comparison))
     urls = '\n'.join(f'  <url><loc>{ORIGIN}{p}</loc></url>' for p in paths)
     (ROOT / 'dist/sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls + '\n</urlset>\n')
     (ROOT / 'dist/robots.txt').write_text(f'User-agent: *\nAllow: /\nSitemap: {ORIGIN}/sitemap.xml\n')
