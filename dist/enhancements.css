@@ -23,6 +23,8 @@
 .welcome-rate{display:flex;flex-direction:column;align-items:center;padding-right:22px;border-right:1px solid #d4c6ab;flex-shrink:0}
 .welcome-rate>strong{display:block;font:400 57px/.95 SezamEditorial,Georgia,serif;letter-spacing:-.05em;color:#80643b}
 .welcome-rate>strong>span{font-size:32px;letter-spacing:-.03em;margin-left:3px}
+@media(prefers-reduced-motion:no-preference){.welcome-rate>strong{animation:welcome-rate-pulse 2.8s ease-in-out infinite;transform-origin:50% 55%}}
+@keyframes welcome-rate-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.075)}}
 .welcome-rate>span{font-size:13px;line-height:1.5;margin-top:7px;white-space:nowrap}
 .welcome-copy{display:flex;flex-direction:column;gap:7px;min-width:0}
 .welcome-copy>span{font-size:12px;letter-spacing:.055em;line-height:1.4;color:#75644a}
