@@ -4,6 +4,15 @@
 .accepted-heading .eyebrow{font-size:13px;letter-spacing:.13em;color:#817052}
 .accepted-heading h1{font-size:clamp(44px,5vw,70px);line-height:1.07;margin:18px 0 0;color:#343638}
 .accepted-heading>p{font-size:16px;line-height:1.8;margin:0 0 3px;color:#6e716f}
+.accepted-question{display:flex;align-items:center;justify-content:space-between;gap:30px;margin-bottom:34px;padding:27px 30px;border:1px solid #d9d1c2;background:linear-gradient(110deg,#f3eee2,#fbfbf8 70%,#f0f3eb)}
+.accepted-question h2{font-size:31px;line-height:1.15;letter-spacing:-.025em;margin:0 0 10px;color:#4d5147}
+.accepted-question p{font-size:16px;line-height:1.7;margin:0;max-width:720px;color:#6c7065}
+.accepted-question .accepted-whatsapp{display:inline-flex;flex-shrink:0;align-items:center;gap:11px;min-height:52px;font-size:15px;border:1px solid #9cb29e;background:#edf4eb;color:#355f40;border-radius:0;white-space:nowrap}
+.accepted-question .accepted-whatsapp .wa-icon{width:24px;height:24px}
+.accepted-question .accepted-whatsapp:hover{background:#e1eddf;border-color:#789b7d}
+.accepted-question .accepted-whatsapp:focus-visible{outline:2px solid #426947;outline-offset:5px}
+@media(max-width:950px){.accepted-question{align-items:flex-start;flex-direction:column;gap:21px}}
+@media(max-width:760px){.accepted-question{padding:25px 23px;margin-bottom:27px}.accepted-question h2{font-size:30px}.accepted-question .accepted-whatsapp{width:100%;white-space:normal;text-align:center;font-size:15px}}
 .accepted-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px}
 .accepted-card{display:flex;flex-direction:column;min-width:0;background:#fff;border:1px solid #ddd8ce;box-shadow:0 6px 20px #302a2005;transition:border-color .2s,box-shadow .2s}
 .accepted-card:hover{border-color:#b09b77;box-shadow:0 9px 28px #302a200b}

@@ -1,0 +1,37 @@
+/* Obrączki — spokojny, szampański wstęp do odrębnego katalogu. */
+.rings-hero{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;padding-block:68px 80px}
+.rings-intro .eyebrow,.rings-section-heading .eyebrow,.rings-invitation .eyebrow{font-size:13px;letter-spacing:.12em;color:#806d4d}
+.rings-intro h1{font-size:clamp(48px,5.6vw,76px);line-height:1.02;letter-spacing:-.045em;margin:24px 0 25px;color:#343735}
+.rings-intro h1 em,.rings-section-heading h2 em{font-style:italic;font-weight:400;color:#8c744e}
+.rings-intro>p{max-width:550px;font-size:17px;line-height:1.8;color:#6e706a;margin-bottom:25px}
+.rings-intro .rings-lead{font-size:22px;line-height:1.45;color:#5d5c55;margin-bottom:18px}
+.rings-actions{display:flex;align-items:center;flex-wrap:wrap;gap:18px 27px;margin-top:31px}
+.rings-catalog.btn{min-height:56px;padding:17px 29px;font-size:16px;white-space:nowrap;border-radius:0}
+.rings-contact{display:inline-flex;align-items:center;min-height:48px;border-bottom:1px solid #bba986;font-size:15px;color:#6d5938}
+.rings-contact:hover{color:#3e3423;border-color:#6d5938}
+.rings-contact:focus-visible{outline:2px solid #8c744e;outline-offset:5px}
+.rings-caption{display:block;max-width:480px;font-size:14px;line-height:1.65;color:#817b70;margin-top:20px}
+.rings-photo{position:relative;align-self:stretch;min-height:580px;margin:0;border:1px solid #dfd9cd;background:#f3f2ef;box-shadow:10px 10px 0 #f0ede6;overflow:hidden}
+.rings-photo>img{width:100%;height:100%;object-fit:cover;object-position:58% center}
+.rings-photo figcaption{position:absolute;inset:auto 22px 22px;padding:23px 24px;border:1px solid #ded5c5;background:#fffdf7ee;color:#756344}
+.rings-photo figcaption span{display:block;font-size:12px;line-height:1.6;letter-spacing:.07em;margin-bottom:8px}
+.rings-photo figcaption strong{font:400 32px/1.15 SezamEditorial,Georgia,serif;letter-spacing:-.025em;color:#4e5049}
+.rings-details{padding-block:35px 75px}
+.rings-section-heading{max-width:760px;margin-bottom:37px}
+.rings-section-heading h2{font-size:clamp(36px,4vw,54px);line-height:1.1;margin:16px 0 20px}
+.rings-section-heading>p{font-size:17px;line-height:1.8;color:#6c7069;max-width:680px;margin:0}
+.rings-details-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #ddd6c8;background:linear-gradient(110deg,#f7f5ef,#fff 65%,#f4f2eb)}
+.rings-details-grid>article{padding:33px 31px}
+.rings-details-grid>article+article{border-left:1px solid #ddd6c8}
+.rings-details-grid svg{width:29px;height:29px;color:#9a8057;margin-bottom:24px;stroke-width:1.2}
+.rings-details-grid h3{font-size:30px;line-height:1.15;letter-spacing:-.025em;margin:0 0 17px;color:#42453e}
+.rings-details-grid p{font-size:16px;line-height:1.8;color:#6d7168;margin:0}
+.rings-invitation{display:flex;justify-content:space-between;align-items:center;gap:35px;padding:43px 45px;margin-bottom:80px;border:1px solid #d6c8ad;background:linear-gradient(110deg,#eee5d3,#fcfbf7 68%,#f0ebe0)}
+.rings-invitation>div{max-width:780px}
+.rings-invitation h2{font-size:44px;line-height:1.1;margin:15px 0 19px;color:#4d4d43}
+.rings-invitation p{font-size:16px;line-height:1.8;margin:0;color:#6c6b61;max-width:700px}
+.rings-invitation>.btn{flex-shrink:0}
+@media(max-width:1100px){.rings-hero{gap:35px;padding-block:45px 65px}.rings-photo{min-height:550px}.rings-photo figcaption{inset:auto 17px 17px;padding:19px}.rings-photo figcaption strong{font-size:29px}.rings-details-grid>article{padding:27px 24px}.rings-details-grid h3{font-size:28px}.rings-invitation{padding:35px}}
+@media(max-width:850px){.rings-hero{grid-template-columns:1fr;gap:35px}.rings-intro>p{max-width:680px}.rings-photo{min-height:0;aspect-ratio:1.35}.rings-intro h1{font-size:66px}.rings-invitation{align-items:flex-start;flex-direction:column}.rings-details-grid{grid-template-columns:1fr}.rings-details-grid>article+article{border-left:0;border-top:1px solid #ddd6c8}.rings-details-grid>article{padding:30px}.rings-details-grid svg{margin-bottom:18px}}
+@media(max-width:760px){.rings-hero{padding-block:36px 45px;gap:32px}.rings-intro .eyebrow,.rings-section-heading .eyebrow,.rings-invitation .eyebrow{font-size:12px;letter-spacing:.07em}.rings-intro h1{font-size:49px;margin:20px 0 22px}.rings-intro .rings-lead{font-size:21px}.rings-intro>p{font-size:16px;line-height:1.75}.rings-actions{align-items:flex-start;flex-direction:column;gap:13px;margin-top:25px}.rings-catalog.btn{min-height:53px;font-size:16px;padding:16px 25px}.rings-contact{font-size:15px}.rings-caption{font-size:14px}.rings-photo{aspect-ratio:1;box-shadow:6px 6px 0 #f0ede6}.rings-photo figcaption{inset:auto 12px 12px;padding:17px 18px}.rings-photo figcaption span{font-size:11px;letter-spacing:.02em}.rings-photo figcaption strong{font-size:27px}.rings-details{padding-block:18px 37px}.rings-section-heading{margin-bottom:26px}.rings-section-heading h2{font-size:38px;margin-top:16px}.rings-section-heading>p{font-size:16px}.rings-details-grid>article{padding:27px 24px}.rings-details-grid h3{font-size:30px}.rings-invitation{margin-bottom:48px;padding:28px 24px;gap:27px}.rings-invitation h2{font-size:37px}.rings-invitation>.btn{width:100%}}
+@media(max-width:360px){.rings-intro h1{font-size:43px}.rings-photo figcaption strong{font-size:24px}.rings-photo figcaption{padding:15px}.rings-section-heading h2{font-size:35px}}

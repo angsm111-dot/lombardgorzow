@@ -1,0 +1,53 @@
+/* The seasonal wordmark and contact actions share one clear header row. */
+.header .nav-wrap{display:grid;grid-template-columns:auto 1fr auto;height:auto;min-height:134px;gap:0 28px;padding-top:19px;padding-bottom:7px}
+.header .brand{grid-column:1;grid-row:1;font-size:32px;gap:12px;letter-spacing:.1em;padding-right:14px;white-space:nowrap}
+.header .brand-emblem{width:34px;height:34px}
+.header .brand-wordmark{display:flex;align-items:baseline;gap:15px}
+.header .brand-lombard{font:400 16px/1.2 SezamSans,Arial,sans-serif;letter-spacing:.17em;text-transform:uppercase}
+.header .brand-sezam{font:400 33px/1.1 SezamEditorial,Georgia,serif;letter-spacing:.13em}
+.brand-m{position:relative;display:inline-block}
+.header .brand-m .santa-hat{position:absolute;left:-7px;top:-26px;width:49px;height:39px;transform:rotate(9deg);stroke:none;filter:drop-shadow(0 2px 1px #654e3925);pointer-events:none}
+.header .header-actions{grid-column:3;grid-row:1;display:flex;align-items:center;justify-content:flex-end;gap:20px;min-width:0}
+.header .header-phone{font-size:15px;gap:9px;margin:0}
+.header .header-phone svg{width:18px;height:18px}
+.header-whatsapp{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid #a6bda9;background:#edf5ef;color:#2f6447;font:400 14px/1.2 SezamSans,Arial,sans-serif;white-space:nowrap}
+.header-whatsapp .wa-icon{width:23px;height:23px}
+.header-whatsapp:hover{background:#e0eee3;border-color:#719a80}
+.header-whatsapp:focus-visible{outline:2px solid #315e40;outline-offset:4px}
+.header .nav{grid-column:1/-1;grid-row:2;display:flex;justify-content:center;gap:clamp(17px,2.5vw,36px);font-size:14px;font-weight:400;letter-spacing:0;padding-top:9px;margin-top:15px;border-top:1px solid #e8e3d9;position:static;width:auto;background:none;box-shadow:none;max-height:none;overflow:visible}
+.header .nav a{padding:10px 0;min-height:40px}
+.header .menu-toggle{display:none}
+.topbar .wrap{align-items:center;gap:20px}
+.topbar .wrap>span{margin-right:auto}
+.snow-toggle{border:1px solid #ffffff38;color:#eee7da;font:400 12px/1.2 SezamSans,Arial,sans-serif;padding:6px 9px;white-space:nowrap}
+.snow-toggle:hover{background:#ffffff15}.snow-toggle:focus-visible{outline:2px solid #eee0c2;outline-offset:3px}
+.holiday-snow{position:fixed;inset:0;z-index:24;pointer-events:none;overflow:hidden;contain:strict}
+.holiday-snow[hidden],.snow-toggle[hidden]{display:none}
+.snowflake{position:absolute;left:var(--x);top:-12px;width:var(--size);height:var(--size);border-radius:50%;background:#fff;box-shadow:0 0 2px #8c9ba675;opacity:var(--opacity);animation:sezam-snowfall var(--duration) var(--delay) linear infinite;will-change:transform}
+.holiday-snow.paused .snowflake{animation-play-state:paused}
+@keyframes sezam-snowfall{from{transform:translate3d(0,-10px,0)}to{transform:translate3d(var(--drift),calc(100vh + 25px),0)}}
+@media(max-width:1120px){
+ .header .nav-wrap{display:flex;min-height:88px;height:auto;padding-block:17px;gap:20px;position:relative}
+ .header .brand{margin-right:auto;font-size:28px;gap:9px;padding-right:8px}
+ .header .brand-wordmark{gap:10px}.header .brand-lombard{font-size:13px}.header .brand-sezam{font-size:29px}
+ .header .brand-m .santa-hat{top:-23px;left:-6px;width:43px;height:34px}
+ .header .header-actions{gap:14px}.header .header-phone{font-size:14px}.header-whatsapp{padding-inline:12px}
+ .header .menu-toggle{display:flex;flex-shrink:0}
+ .header .nav{display:none;position:absolute;top:100%;left:0;grid-column:auto;grid-row:auto;width:100%;padding:16px 24px 24px;margin:0;background:#fcfcfb;border:1px solid #e0dacf;box-shadow:0 14px 22px #27231b10;font-size:16px;max-height:calc(100dvh - 100px);overflow-y:auto}
+ .header .nav.open{display:flex;flex-direction:column;gap:0;align-items:stretch}
+ .header .nav>a{padding:12px 0;min-height:47px}
+}
+@media(max-width:760px){
+ .header .nav-wrap{min-height:90px;padding-block:15px;gap:10px}
+ .header .brand{gap:0;padding:0}.header .brand-emblem{display:none}
+ .header .brand-wordmark{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+ .header .brand-lombard{font-size:11px;letter-spacing:.19em}.header .brand-sezam{font-size:25px;letter-spacing:.08em}
+ .header .brand-m .santa-hat{top:-21px;left:-3px;width:36px;height:29px}
+ .header .header-actions{gap:9px}.header .header-phone{font-size:12px;gap:5px;letter-spacing:0}.header .header-phone svg{display:none}
+ .header-whatsapp{width:38px;height:40px;min-height:40px;padding:6px}.header-whatsapp .wa-icon{width:25px;height:25px}.header-whatsapp>span{display:none}
+ .header .menu-toggle{width:32px;padding:4px;min-width:32px}
+ .topbar .wrap>span{display:none}.topbar .wrap{gap:10px}.topbar .wrap>a{font-size:11px}.topbar .top-hours{display:none}
+ .snow-toggle{font-size:11px;padding:5px 8px}.snowflake:nth-child(n+19){display:none}
+}
+@media(max-width:360px){.header .nav-wrap{gap:6px}.header .brand-sezam{font-size:22px}.header .brand-lombard{font-size:10px}.header .header-phone{font-size:11px}.header .header-actions{gap:6px}.header-whatsapp{width:34px}.header .menu-toggle{width:28px;min-width:28px}}
+@media(prefers-reduced-motion:reduce){.holiday-snow{display:none}.snowflake{animation:none}}
