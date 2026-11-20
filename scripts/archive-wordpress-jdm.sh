@@ -152,6 +152,7 @@ audit() {
 # sent to the public report; private logs are owner-only and outside public_html.
 if [[ "$MODE" == --diagnose ]]; then
   STAGE='diagnostic-private-log-directory'
+  for executable in grep wc head; do command -v "$executable" >/dev/null 2>&1 || fail "Required diagnostic tool unavailable: $executable"; done
   command -v mktemp >/dev/null 2>&1 || fail 'mktemp is required for private diagnostics.'
   mkdir -p "$STATE_DIR"
   chmod 700 "$STATE_DIR"
@@ -163,7 +164,7 @@ if [[ "$MODE" == --diagnose ]]; then
   chmod 700 "$diagnostics_dir"
   diagnostic_run="$(mktemp -d "$diagnostics_dir/run.XXXXXXXX")"
   chmod 700 "$diagnostic_run"
-  printf 'mode=diagnose\nprivate_logs=%s\n' "$diagnostic_run"
+  printf 'mode=diagnose\nprivate_logs=created\n'
   CLASSIFY_PHP=$(cat <<'PHP'
 $stage = $argv[1];
 $code = (int) $argv[2];
@@ -242,6 +243,74 @@ if (in_array($stage, array('eval_without_wordpress', 'wordpress_bootstrap'), tru
 echo json_encode($report, JSON_UNESCAPED_SLASHES), "\n";
 PHP
 )
+  # The reporter deliberately uses only shell tools. PHP configuration or a
+  # failure to read private files cannot suppress the diagnostic result again.
+  diagnostic_report() {
+    local name="$1" code="$2" out="$3" err="$4" marker="$5" category='ok' present=false components='' stdout_bytes stderr_bytes
+    local raw flags='' php_version='' hook_present='' mysqli_available=''
+    case "$name" in eval_without_wordpress|wordpress_bootstrap|full_readonly_audit|php_classifier_probe) ;; *) fail 'Unexpected diagnostic stage.' ;; esac
+    [[ "$code" =~ ^[0-9]+$ ]] || fail 'Unexpected diagnostic exit code.'
+    [[ "$code" == 0 ]] || category='unclassified_failure'
+    if grep -Eiq 'Configuration hook did not run' "$err" "$out"; then category='config_hook_missing'
+    elif grep -Eiq 'Undefined variable.*argv|Undefined array key.*argv' "$err" "$out"; then category='cli_argv_unavailable'
+    elif grep -Eiq 'open_basedir restriction' "$err" "$out"; then category='filesystem_open_basedir'
+    elif grep -Eiq 'Call to undefined function.*file_get_contents' "$err" "$out"; then category='php_file_read_unavailable'
+    elif grep -Eiq 'Permission denied' "$err" "$out"; then category='filesystem_permission'
+    elif grep -Eiq 'suppress_errors\(\) on null|get_var\(\) on null|get_col\(\) on null' "$err" "$out"; then category='wpdb_not_initialized'
+    elif grep -Eiq 'Unexpected table prefix' "$err" "$out"; then category='unexpected_table_prefix'
+    elif grep -Eiq 'No matching tables' "$err" "$out"; then category='no_prefixed_tables'
+    elif grep -Eiq 'Unexpected table identifier' "$err" "$out"; then category='unexpected_table_identifier'
+    elif grep -Eiq 'Database audit failed' "$err" "$out"; then category='database_query_failed'
+    elif grep -Eiq 'Error establishing a database connection|mysqli_real_connect|Connection refused' "$err" "$out"; then category='database_connection_failed'
+    elif grep -Eiq 'Access denied for user' "$err" "$out"; then category='database_access_denied'
+    elif grep -Eiq 'Unknown database|Unknown MySQL server host' "$err" "$out"; then category='database_unavailable'
+    elif grep -Eiq 'not a WordPress installation|does not seem to be a WordPress installation|site you have requested is not installed|WordPress is not installed' "$err" "$out"; then category='wp_not_installed'
+    elif grep -Eiq 'wp-config.php.*not found|wp-config.php.*does not exist|Could not find.*wp-config' "$err" "$out"; then category='config_not_found'
+    elif grep -Eiq 'missing.*MySQL extension|requires.*mysqli|mysqli.*not found' "$err" "$out"; then category='missing_mysql_extension'
+    elif grep -Eiq 'Parameter errors|unknown --|unknown parameter|not a registered wp command' "$err" "$out"; then category='cli_argument_error'
+    elif grep -Eiq 'Allowed memory size.*exhausted' "$err" "$out"; then category='php_memory_limit'
+    elif grep -Eiq 'Maximum execution time.*exceeded' "$err" "$out"; then category='php_time_limit'
+    elif grep -Eiq 'Parse error|syntax error' "$err" "$out"; then category='php_parse_error'
+    elif grep -Eiq 'Call to undefined function' "$err" "$out"; then category='php_missing_function'
+    elif grep -Eiq 'Class .*not found' "$err" "$out"; then category='php_missing_class'
+    elif grep -Eiq 'Undefined constant' "$err" "$out"; then category='php_undefined_constant'
+    elif grep -Eiq 'TypeError|must be of type' "$err" "$out"; then category='php_type_error'
+    elif grep -Eiq 'Fatal error|Uncaught Error|Uncaught Exception' "$err" "$out"; then category='php_fatal_error'
+    fi
+    if grep -Fq -- "$marker" "$out"; then present=true; fi
+    if [[ "$code" == 0 && "$present" == false && "$category" == ok ]]; then category='expected_marker_missing'; fi
+    for component in must_use_plugin object_cache_dropin database_dropin advanced_cache_dropin wordpress_core wp_cli; do
+      local needle=''
+      case "$component" in
+        must_use_plugin) needle='/wp-content/mu-plugins/' ;;
+        object_cache_dropin) needle='/wp-content/object-cache.php' ;;
+        database_dropin) needle='/wp-content/db.php' ;;
+        advanced_cache_dropin) needle='/wp-content/advanced-cache.php' ;;
+        wordpress_core) needle='/wp-includes/' ;;
+        wp_cli) needle='phar://' ;;
+      esac
+      if grep -Fq -- "$needle" "$err" "$out"; then components+="${components:+,}\"$component\""; fi
+    done
+    stdout_bytes="$(wc -c < "$out")"; stdout_bytes="${stdout_bytes//[[:space:]]/}"
+    stderr_bytes="$(wc -c < "$err")"; stderr_bytes="${stderr_bytes//[[:space:]]/}"
+    local deprecated=false warning=false
+    if grep -Eiq 'Deprecated|Deprecation' "$err" "$out"; then deprecated=true; fi
+    if grep -Fq 'Warning:' "$err" "$out"; then warning=true; fi
+    printf '{"stage":"%s","exit_code":%s,"category":"%s","expected_marker_present":%s,"components_mentioned":[%s],"deprecation_notice_present":%s,"warning_present":%s,"stdout_bytes":%s,"stderr_bytes":%s' "$name" "$code" "$category" "$present" "$components" "$deprecated" "$warning" "$stdout_bytes" "$stderr_bytes"
+    # Extract only tightly constrained values from our own runtime marker. No
+    # raw line, exception message, path or arbitrary JSON string is printed.
+    if [[ "$name" == eval_without_wordpress || "$name" == wordpress_bootstrap ]]; then
+      raw="$(grep -E '^JDM_DIAG_(NO_WP|BOOTSTRAP):' "$out" | head -n1 || true)"
+      local version_pattern='"php_version":"([0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?)"'
+      local hook_pattern='"config_hook_present":(true|false)'
+      local mysqli_pattern='"mysqli_available":(true|false)'
+      if [[ "$raw" =~ $version_pattern ]]; then printf ',"php_version":"%s"' "${BASH_REMATCH[1]}"; fi
+      if [[ "$raw" =~ $hook_pattern ]]; then printf ',"config_hook_present":%s' "${BASH_REMATCH[1]}"; fi
+      if [[ "$raw" =~ $mysqli_pattern ]]; then printf ',"mysqli_available":%s' "${BASH_REMATCH[1]}"; fi
+    fi
+    printf '}\n'
+  }
+
   diagnostic_probe() {
     local name="$1" marker="$2" code
     shift 2
@@ -252,7 +321,15 @@ PHP
       code=$?
     fi
     chmod 600 "$diagnostic_run/$name.stdout.log" "$diagnostic_run/$name.stderr.log"
-    php -r "$CLASSIFY_PHP" "$name" "$code" "$diagnostic_run/$name.stdout.log" "$diagnostic_run/$name.stderr.log" "$marker" 2>/dev/null || fail 'Diagnostic classifier failed; raw logs remain private.'
+    diagnostic_report "$name" "$code" "$diagnostic_run/$name.stdout.log" "$diagnostic_run/$name.stderr.log" "$marker"
+    # Reproduce the previous reporting failure once, but classify it with shell
+    # tools and keep its raw stderr private. Its failure never stops the probes.
+    if [[ "$name" == eval_without_wordpress ]]; then
+      local classifier_code
+      if php -d display_errors=stderr -d log_errors=0 -d html_errors=0 -r "$CLASSIFY_PHP" "$name" "$code" "$diagnostic_run/$name.stdout.log" "$diagnostic_run/$name.stderr.log" "$marker" >"$diagnostic_run/php_classifier_probe.stdout.log" 2>"$diagnostic_run/php_classifier_probe.stderr.log"; then classifier_code=0; else classifier_code=$?; fi
+      chmod 600 "$diagnostic_run/php_classifier_probe.stdout.log" "$diagnostic_run/php_classifier_probe.stderr.log"
+      diagnostic_report php_classifier_probe "$classifier_code" "$diagnostic_run/php_classifier_probe.stdout.log" "$diagnostic_run/php_classifier_probe.stderr.log" '"category"'
+    fi
   }
   diagnostic_probe eval_without_wordpress JDM_DIAG_NO_WP: eval 'WP_CLI::line("JDM_DIAG_NO_WP:" . json_encode(array("php_version" => PHP_VERSION, "mysqli_available" => extension_loaded("mysqli"))));' --skip-wordpress
   diagnostic_probe wordpress_bootstrap JDM_DIAG_BOOTSTRAP: eval 'global $sezam_archive_precore_constants; WP_CLI::line("JDM_DIAG_BOOTSTRAP:" . json_encode(array("config_hook_present" => isset($sezam_archive_precore_constants) && is_array($sezam_archive_precore_constants), "php_version" => PHP_VERSION, "mysqli_available" => extension_loaded("mysqli"))));'
