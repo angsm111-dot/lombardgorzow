@@ -5,8 +5,8 @@ umask 077
 export LC_ALL=C
 
 MODE="${1:---check}"
-[[ $# -le 1 && ( "$MODE" == --check || "$MODE" == --apply ) ]] || {
-  printf 'Usage: bash archive-wordpress-jdm.sh [--check|--apply]\n' >&2
+[[ $# -le 1 && ( "$MODE" == --check || "$MODE" == --apply || "$MODE" == --diagnose ) ]] || {
+  printf 'Usage: bash archive-wordpress-jdm.sh [--check|--diagnose|--apply]\n' >&2
   exit 2
 }
 readonly ACCOUNT='lombard1'
@@ -148,6 +148,119 @@ audit() {
   result="$(printf '%s\n' "$raw" | sed -n 's/^JDM_ARCHIVE_REPORT://p')"
   printf '%s' "$result" | php -r '$r=json_decode(stream_get_contents(STDIN),true); if (!is_array($r) || !isset($r["blockers"],$r["content_counts"])) { exit(1); } echo json_encode($r,JSON_UNESCAPED_SLASHES);' 2>/dev/null || fail 'Invalid sanitized audit result.'
 }
+# This mode executes only three bounded read-only probes. Raw output is never
+# sent to the public report; private logs are owner-only and outside public_html.
+if [[ "$MODE" == --diagnose ]]; then
+  STAGE='diagnostic-private-log-directory'
+  command -v mktemp >/dev/null 2>&1 || fail 'mktemp is required for private diagnostics.'
+  mkdir -p "$STATE_DIR"
+  chmod 700 "$STATE_DIR"
+  diagnostics_dir="$STATE_DIR/diagnostics"
+  if [[ -e "$diagnostics_dir" || -L "$diagnostics_dir" ]]; then
+    [[ -d "$diagnostics_dir" && ! -L "$diagnostics_dir" && "$(stat -c '%U' "$diagnostics_dir")" == "$ACCOUNT" ]] || fail 'Unexpected diagnostics directory.'
+  fi
+  mkdir -p "$diagnostics_dir"
+  chmod 700 "$diagnostics_dir"
+  diagnostic_run="$(mktemp -d "$diagnostics_dir/run.XXXXXXXX")"
+  chmod 700 "$diagnostic_run"
+  printf 'mode=diagnose\nprivate_logs=%s\n' "$diagnostic_run"
+  CLASSIFY_PHP=$(cat <<'PHP'
+$stage = $argv[1];
+$code = (int) $argv[2];
+$out = file_get_contents($argv[3]);
+$err = file_get_contents($argv[4]);
+$marker = $argv[5];
+$allowed_stages = array('eval_without_wordpress', 'wordpress_bootstrap', 'full_readonly_audit');
+if (!in_array($stage, $allowed_stages, true)) { exit(1); }
+$text = $err . "\n" . $out;
+$rules = array(
+    'config_hook_missing' => '/Configuration hook did not run/i',
+    'wpdb_not_initialized' => '/(?:suppress_errors|get_var|get_col)\(\) on null/i',
+    'unexpected_table_prefix' => '/Unexpected table prefix/i',
+    'no_prefixed_tables' => '/No matching tables/i',
+    'unexpected_table_identifier' => '/Unexpected table identifier/i',
+    'database_query_failed' => '/Database audit failed/i',
+    'database_connection_failed' => '/Error establishing a database connection|mysqli_real_connect|Connection refused|could not connect to (?:the )?(?:database|mysql)/i',
+    'database_access_denied' => '/Access denied for user/i',
+    'database_unavailable' => '/Unknown database|Unknown MySQL server host/i',
+    'wp_not_installed' => '/not a WordPress installation|does not seem to be a WordPress installation|site you have requested is not installed|WordPress is not installed/i',
+    'config_not_found' => '/wp-config\.php.*(?:not found|does not exist)|Could not find.*wp-config/i',
+    'missing_mysql_extension' => '/missing.*MySQL extension|requires.*mysqli|mysqli.*not found/i',
+    'cli_argument_error' => '/Parameter errors|unknown --|unknown parameter|not a registered wp command/i',
+    'php_memory_limit' => '/Allowed memory size.*exhausted/i',
+    'php_time_limit' => '/Maximum execution time.*exceeded/i',
+    'php_parse_error' => '/Parse error|syntax error/i',
+    'php_missing_function' => '/Call to undefined function/i',
+    'php_missing_class' => '/Class [^\r\n]*not found/i',
+    'php_undefined_constant' => '/Undefined constant/i',
+    'php_type_error' => '/TypeError|must be of type/i',
+    'filesystem_restriction' => '/open_basedir restriction/i',
+    'filesystem_permission' => '/Permission denied/i',
+    'php_fatal_error' => '/Fatal error|Uncaught (?:Error|Exception)/i',
+);
+$category = $code === 0 ? 'ok' : 'unclassified_failure';
+foreach ($rules as $name => $pattern) {
+    if (preg_match($pattern, $text)) { $category = $name; break; }
+}
+$components = array();
+foreach (array(
+    'must_use_plugin' => '/wp-content/mu-plugins/',
+    'object_cache_dropin' => '/wp-content/object-cache.php',
+    'database_dropin' => '/wp-content/db.php',
+    'advanced_cache_dropin' => '/wp-content/advanced-cache.php',
+    'wordpress_core' => '/wp-includes/',
+    'wp_cli' => 'phar://',
+) as $name => $needle) {
+    if (strpos($text, $needle) !== false) { $components[] = $name; }
+}
+$present = strpos($out, $marker) !== false;
+if ($code === 0 && !$present && $category === 'ok') { $category = 'expected_marker_missing'; }
+$report = array(
+    'stage' => $stage,
+    'exit_code' => $code,
+    'category' => $category,
+    'expected_marker_present' => $present,
+    'components_mentioned' => $components,
+    'deprecation_notice_present' => (bool) preg_match('/Deprecated|Deprecation/i', $text),
+    'warning_present' => (bool) preg_match('/Warning:/i', $text),
+    'stdout_bytes' => strlen($out),
+    'stderr_bytes' => strlen($err),
+);
+// Only typed, allowlisted fields from our bootstrap marker can be added.
+if (in_array($stage, array('eval_without_wordpress', 'wordpress_bootstrap'), true) && preg_match('/^JDM_DIAG_(?:NO_WP|BOOTSTRAP):(.+)$/m', $out, $match)) {
+    $data = json_decode($match[1], true);
+    if (is_array($data) && isset($data['config_hook_present']) && is_bool($data['config_hook_present'])) {
+        $report['config_hook_present'] = $data['config_hook_present'];
+    }
+    if (isset($data['php_version']) && is_string($data['php_version']) && preg_match('/^[0-9]+\.[0-9]+\.[0-9]+(?:[-+.][0-9A-Za-z.-]+)?$/D', $data['php_version'])) {
+        $report['php_version'] = $data['php_version'];
+    }
+    if (isset($data['mysqli_available']) && is_bool($data['mysqli_available'])) {
+        $report['mysqli_available'] = $data['mysqli_available'];
+    }
+}
+echo json_encode($report, JSON_UNESCAPED_SLASHES), "\n";
+PHP
+)
+  diagnostic_probe() {
+    local name="$1" marker="$2" code
+    shift 2
+    STAGE="diagnostic-$name"
+    if "${WP[@]}" "$@" >"$diagnostic_run/$name.stdout.log" 2>"$diagnostic_run/$name.stderr.log"; then
+      code=0
+    else
+      code=$?
+    fi
+    chmod 600 "$diagnostic_run/$name.stdout.log" "$diagnostic_run/$name.stderr.log"
+    php -r "$CLASSIFY_PHP" "$name" "$code" "$diagnostic_run/$name.stdout.log" "$diagnostic_run/$name.stderr.log" "$marker" 2>/dev/null || fail 'Diagnostic classifier failed; raw logs remain private.'
+  }
+  diagnostic_probe eval_without_wordpress JDM_DIAG_NO_WP: eval 'WP_CLI::line("JDM_DIAG_NO_WP:" . json_encode(array("php_version" => PHP_VERSION, "mysqli_available" => extension_loaded("mysqli"))));' --skip-wordpress
+  diagnostic_probe wordpress_bootstrap JDM_DIAG_BOOTSTRAP: eval 'global $sezam_archive_precore_constants; WP_CLI::line("JDM_DIAG_BOOTSTRAP:" . json_encode(array("config_hook_present" => isset($sezam_archive_precore_constants) && is_array($sezam_archive_precore_constants), "php_version" => PHP_VERSION, "mysqli_available" => extension_loaded("mysqli"))));'
+  diagnostic_probe full_readonly_audit JDM_ARCHIVE_REPORT: eval "$AUDIT_PHP"
+  printf 'result=read_only_diagnostics_complete\nraw_log_content=private_only\n'
+  exit 0
+fi
+
 report="$(audit)"
 # Public-safe report excludes even non-secret database identity/table fingerprints.
 printf '%s' "$report" | php -r '$r=json_decode(stream_get_contents(STDIN),true); unset($r["database_identity_sha256"],$r["table_set_sha256"]); echo json_encode($r,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),"\n";'

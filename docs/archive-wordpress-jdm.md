@@ -2,7 +2,7 @@
 
 Pomocnik `scripts/archive-wordpress-jdm.sh` dotyczy wyłącznie istniejącej witryny JDM **11344**, konta **lombard1**, serwera **web16** (`157.90.133.54`) i katalogu `/home/lombard1/public_html`. Nie przenosi plików WordPressa ani nie eksportuje bazy. Alias `stara.lombardgorzow.com` ma wskazywać ten sam istniejący WordPress; nowa strona działa osobno.
 
-**Stan repozytorium: skrypt przygotowany, nie wykonany.** Nie uruchamiać `--apply`, dopóki docelowa domena nie pokazuje zweryfikowanej nowej wersji 5. Skrypt przed uruchomieniem WP-CLI blokuje lokalne i nadrzędne pliki `wp-cli.yml`/`wp-cli.local.yml`, ponieważ mogą zawierać własne hooki lub kierować polecenia na inny serwer. Dodatkowo sprawdza nową stronę HTTPS: marker `page-home-calculator`, domenę docelową i brak zależności `/wp-content/`. Błędny wynik zatrzymuje pracę przed zmianami WordPressa.
+**Stan: wykonano wyłącznie `--check`, który zatrzymał się na błędzie audytu WP-CLI przed zmianami WordPressa. `--apply` nie został wykonany.** Nie uruchamiać `--apply`, dopóki docelowa domena nie pokazuje zweryfikowanej nowej wersji 5. Skrypt przed uruchomieniem WP-CLI blokuje lokalne i nadrzędne pliki `wp-cli.yml`/`wp-cli.local.yml`, ponieważ mogą zawierać własne hooki lub kierować polecenia na inny serwer. Dodatkowo sprawdza nową stronę HTTPS: marker `page-home-calculator`, domenę docelową i brak zależności `/wp-content/`. Błędny wynik zatrzymuje pracę przed zmianami WordPressa.
 
 ## Kontrola — domyślne działanie
 
@@ -17,6 +17,21 @@ Brak argumentu oznacza to samo co `--check`. Kontrola wywołuje odczyty WP-CLI i
 WP-CLI pomija zwykłe wtyczki, motyw i pakiety. WordPress nadal może wczytać swoje istniejące must-use plugins i drop-ins — jest to zachowanie WP-CLI. Pomocnik nie wyłącza ich przez zmianę plików. Raport należy obejrzeć przed zastosowaniem; referencyjna inwentaryzacja starej witryny obejmowała **41 wpisów oraz 17 stron**.
 
 Stałe `WP_HOME` i `WP_SITEURL`, niestandardowe lokalizacje treści, jawne `WP_CONTENT_URL`/`WP_PLUGIN_URL`/`UPLOADS`, multisite, współdzielone tabele użytkowników, drugi zestaw tabel `options` z tym samym prefiksem albo tabele bez klucza głównego blokują migrację. Skrypt niczego nie poprawia w `wp-config.php`. Jeśli raport wykryje taki przypadek, trzeba najpierw przejrzeć konkretną konfigurację i uzgodnić jej poprawkę.
+
+
+## Gdy kontrola kończy się ogólnym błędem audytu
+
+`--diagnose` służy wyłącznie do odczytu i rozpoznania etapu błędu:
+
+```bash
+bash /PRYWATNA-SCIEZKA/archive-wordpress-jdm.sh --diagnose
+```
+
+Wykonuje trzy ograniczone próby: `wp eval --skip-wordpress`, samo uruchomienie WordPressa oraz ten sam pełny audyt co `--check`. Nie wykonuje zamiany URL-i ani aktualizacji opcji, nie instaluje wtyczki i nie dotyka plików WordPressa. Nadal obowiązują wszystkie ograniczenia konta, hosta, ścieżki i konfiguracji WP-CLI.
+
+Surowe stdout/stderr trafiają do nowego katalogu `run.*` w `/home/lombard1/sezam-wp-archive-state/diagnostics/`, poza `public_html`. Katalogi mają `0700`, a logi `0600`. Logi mogą zawierać wewnętrzne szczegóły błędu; nie kopiować ich do pliku publicznego. Publiczny wynik zawiera wyłącznie zdefiniowane nazwy etapów, kod zakończenia, kategorię błędu, informacje o obecności znacznika, ostrzeżeń/deprecjacji, liczbę bajtów oraz ogólne kategorie komponentów. Już próba bez WordPressa pokazuje zweryfikowany format wersji PHP używanej przez WP-CLI i dostępność mysqli. Udany bootstrap dodatkowo pokazuje logiczną informację o obecności hooka konfiguracji. Nazwy baz, użytkowników DB, hasła, treść konfiguracji, SQL, ścieżki z tracebacków i fragmenty surowych błędów nie są przekazywane do raportu.
+
+Przykłady interpretacji: `eval_without_wordpress=ok` i błąd `wordpress_bootstrap` wskazują na ładowanie WordPressa lub jego drop-ins/MU plugins. Udany bootstrap i błąd `full_readonly_audit` wskazują na konkretny warunek lub zapytanie audytu. `config_hook_missing` nazywa dokładny warunek ochronny helpera. `expected_marker_missing` przy exit0 pozwala odróżnić brak oczekiwanego wyjścia od błędu procesu. Kategoria `unclassified_failure` oznacza potrzebę prywatnego przeglądu, nie zgodę na pokazanie całego logu.
 
 ## Zastosowanie po przełączeniu domeny
 
