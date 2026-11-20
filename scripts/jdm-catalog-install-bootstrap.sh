@@ -8,8 +8,8 @@ export PATH
 if [ "$#" != 1 ]; then echo 'Use --prepare or --activate-key.' >&2; exit 2; fi
 case "$1" in --prepare|--activate-key) sezam_action="$1";; *) echo 'Use --prepare or --activate-key.' >&2; exit 2;; esac
 sezam_release=d511eacaaa42946dd15cbb667aa0712f37bb61db
-sezam_sender_key=UNPINNED
-sezam_sender_key_sha256=UNPINNED
+sezam_sender_key='ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILPOwH3WoD5INP7cBPclB638dUMUWXlqENG3agkBFVJa'
+sezam_sender_key_sha256=93261151637abc1925e2c3927aa39c5b59af6f2918439af2fe273963b3dd5837
 if [ "${#sezam_release}" != 40 ]; then echo 'Catalog release is unpinned; nothing executed.' >&2; exit 2; fi
 case "$sezam_release" in *[!0-9a-f]*) echo 'Invalid catalog release pin.' >&2; exit 2;; esac
 if [ "$sezam_action" = --activate-key ]; then
