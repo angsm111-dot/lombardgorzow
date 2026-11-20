@@ -9,13 +9,19 @@ const TARGET='lombardgorzow.com';
 const DEPENDENCIES=[
     'bootstrap-lombardgorzow.php'=>'02814f6bad0b894d26b5c61f6e5de7e68710a9a8d2e3af6725230c316dfc8636',
     'send-lombardgorzow.php'=>'33ba90f2e61e9be1fd9429dc6af505d1cee5dc215949799c29d26e525700cc70',
-    'send.php'=>'8918bbd9ebc86ee9289f848047ed9560cd258a64e86ec70ec0544527b7a3d6ca',
+    // Exact GitHub blob c51c951a3a297afea4f9a142c5fdd994e9cd9a57 (no extra reference-snapshot LF).
+    'send.php'=>'1cf985ab762d945bedd9a133373700243e41b09e7a19044084a7fbd5644b0056',
 ];
 const ERROR_CODES=['arguments_invalid','account_mismatch','path_invalid','dependency_mismatch','ops_busy','operation_failed',
     'receiver_readiness_required','sender_not_ready','host_pin_invalid','host_pin_missing','host_pin_mismatch','host_pin_unverified','host_pin_changed',
     'cron_read_failed','cron_install_failed','existing_sender_required','payload_missing','unsafe_directory','unsafe_file','write_failed','lock_failed',
     'process_failed','process_output_invalid','incomplete_identity','key_generation_failed','public_key_invalid','cron_path_invalid','bootstrap_failed',
     'delivery_failed','sender_failed','receipt_invalid','report_failed'];
+final class DependencyMismatch extends \RuntimeException {
+    public function __construct(public readonly string $dependencyName,public readonly string $expectedSha256,public readonly ?string $actualSha256) {
+        parent::__construct('dependency_mismatch');
+    }
+}
 function fail(string $reason): never { throw new \RuntimeException($reason); }
 function safeError(\Throwable $error): string {
     return $error instanceof \RuntimeException && in_array($error->getMessage(),ERROR_CODES,true) ? $error->getMessage() : 'operation_failed';
@@ -45,12 +51,20 @@ function privateDirectory(string $path): void {
     if(!is_dir($path) && !mkdir($path,0700)) fail('write_failed');
     if(fileowner($path)!==fileowner(SOURCE_HOME) || !chmod($path,0700)) fail('account_mismatch');
 }
-function loadReviewedBootstrap(): void {
+function loadReviewedBootstrap(): array {
+    $checks=[];
     foreach(DEPENDENCIES as $name=>$hash) {
         $path=EXCHANGE.'/'.$name;
-        if(is_link($path) || !is_file($path) || filesize($path)>250000 || !hash_equals($hash,hash_file('sha256',$path))) fail('dependency_mismatch');
+        $actual=null;
+        if(!is_link($path) && is_file($path) && filesize($path)<=250000) {
+            $digest=hash_file('sha256',$path);
+            if(is_string($digest) && preg_match('/^[a-f0-9]{64}$/D',$digest)) $actual=$digest;
+        }
+        if($actual===null || !hash_equals($hash,$actual)) throw new DependencyMismatch($name,$hash,$actual);
+        $checks[]=['dependency_name'=>$name,'expected_sha256'=>$hash,'actual_sha256'=>$actual];
     }
     require_once EXCHANGE.'/bootstrap-lombardgorzow.php';
+    return $checks;
 }
 /** Injectable invocation makes the no-implicit-enable and failure cases testable offline. */
 function operate(array $args,callable $invoke): array {
@@ -82,6 +96,25 @@ function publicReport(array $args,array $value): array {
     if($args['operation']==='prepare' && is_string($value['public_key']??null) && preg_match('/^ssh-ed25519 [A-Za-z0-9+\/]{68}$/D',$value['public_key'])) $out['public_key']=$value['public_key'];
     if($args['operation']==='check' && is_array($value['status']??null)) $out['status']=publicStatus($value['status']);
     if($args['operation']==='enable') $out['receiver_readiness_confirmed_by_operator']=$args['receiver_ready'];
+    // Only fixed public PHP dependencies may be identified; never report paths or bytes.
+    $name=$value['dependency_name']??null;
+    if(($value['error']??'')==='dependency_mismatch' && is_string($name) && isset(DEPENDENCIES[$name])
+        && ($value['expected_sha256']??'')===DEPENDENCIES[$name]) {
+        $out['dependency_name']=$name;$out['expected_sha256']=DEPENDENCIES[$name];
+        $actual=$value['actual_sha256']??null;
+        $out['actual_sha256']=is_string($actual) && preg_match('/^[a-f0-9]{64}$/D',$actual)?$actual:null;
+    }
+    if(isset($value['dependency_checks']) && is_array($value['dependency_checks']) && array_is_list($value['dependency_checks']) && count($value['dependency_checks'])<=count(DEPENDENCIES)) {
+        $checks=[];$seen=[];
+        foreach($value['dependency_checks'] as $item) {
+            if(!is_array($item))continue;
+            $name=$item['dependency_name']??null;$actual=$item['actual_sha256']??null;
+            if(!is_string($name) || !isset(DEPENDENCIES[$name]) || isset($seen[$name]) || ($item['expected_sha256']??null)!==DEPENDENCIES[$name]
+                || !is_string($actual) || !preg_match('/^[a-f0-9]{64}$/D',$actual))continue;
+            $seen[$name]=true;$checks[]=['dependency_name'=>$name,'expected_sha256'=>DEPENDENCIES[$name],'actual_sha256'=>$actual,'matched'=>hash_equals(DEPENDENCIES[$name],$actual)];
+        }
+        $out['dependency_checks']=$checks;
+    }
     return $out;
 }
 function publishReport(string $nonce,array $report): void {
@@ -110,9 +143,13 @@ function main(array $argv): int {
     $lock=fopen($lockPath,'c');$locked=false;
     try {
         if(!$lock || !($locked=flock($lock,LOCK_EX|LOCK_NB))) fail('ops_busy');
-        chmod($lockPath,0600);loadReviewedBootstrap();
+        chmod($lockPath,0600);$checks=loadReviewedBootstrap();
         $result=operate($args,fn(string $mode): array => \SezamCatalogTarget\bootstrap(['bootstrap-lombardgorzow.php',$mode]));
-    } catch(\Throwable $error) { $result=['result'=>'error','error'=>safeError($error)]; }
+        $result['dependency_checks']=$checks;
+    } catch(\Throwable $error) {
+        $result=['result'=>'error','error'=>safeError($error)];
+        if($error instanceof DependencyMismatch) $result+=['dependency_name'=>$error->dependencyName,'expected_sha256'=>$error->expectedSha256,'actual_sha256'=>$error->actualSha256];
+    }
     finally {if(is_resource($lock)){if($locked)flock($lock,LOCK_UN);fclose($lock);}}
     publishReport($args['nonce'],publicReport($args,$result));
     return ($result['result']??'')==='error'?1:0;
