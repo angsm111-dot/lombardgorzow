@@ -45,10 +45,20 @@ for sezam_guard in "$sezam_state/catalog-install.lock" "$sezam_web/sezam-catalog
 done
 exec 8>"$sezam_state/catalog-install.lock"
 flock -n 8
+[ -z "$(find "$sezam_state" -maxdepth 0 -perm /077 -print)" ]
+sezam_control="$(mktemp -d "$sezam_state/catalog-control.XXXXXXXX")"
+sezam_directory "$sezam_control"
+[ "$(stat -c %a "$sezam_control")" = 700 ]
+sezam_cleanup_control() {
+  sezam_directory "$sezam_control" && rm -rf -- "$sezam_control"
+}
+trap sezam_cleanup_control EXIT
 
 # Fail before network or installation unless the catalog-aware static deployer
 # has already published this account and the reviewed template is available.
-php -f /dev/stdin -- "$sezam_action" "$sezam_release" <<'SEZAM_PREFLIGHT'
+# JDM's php launcher splits arguments containing whitespace; execute private
+# script files rather than passing PHP source through -r or /dev/stdin.
+cat >"$sezam_control/preflight.php" <<'SEZAM_PREFLIGHT'
 <?php
 declare(strict_types=1);
 ini_set('display_errors','0');
@@ -99,6 +109,9 @@ if($argv[1]==='--activate-key') {
     insist(is_link($base.'/current') && readlink($base.'/current')==='releases/'.$argv[2]);
 }
 SEZAM_PREFLIGHT
+sezam_file "$sezam_control/preflight.php"
+[ "$(stat -c %a "$sezam_control/preflight.php")" = 600 ]
+php "$sezam_control/preflight.php" "$sezam_action" "$sezam_release"
 
 if [ ! -e "$sezam_private" ]; then mkdir -m 700 "$sezam_private"; fi
 sezam_directory "$sezam_private"
@@ -109,7 +122,7 @@ sezam_success=false
 sezam_report() {
   # The public proof contains selected public metadata only, never logs, paths,
   # key material, configuration values or arbitrary installer output.
-  php -f /dev/stdin -- "$sezam_action" "$sezam_release" "$sezam_success" <<'SEZAM_REPORT'
+  cat >"$sezam_control/report.php" <<'SEZAM_REPORT'
 <?php
 declare(strict_types=1);
 ini_set('display_errors','0');
@@ -136,6 +149,9 @@ $temp=tempnam($web,'sezam-catalog-proof.');if($temp===false)exit(1);
 try { if(file_put_contents($temp,json_encode($out,JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR)."\n")===false||!chmod($temp,0644)||!rename($temp,$target))exit(1); }
 finally { if(is_file($temp))unlink($temp); }
 SEZAM_REPORT
+  sezam_file "$sezam_control/report.php"
+  [ "$(stat -c %a "$sezam_control/report.php")" = 600 ]
+  php "$sezam_control/report.php" "$sezam_action" "$sezam_release" "$sezam_success"
 }
 sezam_finish() {
   sezam_exit="$?"
@@ -143,6 +159,7 @@ sezam_finish() {
   sezam_report || sezam_exit=1
   # Remove only this script's uniquely-created, guarded staging directory.
   if sezam_directory "$sezam_stage"; then rm -rf -- "$sezam_stage"; else sezam_exit=1; fi
+  sezam_cleanup_control || sezam_exit=1
   exit "$sezam_exit"
 }
 trap sezam_finish EXIT

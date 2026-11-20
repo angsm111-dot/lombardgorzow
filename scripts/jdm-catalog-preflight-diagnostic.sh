@@ -1,6 +1,6 @@
 #!/bin/sh
-# Read-only preflight inspection for site 23048. The only write is a sanitized
-# public diagnostic JSON; no installation, permission changes or key access.
+# Read-only preflight inspection for site 23048. Writes only a temporary private
+# PHP script and sanitized public JSON; no installation or key access.
 set -eu
 PATH=/usr/local/bin:/usr/bin:/bin
 export PATH
@@ -10,7 +10,22 @@ export PATH
 [ "$HOME" = /home/vvictgzv ]
 [ "$(getent passwd vvictgzv | cut -d: -f6)" = "$HOME" ]
 [ "$(readlink -f "$HOME")" = "$HOME" ]
-sezam_php="$(cat <<'SEZAM_DIAGNOSTIC'
+umask 077
+sezam_state="$HOME/.sezam-nowa-deploy"
+[ ! -L "$sezam_state" ]
+[ "$(find "$sezam_state" -maxdepth 0 -type d -user vvictgzv -print)" = "$sezam_state" ]
+[ -z "$(find "$sezam_state" -maxdepth 0 -perm /077 -print)" ]
+sezam_control="$(mktemp -d "$sezam_state/catalog-diagnostic.XXXXXXXX")"
+[ ! -L "$sezam_control" ]
+[ "$(find "$sezam_control" -maxdepth 0 -type d -user vvictgzv -print)" = "$sezam_control" ]
+[ "$(stat -c %a "$sezam_control")" = 700 ]
+sezam_cleanup() {
+  [ ! -L "$sezam_control" ] && [ "$(find "$sezam_control" -maxdepth 0 -type d -user vvictgzv -print)" = "$sezam_control" ] && rm -rf -- "$sezam_control"
+}
+trap sezam_cleanup EXIT
+# Avoid passing multiword PHP code through JDM's whitespace-splitting launcher.
+cat >"$sezam_control/diagnostic.php" <<'SEZAM_DIAGNOSTIC'
+<?php
 declare(strict_types=1);
 ini_set('display_errors','0');ini_set('log_errors','0');
 $home='/home/vvictgzv';$uid=posix_geteuid();$web=$home.'/public_html';
@@ -80,5 +95,7 @@ finally { if(is_file($temp))unlink($temp); }
 echo json_encode(['result'=>$result['result'],'stage'=>$stage],JSON_THROW_ON_ERROR)."\n";
 exit($result['result']==='ready'?0:1);
 SEZAM_DIAGNOSTIC
-)"
-php -r "$sezam_php"
+[ ! -L "$sezam_control/diagnostic.php" ]
+[ "$(find "$sezam_control/diagnostic.php" -maxdepth 0 -type f -user vvictgzv -print)" = "$sezam_control/diagnostic.php" ]
+[ "$(stat -c %a "$sezam_control/diagnostic.php")" = 600 ]
+php "$sezam_control/diagnostic.php"
