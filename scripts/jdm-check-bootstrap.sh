@@ -19,7 +19,7 @@ sezam_state="$sezam_home/.sezam-nowa-deploy"
 mkdir -p "$sezam_state"
 [ "$(find "$sezam_state" -maxdepth 0 -type d -user vvictgzv -print)" = "$sezam_state" ]
 chmod 700 "$sezam_state"
-for sezam_guard in "$sezam_state/preparation-bootstrap.lock" "$sezam_state/preparation.log" "$sezam_state/previous-check.txt" "$sezam_state/previous-inventory-check.txt" "$sezam_state/previous-content-check.txt" "$sezam_web/sezam-bootstrap-check.txt" "$sezam_web/sezam-inventory-check.txt" "$sezam_web/sezam-content-check.txt"; do
+for sezam_guard in "$sezam_state/preparation-bootstrap.lock" "$sezam_state/preparation.log" "$sezam_state/previous-check.txt" "$sezam_state/previous-inventory-check.txt" "$sezam_state/previous-content-check.txt" "$sezam_state/previous-wp-check.txt" "$sezam_web/sezam-bootstrap-check.txt" "$sezam_web/sezam-inventory-check.txt" "$sezam_web/sezam-content-check.txt" "$sezam_web/sezam-wp-check.txt"; do
   [ ! -L "$sezam_guard" ]
   if [ -e "$sezam_guard" ]; then [ "$(find "$sezam_guard" -maxdepth 0 -type f -user vvictgzv -print)" = "$sezam_guard" ]; fi
 done
@@ -28,11 +28,12 @@ flock -n 9
 if [ -f "$sezam_web/sezam-bootstrap-check.txt" ]; then mv -f -- "$sezam_web/sezam-bootstrap-check.txt" "$sezam_state/previous-check.txt"; fi
 if [ -f "$sezam_web/sezam-inventory-check.txt" ]; then mv -f -- "$sezam_web/sezam-inventory-check.txt" "$sezam_state/previous-inventory-check.txt"; fi
 if [ -f "$sezam_web/sezam-content-check.txt" ]; then mv -f -- "$sezam_web/sezam-content-check.txt" "$sezam_state/previous-content-check.txt"; fi
+if [ -f "$sezam_web/sezam-wp-check.txt" ]; then mv -f -- "$sezam_web/sezam-wp-check.txt" "$sezam_state/previous-wp-check.txt"; fi
 sezam_tmp="$(mktemp "$sezam_state/preparation.XXXXXXXX")"
 sezam_public_tmp=''
 trap 'rm -f -- "$sezam_tmp" "$sezam_public_tmp"' EXIT
 sezam_log="$sezam_state/preparation.log"
-if curl --proto =https --tlsv1.2 --fail --silent --show-error --connect-timeout 20 --max-time 60 https://raw.githubusercontent.com/angsm111-dot/lombardgorzow/a2563129f2d7a873395bfd9516cf477b21789f4c/scripts/prepare-jdm-static.php -o "$sezam_tmp" 2>"$sezam_log" && echo "a8bec3261cde51c916ad3a622fb8c20ba850625c60da4dc933a1cb6aa865a461  $sezam_tmp" | sha256sum --check --status 2>>"$sezam_log" && php -l "$sezam_tmp" >>"$sezam_log" 2>&1; then
+if curl --proto =https --tlsv1.2 --fail --silent --show-error --connect-timeout 20 --max-time 60 https://raw.githubusercontent.com/angsm111-dot/lombardgorzow/420e375b259964d2da941a62fe295ea5f7db8dcb/scripts/prepare-jdm-static.php -o "$sezam_tmp" 2>"$sezam_log" && echo "ada2b40b7e3152c3091eef85156fd465f1da4388555818388eb6233ccee0c5a3  $sezam_tmp" | sha256sum --check --status 2>>"$sezam_log" && php -l "$sezam_tmp" >>"$sezam_log" 2>&1; then
   php "$sezam_tmp" --check >"$sezam_log" 2>&1 || true
 else
   echo 'Preparation stopped: pinned checker download, checksum or PHP syntax check failed.' >"$sezam_log"

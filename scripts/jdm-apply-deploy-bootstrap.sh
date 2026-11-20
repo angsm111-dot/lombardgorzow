@@ -34,7 +34,7 @@ exec 9>"$sezam_state/preparation-bootstrap.lock"
 flock -n 9
 
 # Only diagnostics created for this new site are moved; no project or WordPress file.
-for sezam_name in sezam-bootstrap-check.txt sezam-server-check.txt sezam-download-check.txt sezam-inventory-check.txt sezam-content-check.txt sezam-deployment-check.txt; do
+for sezam_name in sezam-bootstrap-check.txt sezam-server-check.txt sezam-download-check.txt sezam-inventory-check.txt sezam-content-check.txt sezam-wp-check.txt sezam-deployment-check.txt; do
   sezam_source="$sezam_web/$sezam_name"
   sezam_previous="$sezam_state/previous-$sezam_name"
   sezam_file_guard "$sezam_source"
@@ -60,11 +60,11 @@ sezam_status() {
 }
 
 # Both executable scripts are downloaded, checksum-checked and linted BEFORE preparation.
-if ! { curl --proto =https --tlsv1.2 -fsS --connect-timeout 20 --max-time 60 https://raw.githubusercontent.com/angsm111-dot/lombardgorzow/a2563129f2d7a873395bfd9516cf477b21789f4c/scripts/prepare-jdm-static.php -o "$sezam_prep" && echo "a8bec3261cde51c916ad3a622fb8c20ba850625c60da4dc933a1cb6aa865a461  $sezam_prep" | sha256sum --check --status && php -l "$sezam_prep"; } >"$sezam_state/preparation.log" 2>&1; then
+if ! { curl --proto =https --tlsv1.2 -fsS --connect-timeout 20 --max-time 60 https://raw.githubusercontent.com/angsm111-dot/lombardgorzow/420e375b259964d2da941a62fe295ea5f7db8dcb/scripts/prepare-jdm-static.php -o "$sezam_prep" && echo "ada2b40b7e3152c3091eef85156fd465f1da4388555818388eb6233ccee0c5a3  $sezam_prep" | sha256sum --check --status && php -l "$sezam_prep"; } >"$sezam_state/preparation.log" 2>&1; then
   sezam_status 'Stopped: pinned preparation script download, checksum or syntax verification failed.' ''
   exit 1
 fi
-if ! { curl --proto =https --tlsv1.2 -fsS --connect-timeout 20 --max-time 60 https://raw.githubusercontent.com/angsm111-dot/lombardgorzow/1defc4583192b42250023659e4a34403f5f49880/scripts/deploy-jdm.php -o "$sezam_deploy" && echo "80bac3678507e86953b4e0fb95aca0128cf0e3093afc63ad3a2e28ad2be6e26c  $sezam_deploy" | sha256sum --check --status && php -l "$sezam_deploy"; } >"$sezam_state/deployment.log" 2>&1; then
+if ! { curl --proto =https --tlsv1.2 -fsS --connect-timeout 20 --max-time 60 https://raw.githubusercontent.com/angsm111-dot/lombardgorzow/420e375b259964d2da941a62fe295ea5f7db8dcb/scripts/deploy-jdm.php -o "$sezam_deploy" && echo "68aacc212a591703e8481d2ce27e23ca6b7d4e56a9f70aeb095eb3d5791219d4  $sezam_deploy" | sha256sum --check --status && php -l "$sezam_deploy"; } >"$sezam_state/deployment.log" 2>&1; then
   sezam_status 'Stopped: pinned deployment script download, checksum or syntax verification failed.' ''
   exit 1
 fi
