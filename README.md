@@ -213,8 +213,8 @@ Sprawdzenie aktualizacji: 7 stron na mobilnym viewport 390 px (375 px treści), 
 | 1. Pełna | `/` | Pełna strona główna z bieżącymi poprawkami. |
 | 2. Skrócona | `/wersja-obecna/` | Skrócona strona główna z bieżącymi poprawkami. |
 | 3. Pierwotna | `/porownanie-wersji/pierwotna/` | Niezmieniony pierwszy projekt w osobnym podglądzie z aktualnym przełącznikiem. |
-| 4. Pośrednia | `/wersja-posrednia/` | Osobna kopia pełnej strony bez sekcji „03 / DOBRZE SIĘ ZNAMY”. |
-| 5. Kalkulator | `/wersja-kalkulator/` | Wariant bez bloków 01 i 03; kalkulator w miejscu bloku 01, a pod nim trzy dotychczasowe kafelki oferty. |
+| 4. Pośrednia | `/wersja-posrednia/` | Osobna kopia pełnej strony bez sekcji „03 / DOBRZE SIĘ ZNAMY” i boksu „Twój kolejny świetny zakup”. |
+| 5. Kalkulator | `/wersja-kalkulator/` | Wariant bez bloków 01 i 03 oraz boksu „Twój kolejny świetny zakup”; kalkulator w miejscu bloku 01, a pod nim trzy dotychczasowe kafelki oferty. |
 
 Wersję 4 utrzymuje osobny plik `src/pages/home-intermediate.html`, a wersję 5 — `src/pages/home-calculator.html`. Zmiany układu wersji 5 dotyczą wyłącznie tego wariantu; treść wersji 1, 2 i 4 pozostaje zachowana. Wspólny przełącznik zawiera pięć pozycji. Przy szerokości do 480 px przyciski układają się w dwóch kolumnach, z piątą pozycją na pełnej szerokości, i zachowują minimum 44 px wysokości.
 
