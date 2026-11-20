@@ -23,6 +23,20 @@ function prepJdmCacheDropIn(SplFileInfo $item, string $relative, int $uid): bool
         && ($item->getPerms() & 07777) === 0750 && $item->getSize() === 49029;
 }
 
+function prepJdmOwnedFile(SplFileInfo $item, int $uid, int $bytes): bool {
+    return !$item->isLink() && $item->isFile() && $item->getOwner() === $uid
+        && ($item->getPerms() & 07777) === 0750 && $item->getSize() === $bytes;
+}
+
+function prepJdmMuPlugin(SplFileInfo $item, string $relative, int $uid): bool {
+    if ($relative === 'wp-content/mu-plugins/jdm.php') { return prepJdmOwnedFile($item, $uid, 1116); }
+    $base = 'wp-content/mu-plugins/jdm-plugins';
+    if ($relative !== $base && strpos($relative, $base . '/') !== 0) { return false; }
+    return !$item->isLink() && $item->getOwner() === $uid
+        && ($item->isDir() || $item->isFile())
+        && ($relative !== $base || ($item->isDir() && ($item->getPerms() & 07777) === 0750));
+}
+
 function prepInventory(string $directory, int $uid): array {
     prepDirectory($directory, $uid);
     $files = [];
@@ -43,8 +57,15 @@ function prepScaffold(string $web, array $inventory): void {
         $top = explode('/', $relative)[0];
         prepRequire(in_array($top, $allowedRoot, true), 'Unexpected content in the new document root.');
         prepRequire(strpos($relative, 'wp-content/uploads/') !== 0, 'Uploads directory is not empty.');
-        prepRequire(strpos($relative, 'wp-content/mu-plugins/') !== 0, 'Must-use plugins require separate review.');
+        if (strpos($relative, 'wp-content/mu-plugins/') === 0) {
+            prepRequire(prepJdmMuPlugin(new SplFileInfo($web . '/' . $relative), $relative, fileowner($web)), 'Unexpected JDM mu-plugin path or metadata: ' . $relative);
+            continue;
+        }
         if (strpos($relative, 'wp-content/') === 0) {
+            if ($relative === 'wp-content/install.php') {
+                prepRequire(prepJdmOwnedFile(new SplFileInfo($web . '/' . $relative), fileowner($web), 16165), 'Unexpected JDM wp-content/install.php metadata.');
+                continue;
+            }
             if ($relative === 'wp-content/object-cache.php') {
                 prepRequire(prepJdmCacheDropIn(new SplFileInfo($web . '/' . $relative), $relative, fileowner($web)), 'Unrecognized JDM cache drop-in.');
                 continue;
