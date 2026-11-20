@@ -96,19 +96,32 @@ foreach ($sezam_archive_precore_constants as $override) {
     $errors[] = $override . ' is defined by configuration; review it explicitly before migration.';
 }
 $prefix = (string) $wpdb->prefix;
-if (!preg_match('/^[A-Za-z0-9_]+$/D', $prefix)) { WP_CLI::error('Unexpected table prefix.'); }
+if ($prefix !== 'wp_' || !preg_match('/^[A-Za-z0-9_]+$/D', $prefix)) { WP_CLI::error('Unexpected table prefix.'); }
 $tables = $wpdb->get_col($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($prefix) . '%'));
 if (!$tables) { WP_CLI::error('No matching tables.'); }
 sort($tables);
-$other_options = 0; $missing_primary_key = 0;
+$other_options = 0; $missing_primary_key = 0; $unhandled_missing_primary_key = 0;
+$excluded_empty_table = null;
 foreach ($tables as $table) {
     if (!preg_match('/^[A-Za-z0-9_]+$/D', $table)) { WP_CLI::error('Unexpected table identifier.'); }
     if (substr($table, -7) === 'options' && $table !== $wpdb->options) { $other_options++; }
     $primary = $wpdb->get_results("SHOW KEYS FROM `" . $table . "` WHERE Key_name = 'PRIMARY'");
-    if (!$primary) { $missing_primary_key++; }
+    $verified_empty_exclusion = false;
+    if ($table === 'wp_revslider_navigations' && $prefix === 'wp_') {
+        $empty_count = $wpdb->get_var('SELECT COUNT(*) FROM `wp_revslider_navigations`');
+        if ($empty_count === null || !preg_match('/^[0-9]+$/D', (string) $empty_count)) { WP_CLI::error('Excluded table count could not be verified.'); }
+        $excluded_empty_table = array('name' => 'wp_revslider_navigations', 'row_count' => (int) $empty_count);
+        $verified_empty_exclusion = (string) $empty_count === '0';
+        if (!$verified_empty_exclusion) { $errors[] = 'Excluded wp_revslider_navigations is no longer empty; review before migration.'; }
+    }
+    if (!$primary) {
+        $missing_primary_key++;
+        if (!$verified_empty_exclusion) { $unhandled_missing_primary_key++; }
+    }
 }
+if ($excluded_empty_table === null) { $errors[] = 'Expected empty wp_revslider_navigations table is missing; review before migration.'; }
 if ($other_options) { $errors[] = 'Other options tables share the prefix; review site boundaries.'; }
-if ($missing_primary_key) { $errors[] = 'Some prefixed tables lack a primary key; WP-CLI would skip them.'; }
+if ($unhandled_missing_primary_key) { $errors[] = 'Some prefixed tables lack a primary key; WP-CLI would skip them.'; }
 if (is_multisite() || $wpdb->base_prefix !== $prefix) { $errors[] = 'Multisite is not supported.'; }
 if (defined('CUSTOM_USER_TABLE') || defined('CUSTOM_USER_META_TABLE')) { $errors[] = 'Shared custom user tables require manual review.'; }
 if (defined('RELOCATE') && RELOCATE) { $errors[] = 'RELOCATE must be reviewed before migration.'; }
@@ -152,6 +165,7 @@ $report = array(
     'url_constants' => $constants, 'configured_content_overrides' => $sezam_archive_precore_constants, 'multisite' => is_multisite(),
     'table_prefix' => $prefix, 'prefixed_tables' => count($tables),
     'tables_without_primary_key' => $missing_primary_key, 'other_options_tables' => $other_options,
+    'excluded_empty_table' => $excluded_empty_table,
     'content_counts' => $counts,
     'empty_published_posts' => (int) $wpdb->get_var("SELECT COUNT(*) FROM `" . $wpdb->posts . "` WHERE post_type = 'post' AND post_status = 'publish' AND TRIM(post_content) = ''"),
     'table_set_sha256' => hash('sha256', implode("\n", $tables)),
@@ -183,7 +197,7 @@ write_php prepare-state.php <<'PHP'
 $r=json_decode(stream_get_contents(STDIN),true); $r["state_version"]=1; $r["status"]="prepared"; $r["prepared_at_utc"]=gmdate("c"); $r["archive_origin"]="https://stara.lombardgorzow.com"; $r["mu_plugin_preexisting"]=false; echo json_encode($r,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),"\n";
 PHP
 write_php verify-postflight.php <<'PHP'
-$lines=explode("\n",stream_get_contents(STDIN));$before=json_decode($lines[0],true);$after=json_decode($lines[1],true);if($after["home"]!=="https://stara.lombardgorzow.com" || $after["siteurl"]!=="https://stara.lombardgorzow.com" || $after["blog_public"]!=="0" || $after["blockers"] || $after["content_counts"]!==$before["content_counts"] || $after["database_identity_sha256"]!==$before["database_identity_sha256"] || $after["table_set_sha256"]!==$before["table_set_sha256"]){exit(1);}
+$lines=explode("\n",stream_get_contents(STDIN));$before=json_decode($lines[0],true);$after=json_decode($lines[1],true);if($after["home"]!=="https://stara.lombardgorzow.com" || $after["siteurl"]!=="https://stara.lombardgorzow.com" || $after["blog_public"]!=="0" || $after["blockers"] || $after["content_counts"]!==$before["content_counts"] || $after["database_identity_sha256"]!==$before["database_identity_sha256"] || $after["table_set_sha256"]!==$before["table_set_sha256"] || $after["excluded_empty_table"]!==$before["excluded_empty_table"]){exit(1);}
 PHP
 write_php complete-state.php <<'PHP'
 $p=$argv[1];$r=json_decode(file_get_contents($p),true);$r["status"]="applied";$r["applied_at_utc"]=gmdate("c");$tmp=$p.".completed";if(file_put_contents($tmp,json_encode($r,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n")===false){exit(1);}chmod($tmp,0600);if(!rename($tmp,$p)){exit(1);}
@@ -198,10 +212,17 @@ write_php diagnostic-wordpress-bootstrap.php <<'PHP'
 global $sezam_archive_precore_constants; WP_CLI::line("JDM_DIAG_BOOTSTRAP:" . json_encode(array("config_hook_present" => isset($sezam_archive_precore_constants) && is_array($sezam_archive_precore_constants), "php_version" => PHP_VERSION, "mysqli_available" => extension_loaded("mysqli"))));
 PHP
 
+write_php assert-empty-exclusion.php <<'PHP'
+global $wpdb;
+$wpdb->suppress_errors(true);
+if ($wpdb->prefix !== 'wp_' || $wpdb->base_prefix !== 'wp_' || is_multisite()) { WP_CLI::error('Unexpected excluded-table boundary.'); }
+$count = $wpdb->get_var('SELECT COUNT(*) FROM `wp_revslider_navigations`');
+if ($wpdb->last_error || $count === null || (string) $count !== '0') { WP_CLI::error('The exact excluded RevSlider table must still be empty.'); }
+PHP
 write_php table-diagnostic-guard.php <<'PHP'
 $r=json_decode(stream_get_contents(STDIN),true);
 $allowed=array('http://lombardgorzow.com','https://lombardgorzow.com','http://www.lombardgorzow.com','https://www.lombardgorzow.com');
-if(!is_array($r) || $r['table_prefix']!=='wp_' || $r['tables_without_primary_key']!==1 || $r['blockers']!==array('Some prefixed tables lack a primary key; WP-CLI would skip them.') || !in_array(rtrim($r['home'],'/'),$allowed,true) || !in_array(rtrim($r['siteurl'],'/'),$allowed,true)){exit(1);}
+if(!is_array($r) || $r['table_prefix']!=='wp_' || $r['tables_without_primary_key']!==1 || !($r['blockers']===array('Some prefixed tables lack a primary key; WP-CLI would skip them.') || ($r['blockers']===array() && ($r['excluded_empty_table']??null)===array('name'=>'wp_revslider_navigations','row_count'=>0))) || !in_array(rtrim($r['home'],'/'),$allowed,true) || !in_array(rtrim($r['siteurl'],'/'),$allowed,true)){exit(1);}
 PHP
 write_php diagnose-table.php <<'PHP'
 global $wpdb;
@@ -479,7 +500,7 @@ fi
 report="$(audit)"
 if [[ "$MODE" == --diagnose-table ]]; then
   STAGE='read-only-table-diagnostic'
-  printf '%s' "$report" | php "$runtime_dir/table-diagnostic-guard.php" 2>/dev/null || fail 'Table diagnostic requires exactly the known single no-primary-key blocker and the old site URL.'
+  printf '%s' "$report" | php "$runtime_dir/table-diagnostic-guard.php" 2>/dev/null || fail 'Table diagnostic requires the known single no-primary-key table and the old site URL.'
   "${WP[@]}" eval-file "$runtime_dir/diagnose-table.php" >"$runtime_dir/table.stdout.log" 2>"$runtime_dir/table.stderr.log" || fail 'Read-only table diagnostic failed; raw logs remain private.'
   sed -n 's/^JDM_ARCHIVE_TABLE_REPORT://p' "$runtime_dir/table.stdout.log" | php "$runtime_dir/table-diagnostic-public.php" 2>/dev/null || fail 'Invalid sanitized table diagnostic result.'
   printf 'mode=diagnose-table\nresult=read_only_table_diagnostic_complete\n'
@@ -490,10 +511,12 @@ printf '%s' "$report" | php "$runtime_dir/public-report.php"
 blockers="$(printf '%s' "$report" | php "$runtime_dir/count-blockers.php")"
 [[ "$blockers" == 0 ]] || fail 'Preflight blockers are listed above; no changes made.'
 
-SR_ARGS=(--all-tables-with-prefix --skip-columns=guid --precise --recurse-objects --regex --regex-delimiter='~' --regex-flags=i --format=count)
+SR_ARGS=(--all-tables-with-prefix --skip-tables=wp_revslider_navigations --skip-columns=guid --precise --recurse-objects --regex --regex-delimiter='~' --regex-flags=i --format=count)
 search_count() {
   local pattern="$1" replacement="$2" value
   shift 2
+  # Recheck immediately before every dry-run/write; this table is never changed.
+  "${WP[@]}" eval-file "$runtime_dir/assert-empty-exclusion.php" >/dev/null 2>&1 || fail 'Excluded RevSlider table is not empty or its identity changed; migration stopped.'
   value="$("${WP[@]}" search-replace "$pattern" "$replacement" "${SR_ARGS[@]}" "$@" 2>/dev/null)" || fail 'Search-replace failed; raw output withheld.'
   [[ "$value" =~ ^[0-9]+$ ]] || fail 'Unexpected search-replace output; withheld.'
   printf '%s' "$value"

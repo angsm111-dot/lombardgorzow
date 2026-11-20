@@ -2,7 +2,7 @@
 
 Pomocnik `scripts/archive-wordpress-jdm.sh` dotyczy wyłącznie istniejącej witryny JDM **11344**, konta **lombard1**, serwera **web16** (`157.90.133.54`) i katalogu `/home/lombard1/public_html`. Nie przenosi plików WordPressa ani nie eksportuje bazy. Alias `stara.lombardgorzow.com` ma wskazywać ten sam istniejący WordPress; nowa strona działa osobno.
 
-**Stan: poprawione `--check` działa na JDM. Wykryto 42 tabele, 41 wpisów, 17 stron i 979 załączników; jedyną blokadą jest jedna tabela bez klucza głównego. `--apply` nie został wykonany.** Potwierdzono, że wrapper PHP na JDM rozdziela argumenty zawierające spacje, dlatego pomocnik uruchamia kod z prywatnych plików. Nie uruchamiać `--apply`, dopóki docelowa domena nie pokazuje zweryfikowanej nowej wersji 5. Skrypt przed uruchomieniem WP-CLI blokuje lokalne i nadrzędne pliki `wp-cli.yml`/`wp-cli.local.yml`, ponieważ mogą zawierać własne hooki lub kierować polecenia na inny serwer. Dodatkowo sprawdza nową stronę HTTPS: marker `page-home-calculator`, domenę docelową i brak zależności `/wp-content/`. Błędny wynik zatrzymuje pracę przed zmianami WordPressa.
+**Stan: poprawione `--check` działa na JDM. Wykryto 42 tabele, 41 wpisów, 17 stron i 979 załączników; jedyną tabelą bez klucza głównego jest `wp_revslider_navigations`. Osobna kontrola potwierdziła 0 rekordów oraz 0 dawnych URL-i; pomocnik wyklucza dokładnie tę pustą tabelę z zamiany. `--apply` nie został wykonany.** Potwierdzono, że wrapper PHP na JDM rozdziela argumenty zawierające spacje, dlatego pomocnik uruchamia kod z prywatnych plików. Nie uruchamiać `--apply`, dopóki docelowa domena nie pokazuje zweryfikowanej nowej wersji 5. Skrypt przed uruchomieniem WP-CLI blokuje lokalne i nadrzędne pliki `wp-cli.yml`/`wp-cli.local.yml`, ponieważ mogą zawierać własne hooki lub kierować polecenia na inny serwer. Dodatkowo sprawdza nową stronę HTTPS: marker `page-home-calculator`, domenę docelową i brak zależności `/wp-content/`. Błędny wynik zatrzymuje pracę przed zmianami WordPressa.
 
 ## Kontrola — domyślne działanie
 
@@ -16,7 +16,7 @@ Brak argumentu oznacza to samo co `--check`. Kontrola wywołuje odczyty WP-CLI i
 
 WP-CLI pomija zwykłe wtyczki, motyw i pakiety. WordPress nadal może wczytać swoje istniejące must-use plugins i drop-ins — jest to zachowanie WP-CLI. Pomocnik nie wyłącza ich przez zmianę plików. Raport należy obejrzeć przed zastosowaniem; referencyjna inwentaryzacja starej witryny obejmowała **41 wpisów oraz 17 stron**.
 
-Stałe `WP_HOME` i `WP_SITEURL`, niestandardowe lokalizacje treści, jawne `WP_CONTENT_URL`/`WP_PLUGIN_URL`/`UPLOADS`, multisite, współdzielone tabele użytkowników, drugi zestaw tabel `options` z tym samym prefiksem albo tabele bez klucza głównego blokują migrację. Skrypt niczego nie poprawia w `wp-config.php`. Jeśli raport wykryje taki przypadek, trzeba najpierw przejrzeć konkretną konfigurację i uzgodnić jej poprawkę.
+Stałe `WP_HOME` i `WP_SITEURL`, niestandardowe lokalizacje treści, jawne `WP_CONTENT_URL`/`WP_PLUGIN_URL`/`UPLOADS`, multisite, współdzielone tabele użytkowników, drugi zestaw tabel `options` z tym samym prefiksem albo tabele bez klucza głównego blokują migrację. Jedyny wyjątek dotyczy dokładnie `wp_revslider_navigations` przy prefiksie `wp_`, pod warunkiem `COUNT(*)=0`. W raporcie występuje jako `excluded_empty_table`; tabela zachowuje pliki, dane i schemat. Brak tej tabeli, dowolny nowy rekord lub inna tabela bez PK zatrzymują migrację. Skrypt niczego nie poprawia w `wp-config.php`. Jeśli raport wykryje taki przypadek, trzeba najpierw przejrzeć konkretną konfigurację i uzgodnić jej poprawkę.
 
 
 ## Gdy kontrola kończy się ogólnym błędem audytu
@@ -39,13 +39,13 @@ Przykłady interpretacji: `eval_without_wordpress=ok` i błąd `wordpress_bootst
 bash /PRYWATNA-SCIEZKA/archive-wordpress-jdm.sh --diagnose-table
 ```
 
-Tryb wymaga dokładnie jednego znanego blokera `tables_without_primary_key=1`, prefiksu `wp_` i pierwotnego adresu witryny. Zachowuje wszystkie wcześniejsze kontrole konta, hosta, katalogu, stałych i granic bazy. Sam ponownie odnajduje jedną tabelę bez PK. Kończy się przed `search-replace`, instalacją wtyczki i aktualizacją opcji.
+Tryb wymaga jednej tabeli bez klucza głównego (`tables_without_primary_key=1`), prefiksu `wp_` i pierwotnego adresu witryny. Akceptuje znany pojedynczy bloker albo już zweryfikowany wyjątek dla pustej `wp_revslider_navigations`. Zachowuje wszystkie wcześniejsze kontrole konta, hosta, katalogu, stałych i granic bazy. Sam ponownie odnajduje jedną tabelę bez PK. Kończy się przed `search-replace`, instalacją wtyczki i aktualizacją opcji.
 
 Publiczny raport zawiera nazwę tabeli, liczbę rekordów, nazwy kolumn, podstawowe typy (bez wartości enum/set i bez defaults), informację o NULL/unikalnym kluczu/auto_increment oraz liczniki dopasowanych dawnych adresów. `old_origin_occurrences` liczy każde wystąpienie; `matching_cells` i `matching_rows` liczą odpowiednio komórki oraz rekordy. Używa tej samej reguły HTTP/HTTPS/www i escapowanych slashy co planowana migracja. Wartości rekordów nie są wypisywane ani zapisywane do plików; istnieją tylko chwilowo w pamięci procesu.
 
 Odczyt wartości ma limity: 32 kolumny, 5000 rekordów, 8 MiB danych, 64 KiB na komórkę; dane są pobierane porcjami po 16 rekordów. Wcześniejsza agregacja SQL ustala liczbę rekordów i bajtów bez przekazywania treści do raportu. Przekroczenie limitu daje `scan_complete=false` i `limit_reason`; częściowy lub zerowy licznik w takim wyniku **nie oznacza braku adresów**. Surowe komunikaty WP-CLI są przechowywane wyłącznie w prywatnym katalogu runtime. Wynik nie jest transakcyjnym obrazem bazy: liczniki rozmiaru są sprawdzane ponownie, a przed ewentualną zmianą trzeba powtórzyć kontrolę.
 
-Diagnoza nie usuwa blokera i niczego nie naprawia automatycznie. Jeżeli tabela jest pusta albo pełny odczyt potwierdzi brak dawnych adresów, można rozważyć osobno zatwierdzone wykluczenie dokładnie tej tabeli z migracji, z ponowną kontrolą struktury i treści. Zachowuje to wszystkie dane bez dodawania klucza. Jeżeli tabela zawiera dawne adresy, należy najpierw ustalić jej rolę i sposób identyfikowania rekordów; nie dodawać automatycznie PK i nie usuwać tabeli.
+Diagnoza niczego nie zmienia. Po rzeczywistym wyniku zatwierdzono wyłącznie wykluczenie pustej `wp_revslider_navigations`; brak URL-i w innej albo niepustej tabeli sam w sobie nie daje wyjątku. `COUNT(*)=0` jest ponownie sprawdzane w każdym audycie (także przed zapisem plików i po migracji) oraz bezpośrednio przed każdym `search-replace`, również dry-runem. Każde takie polecenie ma dokładne `--skip-tables=wp_revslider_navigations`. Skrypt nie usuwa tabeli, nie zmienia schematu i nie dodaje PK. Kontrole nie blokują aplikacji przed równoległym zapisem; wykryta zmiana przerywa dalszą pracę i wymaga przeglądu.
 
 ## Zastosowanie po przełączeniu domeny
 
@@ -58,7 +58,7 @@ Kolejność:
 1. Ponownie wykonuje pełny odczyt i dry-run. Sprawdza nową produkcję oraz alias archiwum przez HTTPS. Sam status 200/301 nie wystarcza: bez podążania za przekierowaniem pobiera przez alias znany publiczny rekord REST starego WordPressa (ID 14219 i jego dokładny slug). Brak dostępu do REST lub niezgodny wynik zatrzymuje migrację do wyjaśnienia routingu.
 2. Zakłada blokadę tylko dla tego konta. Zapisuje mały plik `/home/lombard1/sezam-wp-archive-state/original-settings.json` z pierwotnymi URL-ami, `blog_public`, licznikami i identyfikatorami kontroli. To metadane cofnięcia ustawień, **nie kopia WordPressa i nie eksport bazy**.
 3. Instaluje własny plik `wp-content/mu-plugins/sezam-old-site.php`, nie nadpisując istniejącego pliku pod tą nazwą. Wtyczka działa tylko dla nagłówka hosta `stara.lombardgorzow.com`: wysyła `X-Robots-Tag: noindex, follow`, dodaje regułę `wp_robots`, wyłącza mapę WordPressa i pokazuje widoczny pasek z linkiem do nowej strony. Pozwala robotom odczytać `noindex`.
-4. Uruchamia WP-CLI `search-replace` z `--all-tables-with-prefix --skip-columns=guid --precise --recurse-objects`. W jednym przebiegu dopasowuje cztery warianty `http(s)://[www.]lombardgorzow.com`, także ze slashami zapisanymi jako `\/` w JSON. Granica nazwy hosta chroni podobne, ale inne domeny. Zmienia je na `https://stara.lombardgorzow.com`; serializacja PHP jest obsługiwana przez WP-CLI.
+4. Uruchamia WP-CLI `search-replace` z `--all-tables-with-prefix --skip-tables=wp_revslider_navigations --skip-columns=guid --precise --recurse-objects`. Wykluczona tabela musi pozostać pusta; nie jest modyfikowana. W jednym przebiegu dopasowuje cztery warianty `http(s)://[www.]lombardgorzow.com`, także ze slashami zapisanymi jako `\/` w JSON. Granica nazwy hosta chroni podobne, ale inne domeny. Zmienia je na `https://stara.lombardgorzow.com`; serializacja PHP jest obsługiwana przez WP-CLI.
 5. Ustawia `home` i `siteurl` na adres archiwum oraz `blog_public=0`. Unieważnia wyłącznie wpisy cache postów i opcji tego WordPressa; nie wykonuje globalnego `wp cache flush`.
 6. Sprawdza URL-e, liczby treści, tożsamość bazy i zestaw tabel oraz brak dawnych URL-i poza celowo pomijanym `guid`.
 
@@ -94,11 +94,11 @@ ARCHIVE_WP=(wp --path=/home/lombard1/public_html --skip-plugins --skip-themes --
 
 # Najpierw obejrzyj wyłącznie licznik planowanych zmian.
 "${ARCHIVE_WP[@]}" search-replace 'https://stara.lombardgorzow.com' "$ARCHIVE_OLD_HOME" \
-  --all-tables-with-prefix --skip-columns=guid --precise --recurse-objects --dry-run --format=count
+  --all-tables-with-prefix --skip-tables=wp_revslider_navigations --skip-columns=guid --precise --recurse-objects --dry-run --format=count
 
 # Dopiero po weryfikacji wyniku wykonaj cofnięcie adresu w danych.
 "${ARCHIVE_WP[@]}" search-replace 'https://stara.lombardgorzow.com' "$ARCHIVE_OLD_HOME" \
-  --all-tables-with-prefix --skip-columns=guid --precise --recurse-objects --format=count
+  --all-tables-with-prefix --skip-tables=wp_revslider_navigations --skip-columns=guid --precise --recurse-objects --format=count
 "${ARCHIVE_WP[@]}" option update home "$ARCHIVE_OLD_HOME"
 "${ARCHIVE_WP[@]}" option update siteurl "$ARCHIVE_OLD_SITEURL"
 "${ARCHIVE_WP[@]}" option update blog_public "$ARCHIVE_OLD_PUBLIC"
