@@ -59,6 +59,8 @@ def build():
         extra = '<script src="/prices.js" defer></script><link rel="stylesheet" href="/metal-theme.css"><link rel="stylesheet" href="/pricing-layout.css">' if key == 'cennik-zlota' else ('<link rel="preload" as="image" href="/assets/sezam-jewelry-hafner.webp">' if is_home else '')
         if key in ('home-calculator', 'home-production'):
             extra += '<link rel="stylesheet" href="/calculator-home.css">'
+        if key == 'home-production':
+            extra += '\n<meta name="google-site-verification" content="sDqGrrFRu3ayAb1KHX7IEt__34XW0_eDY-cNQKKsAeU">'
         if key == 'co-przyjmujemy':
             extra += '<link rel="stylesheet" href="/categories.css">'
         if key == 'na-sprzedaz':
