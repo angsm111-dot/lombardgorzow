@@ -1,7 +1,7 @@
 """Independent comparison controls; these are outside the original project."""
 
 VERSIONS = (
-    ('/', '1. Pełna', 'Wersja 1 — pełna strona z bieżącymi poprawkami'),
+    ('/wersja-pelna/', '1. Pełna', 'Wersja 1 — pełna strona z bieżącymi poprawkami'),
     ('/wersja-obecna/', '2. Skrócona', 'Wersja 2 — skrócona strona z bieżącymi poprawkami'),
     ('/porownanie-wersji/pierwotna/', '3. Pierwotna', 'Wersja 3 — niezmieniony pierwszy projekt'),
     ('/wersja-posrednia/', '4. Pośrednia', 'Wersja 4 — pełna strona bez sekcji 03 / Dobrze się znamy'),

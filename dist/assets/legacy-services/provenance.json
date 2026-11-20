@@ -1,0 +1,59 @@
+{
+  "available": [
+    {
+      "file": "/assets/legacy-services/wnetrze-sezam.webp",
+      "source": "Existing user site /workspace/sites/sezam-ametyst-gorzow/dist/assets/wnetrze.webp",
+      "source_description": "Existing site labels this photograph: Wnętrze lombardu SEZAM przy Pocztowej",
+      "caption": "Wnętrze SEZAM — fotografia z wcześniejszych materiałów firmy.",
+      "sha256": "ed05f2cd24cf477cf28776d21224167ecb904bc26d0dbc15354b76a69ba691e7",
+      "modified": false
+    }
+  ],
+  "pending_wordpress_gallery": [
+    {
+      "source": "https://lombardgorzow.com/wp-content/uploads/2014/08/lmbard-gorzow-1.jpg",
+      "target": "/assets/legacy-services/lmbard-gorzow-1.jpg",
+      "status": "HTTP 403; not embedded. Recover through authorized hosting access before adding to gallery."
+    },
+    {
+      "source": "https://lombardgorzow.com/wp-content/uploads/2014/08/lmbard-gorzow-2.jpg",
+      "target": "/assets/legacy-services/lmbard-gorzow-2.jpg",
+      "status": "HTTP 403; not embedded. Recover through authorized hosting access before adding to gallery."
+    },
+    {
+      "source": "https://lombardgorzow.com/wp-content/uploads/2014/08/lmbard-gorzow-3.jpg",
+      "target": "/assets/legacy-services/lmbard-gorzow-3.jpg",
+      "status": "HTTP 403; not embedded. Recover through authorized hosting access before adding to gallery."
+    },
+    {
+      "source": "https://lombardgorzow.com/wp-content/uploads/2014/08/lmbard-gorzow-4.jpg",
+      "target": "/assets/legacy-services/lmbard-gorzow-4.jpg",
+      "status": "HTTP 403; not embedded. Recover through authorized hosting access before adding to gallery."
+    },
+    {
+      "source": "https://lombardgorzow.com/wp-content/uploads/2014/08/lmbard-gorzow-5.jpg",
+      "target": "/assets/legacy-services/lmbard-gorzow-5.jpg",
+      "status": "HTTP 403; not embedded. Recover through authorized hosting access before adding to gallery."
+    },
+    {
+      "source": "https://lombardgorzow.com/wp-content/uploads/2014/08/lmbard-gorzow-6.jpg",
+      "target": "/assets/legacy-services/lmbard-gorzow-6.jpg",
+      "status": "HTTP 403; not embedded. Recover through authorized hosting access before adding to gallery."
+    },
+    {
+      "source": "https://lombardgorzow.com/wp-content/uploads/2014/08/lmbard-gorzow-7.jpg",
+      "target": "/assets/legacy-services/lmbard-gorzow-7.jpg",
+      "status": "HTTP 403; not embedded. Recover through authorized hosting access before adding to gallery."
+    },
+    {
+      "source": "https://lombardgorzow.com/wp-content/uploads/2014/08/lmbard-gorzow-8.jpg",
+      "target": "/assets/legacy-services/lmbard-gorzow-8.jpg",
+      "status": "HTTP 403; not embedded. Recover through authorized hosting access before adding to gallery."
+    },
+    {
+      "source": "https://lombardgorzow.com/wp-content/uploads/2014/08/lmbard-gorzow-9.jpg",
+      "target": "/assets/legacy-services/lmbard-gorzow-9.jpg",
+      "status": "HTTP 403; not embedded. Recover through authorized hosting access before adding to gallery."
+    }
+  ]
+}

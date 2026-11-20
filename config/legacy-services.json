@@ -1,0 +1,51 @@
+[
+  {
+    "key": "legacy-service-skup-telefonow-gorzow",
+    "slug": "skup-telefonow-gorzow",
+    "name": "Skup telefonów",
+    "title": "Skup i sprzedaż telefonów w Gorzowie | SEZAM",
+    "description": "Skup, sprzedaż i zamiana telefonów w SEZAM przy Pocztowej 11 w Gorzowie. Zapytaj o wycenę telefonu, serwis i dostępne akcesoria."
+  },
+  {
+    "key": "legacy-service-skup-laptopow-gorzow",
+    "slug": "skup-laptopow-gorzow",
+    "name": "Skup laptopów",
+    "title": "Skup i sprzedaż laptopów Gorzów | SEZAM",
+    "description": "Skup i sprzedaż nowych oraz używanych laptopów w SEZAM, Pocztowa 11, Gorzów. Sprawdź możliwości wyceny, zakupu i zamiany sprzętu."
+  },
+  {
+    "key": "legacy-service-serwis-telefonow-gorzow",
+    "slug": "serwis-telefonow-gorzow",
+    "name": "Serwis telefonów",
+    "title": "Serwis i naprawa telefonów Gorzów | SEZAM",
+    "description": "Serwis telefonów w SEZAM przy Pocztowej 11 w Gorzowie. Naprawy mechaniczne i elektroniczne, wymiana wyświetlaczy, gniazd i innych podzespołów."
+  },
+  {
+    "key": "legacy-service-czesci-do-telefonow",
+    "slug": "czesci-do-telefonow",
+    "name": "Części do telefonów",
+    "title": "Części do telefonów Gorzów | SEZAM Pocztowa 11",
+    "description": "Wyświetlacze, gniazda ładowania, baterie, obudowy i inne części do telefonów. Zapytaj o dopasowanie i dostępność w SEZAM w Gorzowie."
+  },
+  {
+    "key": "legacy-service-skup-zlota-gorzow",
+    "slug": "skup-zlota-gorzow",
+    "name": "Skup złota",
+    "title": "Skup złota i srebra Gorzów | SEZAM",
+    "description": "Skup złota i srebra w SEZAM przy Pocztowej 11 w Gorzowie. Biżuteria, monety, sztabki i złom złota. Przejdź do aktualnego cennika skupu."
+  },
+  {
+    "key": "legacy-service-lombard-gorzow",
+    "slug": "lombard-gorzow",
+    "name": "Lombard Gorzów",
+    "title": "Lombard Gorzów — co przyjmujemy | SEZAM Pocztowa 11",
+    "description": "Lombard SEZAM w Gorzowie, Pocztowa 11. Sprawdź przedmioty przyjmowane do wyceny: złoto, telefony, laptopy, narzędzia, rowery i inne wartościowe rzeczy."
+  },
+  {
+    "key": "legacy-service-galeria",
+    "slug": "galeria",
+    "name": "Galeria",
+    "title": "Galeria Lombardu SEZAM w Gorzowie",
+    "description": "Zajrzyj do wnętrza Lombardu SEZAM przy Pocztowej 11 w Gorzowie. Poznaj nasz punkt i sprawdź kontakt oraz dojazd."
+  }
+]

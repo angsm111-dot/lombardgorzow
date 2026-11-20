@@ -221,3 +221,13 @@ Wersję 4 utrzymuje osobny plik `src/pages/home-intermediate.html`, a wersję 5 
 Wersja 3 zachowuje wszystkie 20 plików oryginalnego projektu z commitu `95518111742391729b954dc75710b88cdab8b71a` w `dist/wersja-pierwotna/projekt/`. Manifest `config/frozen-versions.json` chroni również jej wcześniejszy wrapper i arkusz stylów — łącznie 22 pliki. Kontrola `python3 scripts/check_frozen_versions.py` sprawdza ich sumy SHA-256; generator uruchamia ją przed budowaniem stron.
 
 Nowy podgląd wersji 3 powstaje z `src/original-comparison.html`: przełącznik jest poza ramką, a ramka otwiera niezmieniony oryginalny projekt. Dotychczasowy adres `/wersja-pierwotna/` nadal działa bez zmian, z pierwotnym przełącznikiem trzech wersji. Starsza galeria kolorów `/porownanie/` pozostaje osobnym zestawem projektów.
+
+## Publikacja wersji 5 na lombardgorzow.com
+
+Strona główna `/` jest budowana z `src/pages/home-calculator.html`. Pełny wariant 1 jest dostępny pod `/wersja-pelna/`; pozostałe adresy wersji 2–5 pozostają, a `/porownanie-wersji/` zawiera przełącznik. Wersja 3 jest nadal chroniona niezmienionym manifestem 22 plików. Przełącznik nie pojawia się na produkcyjnych podstronach.
+
+`config/legacy-posts.json` zachowuje 41 adresów wpisów WordPressa: 40 artykułów trafia do bloga i mapy strony; neutralny `/test/` ma `noindex`. Blog zawiera również cztery wcześniejsze nowe poradniki. `config/legacy-services.json` zachowuje siedem adresów usług i galerii. `config/legacy-redirects.json` opisuje stałe przekierowania wymagające osobnego wdrożenia na warstwie serwera/Cloudflare. Sam plik konfiguracyjny nie uruchamia przekierowań.
+
+Metadane i mapa mają produkcyjny adres `https://lombardgorzow.com`. Eksporter JDM rozróżnia profil podglądu (`noindex`) i produkcyjny. Stary kontener analityczny `GTM-WMGWJNX` zachowano bez zmiany jego konfiguracji; uruchamia się wyłącznie na indeksowanych stronach domeny produkcyjnej.
+
+Katalog ofert opisuje `docs/OLX.md`. `dist/assets/sales-template.html` jest oznaczonym `noindex` szablonem bieżącego nagłówka i stopki dla prywatnego renderera, nie kopią danych ofert. Dane i klucze katalogu muszą pozostać poza `public_html` i poza Git.

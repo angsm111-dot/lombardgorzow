@@ -1,0 +1,47 @@
+[
+  {
+    "from": "/lombard-gorzow-wielkopolski/",
+    "to": "/kalkulator/",
+    "status": 301
+  },
+  {
+    "from": "/kalkulator-pozyczki-gorzow/",
+    "to": "/kalkulator/",
+    "status": 301
+  },
+  {
+    "from": "/lombard-w-gorzowie/",
+    "to": "/pytania/",
+    "status": 301
+  },
+  {
+    "from": "/wpisy/",
+    "to": "/blog/",
+    "status": 301
+  },
+  {
+    "from": "/olx-1/",
+    "to": "/na-sprzedaz/",
+    "status": 301
+  },
+  {
+    "from": "/olx-2/",
+    "to": "/na-sprzedaz/",
+    "status": 301
+  },
+  {
+    "from": "/blog/page/2/",
+    "to": "/blog/",
+    "status": 301
+  },
+  {
+    "from": "/blog/page/3/",
+    "to": "/blog/",
+    "status": 301
+  },
+  {
+    "from": "/wp-sitemap.xml",
+    "to": "/sitemap.xml",
+    "status": 301
+  }
+]

@@ -7,15 +7,49 @@ const EXPECTED_ACCOUNT = 'vvictgzv';
 const EXPECTED_SITE_ID = 23048;
 const REPOSITORY = 'angsm111-dot/lombardgorzow';
 const BRANCH = 'work/sezam-kontakt-cennik';
-const SITE_ORIGIN = 'https://nowa.lombardgorzow.com';
-const OLD_ORIGIN = 'https://sezam-nowa-wartosc-gorzow.angsm111.chatgpt.site';
+const PREVIEW_ORIGIN = 'https://nowa.lombardgorzow.com';
+const PRODUCTION_ORIGIN = 'https://lombardgorzow.com';
+const SITES_ORIGIN = 'https://sezam-nowa-wartosc-gorzow.angsm111.chatgpt.site';
+const TRANSFORM_REVISION = 'sezam-deploy-v3';
 const FROZEN_MANIFEST_SHA256 = '03b8ad8d7b60f131caeac90801584570c6ee23921bd83aa63b22035c05d42cd6';
 const MAX_DOWNLOAD = 67108864;
 const MAX_EXPANDED = 67108864;
 const MAX_FILE = 10485760;
+const CATALOG_BOOTSTRAP_SHA256 = '0386468c7f866cdf66936701f0e8ddd45a962d450f8efc0e3411e61099945233';
 
 function requireCondition(bool $condition, string $message): void {
     if (!$condition) { throw new RuntimeException($message); }
+}
+
+function deploymentProfile(string $name = 'preview'): array {
+    requireCondition(in_array($name, ['preview', 'production'], true), 'Unknown deployment profile.');
+    $origin = $name === 'production' ? PRODUCTION_ORIGIN : PREVIEW_ORIGIN;
+    return ['name' => $name, 'origin' => $origin,
+        'fingerprint' => hash('sha256', TRANSFORM_REVISION . "\n" . $name . "\n" . $origin)];
+}
+
+function profileFromArguments(array $arguments): array {
+    requireCondition($arguments === [] || $arguments === ['--profile=preview'] || $arguments === ['--profile=production'], 'Only --profile=preview or --profile=production is accepted.');
+    return deploymentProfile($arguments === ['--profile=production'] ? 'production' : 'preview');
+}
+
+function comparisonPath(string $relative): bool {
+    return preg_match('~^(?:wersja-[^/]+/|porownanie(?:-wersji)?/|odwazne/|kolejne/|koncepcje/)~D', $relative) === 1
+        || in_array($relative, ['404.html', 'assets/sales-template.html'], true);
+}
+
+function robotsText(array $profile, bool $catalogActive = false): string {
+    return $profile['name'] === 'preview' ? "User-agent: *\nDisallow: /\n"
+        : "User-agent: *\nAllow: /\nSitemap: " . $profile['origin'] . "/sitemap.xml\n"
+            . ($catalogActive ? 'Sitemap: ' . $profile['origin'] . "/integracje/katalog/mapa/\n" : '');
+}
+
+function matchesDeployment(array $previous, string $sha, array $profile, bool $catalogActive = false): bool {
+    return ($previous['commit'] ?? '') === $sha
+        && ($previous['manifest_sha256'] ?? '') === FROZEN_MANIFEST_SHA256
+        && ($previous['profile_fingerprint'] ?? '') === $profile['fingerprint']
+        && ($previous['origin'] ?? '') === $profile['origin']
+        && ($previous['catalog_runtime'] ?? false) === $catalogActive;
 }
 
 function ownedDirectory(string $path, int $uid, bool $create = false, int $mode = 0700): void {
@@ -30,7 +64,41 @@ function ownedDirectory(string $path, int $uid, bool $create = false, int $mode 
     if ($created) { requireCondition(chmod($path, $mode), 'Cannot set deployment-directory permissions.'); }
 }
 
-function guardWebRoot(string $home, string $web, int $uid): void {
+function catalogRuntimeActive(string $home, int $uid): bool {
+    $private = $home . '/private';
+    $catalog = $private . '/lombardgorzow-catalog';
+    requireCondition(!is_link($private) && !is_link($catalog), 'Symbolic link in catalog control path.');
+    $marker = $catalog . '/catalog-active.json';
+    requireCondition(!is_link($marker), 'Symbolic-link catalog marker.');
+    if (!file_exists($marker)) { return false; }
+    ownedDirectory($private, $uid);
+    ownedDirectory($catalog, $uid);
+    requireCondition((fileperms($catalog) & 0077) === 0, 'Catalog control directory must be private.');
+    requireCondition(is_file($marker) && fileowner($marker) === $uid && filesize($marker) <= 1024 && (fileperms($marker) & 0077) === 0, 'Invalid catalog control marker.');
+    $data = jsonObject(file_get_contents($marker));
+    requireCondition(count($data) === 3 && ($data['schema'] ?? null) === 1 && ($data['site_id'] ?? null) === EXPECTED_SITE_ID
+        && ($data['bootstrap_sha256'] ?? '') === CATALOG_BOOTSTRAP_SHA256, 'Catalog runtime identity differs from the reviewed installer.');
+    return true;
+}
+
+function catalogStubPath(string $relative): bool {
+    return safeRelative($relative) && (preg_match('~^na-sprzedaz/(?:[a-z0-9]+(?:-[a-z0-9]+)*/)?index\.php$~D', $relative) === 1
+        || in_array($relative, ['integracje/katalog/oferty/index.php', 'integracje/katalog/mapa/index.php'], true));
+}
+
+function catalogPayloadPath(string $relative): bool {
+    return strpos($relative, 'na-sprzedaz/') === 0 || strpos($relative, 'integracje/katalog/') === 0
+        || strpos($relative, 'assets/sales-feed-') === 0;
+}
+
+function skipCatalogSource(string $relative, string $contents, bool $catalogActive): bool {
+    if (!$catalogActive || !catalogPayloadPath($relative)) { return false; }
+    requireCondition($relative === 'na-sprzedaz/index.html' && strpos($contents, '<!-- SEZAM_SALES_PLACEHOLDER -->') !== false,
+        'Source archive collides with the active catalog runtime.');
+    return true;
+}
+
+function guardWebRoot(string $home, string $web, int $uid, bool $catalogActive = false): void {
     ownedDirectory($home, $uid);
     ownedDirectory($web, $uid);
     requireCondition(realpath($web) === $home . '/public_html', 'Unexpected document root.');
@@ -45,7 +113,12 @@ function guardWebRoot(string $home, string $web, int $uid): void {
         requireCondition(!$item->isLink(), 'Symbolic link found in document root.');
         requireCondition($item->getOwner() === $uid, 'Foreign-owned item in document root.');
         requireCondition(!in_array($name, ['wp-admin', 'wp-content', 'wp-includes', 'wp-config.php', 'wp-login.php'], true), 'WordPress detected; deployment forbidden.');
-        requireCondition(!preg_match('/\.(?:php\d*|phtml|phar)(?:\.|$)/i', $name), 'Server-side script detected; expected an isolated HTML site.');
+        if (preg_match('/\.(?:php\d*|phtml|phar)(?:\.|$)/i', $name)) {
+            $relative = substr($item->getPathname(), strlen($web) + 1);
+            requireCondition($catalogActive && $item->isFile() && catalogStubPath($relative)
+                && hash_file('sha256', $item->getPathname()) === CATALOG_BOOTSTRAP_SHA256,
+                'Unreviewed server-side script detected in document root.');
+        }
     }
 }
 
@@ -71,7 +144,8 @@ function staticPath(string $path): bool {
         && in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), ['html', 'css', 'js', 'json', 'xml', 'txt', 'svg', 'webp', 'png', 'jpg', 'jpeg', 'gif', 'avif', 'ico', 'woff', 'woff2', 'ttf', 'otf', 'pdf', 'mp4', 'webm'], true);
 }
 
-function request(string $url, int $limit, ?string $file = null): string {
+function request(string $url, int $limit, ?string $file = null, string $phase = 'download'): string {
+    requireCondition(in_array($phase, ['ref', 'archive', 'download'], true), 'Unknown download phase.');
     $curl = curl_init($url);
     requireCondition($curl !== false, 'Cannot initialize HTTPS request.');
     $body = '';
@@ -102,9 +176,11 @@ function request(string $url, int $limit, ?string $file = null): string {
     ]);
     $ok = curl_exec($curl);
     $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+    $errno = curl_errno($curl);
     if ($handle !== null) { fclose($handle); }
     curl_close($curl);
-    requireCondition($ok !== false && $status === 200 && $bytes <= $limit, 'Public GitHub download failed or exceeded its limit.');
+    requireCondition($ok !== false && $status === 200 && $bytes <= $limit,
+        sprintf('Public GitHub %s download failed (HTTP %d; curl %d; bytes %d; limit %d).', $phase, $status, $errno, $bytes, $limit));
     return $body;
 }
 
@@ -141,19 +217,62 @@ function verifyFrozen(string $directory, array $frozen): void {
     }
 }
 
-function transform(string $relative, string $contents): string {
+function transform(string $relative, string $contents, ?array $profile = null): string {
+    $profile = $profile ?? deploymentProfile();
     if (strpos($relative, 'wersja-pierwotna/') === 0) { return $contents; }
     $extension = strtolower(pathinfo($relative, PATHINFO_EXTENSION));
-    if ($extension === 'html' || $extension === 'xml') {
-        $contents = str_replace(OLD_ORIGIN, SITE_ORIGIN, $contents);
+    if (in_array($extension, ['html', 'xml', 'json'], true)) {
+        $replacements = [];
+        foreach ([SITES_ORIGIN, PREVIEW_ORIGIN, PRODUCTION_ORIGIN, 'https://www.lombardgorzow.com', 'https://www.nowa.lombardgorzow.com'] as $origin) {
+            $replacements[$origin] = $profile['origin'];
+            $replacements[str_replace('/', '\\/', $origin)] = str_replace('/', '\\/', $profile['origin']);
+        }
+        $contents = strtr($contents, $replacements);
     }
     if ($extension === 'html') {
-        $contents = preg_replace('~<meta\b(?=[^>]*\bname\s*=\s*["\']robots["\'])[^>]*>\s*~i', '', $contents);
-        $contents = preg_replace('~<head\b[^>]*>~i', '$0' . "\n<meta name=\"robots\" content=\"noindex,nofollow\">", $contents, 1, $count);
+        $pattern = '~<meta\b(?=[^>]*\bname\s*=\s*["\']robots["\'])[^>]*>\s*~i';
+        preg_match_all($pattern, $contents, $existing);
+        $directives = [];
+        foreach ($existing[0] as $tag) {
+            if (preg_match('~\bcontent\s*=\s*(["\'])(.*?)\1~i', $tag, $match)) {
+                foreach (explode(',', html_entity_decode($match[2], ENT_QUOTES | ENT_HTML5, 'UTF-8')) as $value) {
+                    $value = strtolower(trim($value));
+                    if ($value !== '') { $directives[] = $value; }
+                }
+            }
+        }
+        $contents = preg_replace($pattern, '', $contents);
+        if ($profile['name'] === 'preview') { $directives = ['noindex', 'nofollow']; }
+        elseif (comparisonPath($relative)) {
+            $directives = array_values(array_diff($directives, ['index', 'all']));
+            if (!in_array('noindex', $directives, true) && !in_array('none', $directives, true)) { $directives[] = 'noindex'; }
+            if (!in_array('follow', $directives, true) && !in_array('nofollow', $directives, true) && !in_array('none', $directives, true)) { $directives[] = 'follow'; }
+        } elseif ($directives === []) { $directives = ['index', 'follow']; }
+        // Production honors intentional source exclusions, including archival pages.
+        // validateProfileFiles rejects any such page if it enters the public sitemap.
+        $robots = htmlspecialchars(implode(',', array_unique($directives)), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $contents = preg_replace('~<head\b[^>]*>~i', '$0' . "\n<meta name=\"robots\" content=\"$robots\">", $contents, 1, $count);
         requireCondition($count === 1, 'HTML document has no head.');
     }
-    requireCondition(strpos($contents, OLD_ORIGIN) === false, 'Private Sites origin remains in export.');
+    requireCondition(strpos($contents, SITES_ORIGIN) === false && strpos($contents, str_replace('/', '\\/', SITES_ORIGIN)) === false, 'Private Sites origin remains in export.');
     return $contents;
+}
+
+function validateProfileFiles(array $files, array $profile, bool $catalogActive = false): void {
+    requireCondition(isset($files['sitemap.xml'], $files['index.html']), 'Homepage or sitemap is missing.');
+    requireCondition(preg_match_all('~<loc>\s*([^<]+)\s*</loc>~i', $files['sitemap.xml'], $matches) > 0, 'Sitemap has no URLs.');
+    foreach ($matches[1] as $raw) {
+        $url = html_entity_decode(trim($raw), ENT_QUOTES | ENT_XML1, 'UTF-8');
+        requireCondition(strpos($url, $profile['origin'] . '/') === 0, 'Sitemap origin differs from deployment profile.');
+        $relative = ltrim((string) parse_url($url, PHP_URL_PATH), '/');
+        if ($relative === '' || substr($relative, -1) === '/') { $relative .= 'index.html'; }
+        $dynamicListing = $catalogActive && $relative === 'na-sprzedaz/index.html';
+        requireCondition($dynamicListing || isset($files[$relative]), 'Sitemap points to a missing page.');
+        if ($profile['name'] === 'production') {
+            requireCondition(!comparisonPath($relative), 'Comparison page must not appear in the production sitemap.');
+            requireCondition($dynamicListing || !preg_match('~<meta\b(?=[^>]*\bname\s*=\s*["\'](?:robots|googlebot)["\'])[^>]*\bcontent\s*=\s*["\'][^"\']*\b(?:noindex|none)\b[^"\']*["\'][^>]*>~i', $files[$relative]), 'Production sitemap contains a noindex page.');
+        }
+    }
 }
 
 function ensureParents(string $base, string $relative, int $uid, int $mode): void {
@@ -203,7 +322,8 @@ function removePrivateStage(string $stage, string $state): void {
     rmdir($stage);
 }
 
-function main(): void {
+function main(array $arguments): void {
+    $profile = profileFromArguments($arguments);
     requireCondition(PHP_SAPI === 'cli', 'This deployer is CLI-only.');
     requireCondition(extension_loaded('posix') && extension_loaded('curl') && class_exists('ZipArchive'), 'Required PHP CLI modules: posix, curl, zip.');
     $uid = posix_geteuid();
@@ -216,7 +336,8 @@ function main(): void {
         requireCondition(realpath(getenv('HOME')) === $home, 'Environment home/account mismatch.');
     }
     $web = $home . '/public_html';
-    guardWebRoot($home, $web, $uid);
+    $catalogActive = catalogRuntimeActive($home, $uid);
+    guardWebRoot($home, $web, $uid, $catalogActive);
     $state = $home . '/.sezam-nowa-deploy';
     ownedDirectory($state, $uid, true);
     $lockPath = $state . '/deployment.lock';
@@ -226,14 +347,17 @@ function main(): void {
     if (!flock($lock, LOCK_EX | LOCK_NB)) { echo "Another deployment is running.\n"; return; }
     $stage = null;
     try {
-        $ref = jsonObject(request('https://api.github.com/repos/' . REPOSITORY . '/git/ref/heads/' . BRANCH, 65536));
+        // The catalog installer shares deployment.lock while activating its marker.
+        $catalogActive = catalogRuntimeActive($home, $uid);
+        guardWebRoot($home, $web, $uid, $catalogActive);
+        $ref = jsonObject(request('https://api.github.com/repos/' . REPOSITORY . '/git/ref/heads/' . BRANCH, 65536, null, 'ref'));
         $sha = $ref['object']['sha'] ?? '';
         requireCondition(($ref['ref'] ?? '') === 'refs/heads/' . BRANCH && ($ref['object']['type'] ?? '') === 'commit' && is_string($sha) && preg_match('/^[a-f0-9]{40}$/D', $sha) === 1, 'Unexpected GitHub branch response.');
         $stateFile = $state . '/deployed.json';
         requireCondition(!is_link($stateFile) && (!file_exists($stateFile) || (is_file($stateFile) && fileowner($stateFile) === $uid)), 'Unsafe deployment state.');
         if (is_file($stateFile)) {
             $previous = jsonObject(file_get_contents($stateFile));
-            if (($previous['commit'] ?? '') === $sha && ($previous['manifest_sha256'] ?? '') === FROZEN_MANIFEST_SHA256) {
+            if (matchesDeployment($previous, $sha, $profile, $catalogActive)) {
                 verifyFrozen($web, $previous['frozen_files']);
                 requireCondition(is_file($web . '/index.html') && hash_file('sha256', $web . '/index.html') === $previous['index_sha256'], 'Previously deployed homepage was altered.');
                 echo "Already deployed: $sha\n";
@@ -242,7 +366,7 @@ function main(): void {
         }
         $stage = $state . '/stage-' . $sha . '-' . bin2hex(random_bytes(4));
         ownedDirectory($stage, $uid, true);
-        request('https://codeload.github.com/' . REPOSITORY . '/zip/' . $sha, MAX_DOWNLOAD, $stage . '/source.zip');
+        request('https://codeload.github.com/' . REPOSITORY . '/zip/' . $sha, MAX_DOWNLOAD, $stage . '/source.zip', 'archive');
         $zip = new ZipArchive();
         requireCondition($zip->open($stage . '/source.zip') === true, 'Cannot open source ZIP.');
         $prefix = 'lombardgorzow-' . $sha . '/';
@@ -273,19 +397,22 @@ function main(): void {
             requireCondition($entry['size'] <= MAX_FILE && ($expanded += $entry['size']) <= MAX_EXPANDED, 'Expanded static files exceed limits.');
             $contents = $zip->getFromIndex($index);
             requireCondition(is_string($contents) && strlen($contents) === $entry['size'], 'Incomplete static ZIP entry.');
+            if (skipCatalogSource($relative, $contents, $catalogActive)) { continue; } // Never hide the managed index.php.
             if (strpos($relative, 'wersja-pierwotna/') === 0) {
                 requireCondition(isset($frozen[$relative]) && hash('sha256', $contents) === $frozen[$relative], 'Unexpected or changed frozen file.');
             }
-            $files[$relative] = transform($relative, $contents);
+            $files[$relative] = transform($relative, $contents, $profile);
         }
         $zip->close();
         requireCondition(count($files) > 0 && isset($files['index.html'], $files['wersja-obecna/index.html'], $files['wersja-pierwotna/index.html']), 'Required homepage variants are missing.');
         foreach ($frozen as $relative => $hash) {
             requireCondition(isset($files[$relative]) && hash('sha256', $files[$relative]) === $hash, 'Frozen file missing from source ZIP.');
         }
-        $files['robots.txt'] = "User-agent: *\nDisallow: /\n";
+        $files['robots.txt'] = robotsText($profile, $catalogActive);
         unset($files['deployment-status.json']);
-        guardWebRoot($home, $web, $uid);
+        validateProfileFiles($files, $profile, $catalogActive);
+        requireCondition(catalogRuntimeActive($home, $uid) === $catalogActive, 'Catalog activation changed during deployment.');
+        guardWebRoot($home, $web, $uid, $catalogActive);
         /* Validate all destination paths before publishing the first file. */
         foreach (array_merge(array_keys($files), ['deployment-status.json']) as $relative) {
             $current = $web;
@@ -309,7 +436,7 @@ function main(): void {
         });
         foreach ($files as $relative => $contents) { atomicWrite($web, $relative, $contents, $uid, 0644); }
         verifyFrozen($web, $frozen);
-        $public = ['status' => 'deployed', 'site_id' => EXPECTED_SITE_ID, 'origin' => SITE_ORIGIN, 'repository' => REPOSITORY, 'branch' => BRANCH, 'commit' => $sha, 'deployed_at' => gmdate('c'), 'files' => count($files), 'frozen_files_verified' => count($frozen)];
+        $public = ['status' => 'deployed', 'site_id' => EXPECTED_SITE_ID, 'origin' => $profile['origin'], 'profile' => $profile['name'], 'profile_fingerprint' => $profile['fingerprint'], 'catalog_runtime' => $catalogActive, 'repository' => REPOSITORY, 'branch' => BRANCH, 'commit' => $sha, 'deployed_at' => gmdate('c'), 'files' => count($files), 'frozen_files_verified' => count($frozen)];
         atomicWrite($web, 'deployment-status.json', json_encode($public, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n", $uid, 0644);
         $private = $public + ['manifest_sha256' => FROZEN_MANIFEST_SHA256, 'frozen_files' => $frozen, 'index_sha256' => hash('sha256', $files['index.html'])];
         atomicWrite($state, 'deployed.json', json_encode($private, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n", $uid, 0600);
@@ -321,7 +448,7 @@ function main(): void {
     }
 }
 
-try { main(); }
+try { main(array_slice($argv, 1)); }
 catch (Throwable $error) {
     fwrite(STDERR, 'Deployment stopped: ' . $error->getMessage() . "\n");
     exit(1);
