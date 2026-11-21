@@ -140,15 +140,19 @@ def main() -> int:
         homepage = posixpath.join(public_root, "index.html")
         with sftp.file(homepage, "rb") as remote:
             current = remote.read().decode("utf-8")
-        old_card = "<div class=\"rate-note\"><span>2,5<small>%</small></span><div>za 15 dni<br><strong>5% za 30 dni</strong></div></div>"
-        new_cards = "<div class=\"loan-rate-tiles\">\n  <div class=\"rate-note\"><span>2,5<small>%</small></span><div>za 15 dni</div></div>\n  <div class=\"rate-note\"><span>5<small>%</small></span><div>za 30 dni</div></div>\n</div>"
-        style = "<style id=\"loan-rate-tiles-style\">\n.loan-rate-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,2vw,16px);max-width:380px;margin:28px 0 20px}\n.loan-rate-tiles .rate-note{display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:0;width:100%;margin:0;padding:14px 6px;text-align:center}\n.loan-rate-tiles .rate-note>span{font-size:clamp(38px,5vw,62px);white-space:nowrap}\n.loan-rate-tiles .rate-note>span small{font-size:.46em}\n.loan-rate-tiles .rate-note>div{font-size:14px;line-height:1.35;white-space:nowrap}\n</style>"
-        if current.count(new_cards) == 1 and current.count(style) == 1:
-            print("Homepage already contains both rate cards.")
+        previous_cards = "<div class=\"loan-rate-tiles\">\n  <div class=\"rate-note\"><span>2,5<small>%</small></span><div>za 15 dni</div></div>\n  <div class=\"rate-note\"><span>5<small>%</small></span><div>za 30 dni</div></div>\n</div>"
+        new_cards = "<div class=\"loan-rate-tiles\">\n  <div class=\"rate-note\"><svg class=\"rate-calendar\" viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\"><rect x=\"4\" y=\"6\" width=\"16\" height=\"14\" rx=\"1\"/><path d=\"M8 4v4m8-4v4M4 10h16m-11 5h.01m3 0h.01m3 0h.01\"/></svg><span>2,5<small>%</small></span><div>za 15 dni</div></div>\n  <div class=\"rate-note\"><svg class=\"rate-calendar\" viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\"><rect x=\"4\" y=\"6\" width=\"16\" height=\"14\" rx=\"1\"/><path d=\"M8 4v4m8-4v4M4 10h16m-11 5h.01m3 0h.01m3 0h.01\"/></svg><span>5<small>%</small></span><div>za 30 dni</div></div>\n</div>"
+        previous_style = "<style id=\"loan-rate-tiles-style\">\n.loan-rate-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,2vw,16px);max-width:380px;margin:28px 0 20px}\n.loan-rate-tiles .rate-note{display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:0;width:100%;margin:0;padding:14px 6px;text-align:center}\n.loan-rate-tiles .rate-note>span{font-size:clamp(38px,5vw,62px);white-space:nowrap}\n.loan-rate-tiles .rate-note>span small{font-size:.46em}\n.loan-rate-tiles .rate-note>div{font-size:14px;line-height:1.35;white-space:nowrap}\n</style>"
+        new_style = "<style id=\"loan-rate-tiles-style\">\n.loan-rate-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,2vw,16px);max-width:380px;margin:28px 0 20px}\n.loan-rate-tiles .rate-note{display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:0;width:100%;margin:0;padding:14px 6px;text-align:center}\n.loan-rate-tiles .rate-note>span{display:inline-flex;align-items:baseline;gap:.12em;letter-spacing:normal;font-size:clamp(38px,5vw,62px);white-space:nowrap}\n.loan-rate-tiles .rate-note>span small{font-size:.46em}\n.loan-rate-tiles .rate-note>div{font-size:14px;line-height:1.35;white-space:nowrap}\n.loan-rate-tiles .rate-calendar{width:20px;height:20px;color:#866d48;stroke-width:1.45}\n</style>"
+        previous_link = "<a class=\"text-link\" href=\"/pytania/\">Jak działa zastaw?"
+        new_link = "<a class=\"text-link\" href=\"/co-przyjmujemy/\">Sprawdź, co przyjmujemy pod zastaw"
+        if all(current.count(value) == 1 for value in (new_cards, new_style, new_link)):
+            print("Homepage already has the refined rate cards.")
             return 0
-        if current.count(old_card) != 1 or current.count("</head>") != 1 or "loan-rate-tiles" in current:
+        if any(current.count(value) != 1 for value in (previous_cards, previous_style, previous_link)):
             raise RuntimeError("The live homepage did not match the expected calculator markup.")
-        updated = current.replace(old_card, new_cards, 1).replace("</head>", style + "\n</head>", 1)
+        updated = current.replace(previous_cards, new_cards, 1)
+        updated = updated.replace(previous_style, new_style, 1).replace(previous_link, new_link, 1)
         files = [("index.html", updated.encode("utf-8"))]
         token = re.sub(r"[^A-Za-z0-9_-]", "_", RUN_ID)
         stage = posixpath.join(private_root, f"rate-tiles-stage-{token}")
