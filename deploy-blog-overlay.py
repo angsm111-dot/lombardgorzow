@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Safely deploy blog, homepage, sitemap, and robots over pinned SSH."""
+"""Safely deploy finalized homepage and blog overlay over pinned SSH."""
 
 from __future__ import annotations
 
