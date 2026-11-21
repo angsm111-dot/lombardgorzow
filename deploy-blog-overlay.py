@@ -76,8 +76,12 @@ def prepare_files(zf: zipfile.ZipFile) -> list[tuple[str, bytes]]:
     if seen_covers:
         if len(seen_covers) != 44:
             raise ValueError(f"Expected 44 distinct covers, found {len(seen_covers)}")
-    elif names != ["assets/sales-template.html"]:
-        raise ValueError("A coverless package may update only the sales template")
+    else:
+        page_names = {name for name in names if name == "index.html" or name.endswith("/index.html")}
+        extras = set(names) - page_names - {"assets/sales-template.html"}
+        protected = {name for name in page_names if name.startswith("wersja-pierwotna/") or name == "test/index.html" or name == "na-sprzedaz/index.html"}
+        if not page_names or extras or protected:
+            raise ValueError("A coverless package may update only allowlisted site pages and the catalog template")
     if not prepared:
         raise ValueError("The overlay is empty")
     return prepared
