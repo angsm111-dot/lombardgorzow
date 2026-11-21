@@ -117,8 +117,6 @@ a.wa-action:hover,button.wa-action:hover,.mobile-bar button.wa-action:hover{back
 a.wa-action.text-link,a.wa-action.accepted-inquiry{padding:9px 13px;width:fit-content}
 .mobile-bar button.wa-action{flex-direction:column;gap:3px}
 .whatsapp-float .whatsapp-bubble,.whatsapp-float .whatsapp-circle{background:#00854a;color:#fff;border-color:#00854a}
-.contact-grid a.wa-action.contact-whatsapp{background:#00854a;color:#fff;border-color:#00854a}
-.contact-grid a.wa-action.contact-whatsapp:hover{background:#006d3d;color:#fff;border-color:#006d3d}
 .gold-pricing{padding-top:12px}
 .gold-pricing .price-heading h1{margin-top:0}
 .page-kontakt footer .footer-navigation{margin-block:0;padding-block:20px}
@@ -127,11 +125,15 @@ a.wa-action.text-link,a.wa-action.accepted-inquiry{padding:9px 13px;width:fit-co
 def polish_page(page, name):
     if 'id="i-whatsapp"' not in page or '</head>' not in page:
         return page
+    if name in ('na-sprzedaz/index.html', 'assets/sales-template.html'):
+        if 'id="sezam-sales-whatsapp"' not in page:
+            page = page.replace('</head>', "<script id=\"sezam-sales-whatsapp\">document.addEventListener(\"DOMContentLoaded\",()=>{document.querySelectorAll('.sales-actions a[href^=\"https://wa.me/\"]:not(.wa-action)').forEach(link=>{const icon=document.querySelector(\".header-whatsapp .wa-icon\");if(!icon)return;const label=document.createElement(\"span\");label.textContent=\"Napisz na WhatsApp\";link.classList.add(\"wa-action\");link.replaceChildren(icon.cloneNode(true),label)})})</script>" + '\n</head>', 1)
+    if name == 'co-przyjmujemy/index.html':
+        pin = ".accepted-question a.wa-action.accepted-whatsapp{background:#00854a;color:#fff;border-color:#00854a}\n.accepted-question a.wa-action.accepted-whatsapp:hover{background:#006d3d;color:#fff;border-color:#006d3d}"
+        marker = '<style id="sezam-whatsapp-and-page-polish">'
+        if marker in page and pin not in page:
+            page = page.replace(marker, marker + '\n' + pin, 1)
     if 'id="sezam-whatsapp-and-page-polish"' in page:
-        old_rule = ".whatsapp-float .whatsapp-bubble,.whatsapp-float .whatsapp-circle{background:#00854a;color:#fff;border-color:#00854a}"
-        extra_rules = ".contact-grid a.wa-action.contact-whatsapp{background:#00854a;color:#fff;border-color:#00854a}\n.contact-grid a.wa-action.contact-whatsapp:hover{background:#006d3d;color:#fff;border-color:#006d3d}"
-        if "wa-action btn contact-whatsapp" in page and extra_rules not in page:
-            return page.replace(old_rule, old_rule + "\n" + extra_rules, 1)
         return page
 
     def whatsapp_link(match):
@@ -162,7 +164,11 @@ def polish_page(page, name):
     if name == 'cennik-zlota/index.html':
         page = re.sub(r'<span class="eyebrow muted">ZŁOTO · SREBRO · MONETY · SZTABKI</span>\s*', '', page, count=1)
         page = re.sub(r'(<div class="section-heading price-heading"[^>]*>\s*<div>)<h1>.*?</h1>', r'\1<h1>Sprawdź, ile warte jest<br><span class="soft">Twoje złoto.</span></h1>', page, count=1, flags=re.S)
-    return page.replace('</head>', WA_STYLE + '\n</head>', 1)
+    if name == 'co-przyjmujemy/index.html':
+        style = WA_STYLE.replace('</style>', ".accepted-question a.wa-action.accepted-whatsapp{background:#00854a;color:#fff;border-color:#00854a}\n.accepted-question a.wa-action.accepted-whatsapp:hover{background:#006d3d;color:#fff;border-color:#006d3d}" + '\n</style>', 1)
+    else:
+        style = WA_STYLE
+    return page.replace('</head>', style + '\n</head>', 1)
 
 
 def main() -> int:
@@ -194,7 +200,7 @@ def main() -> int:
         private_root = posixpath.join(home, "private")
         if not exists(sftp, public_root) or not exists(sftp, private_root):
             raise RuntimeError("Expected public/private hosting directories were not found")
-        routes = ["index.html", "kontakt/index.html"]
+        routes = ["co-przyjmujemy/index.html", "na-sprzedaz/index.html", "assets/sales-template.html"]
         files = []
         for name in routes:
             page_path = posixpath.join(public_root, name)
