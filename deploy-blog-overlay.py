@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Safely deploy finalized homepage and blog overlay over pinned SSH."""
+"""Safely deploy the single allowlisted catalog template over pinned SSH."""
 
 from __future__ import annotations
 
@@ -39,6 +39,8 @@ def is_allowed(name: str) -> bool:
         return True
     if name == "index.html":
         return True
+    if name == "assets/sales-template.html":
+        return True
     if name == "test/index.html":
         return False
     if name.startswith("assets/blog/"):
@@ -70,8 +72,12 @@ def prepare_files(zf: zipfile.ZipFile) -> list[tuple[str, bytes]]:
                 raise ValueError(f"Invalid SVG cover: {name}")
             seen_covers.add(hashlib.sha256(data).hexdigest())
         prepared.append((name, data))
-    if len(seen_covers) != 44:
-        raise ValueError(f"Expected 44 distinct covers, found {len(seen_covers)}")
+    names = [name for name, _ in prepared]
+    if seen_covers:
+        if len(seen_covers) != 44:
+            raise ValueError(f"Expected 44 distinct covers, found {len(seen_covers)}")
+    elif names != ["assets/sales-template.html"]:
+        raise ValueError("A coverless package may update only the sales template")
     if not prepared:
         raise ValueError("The overlay is empty")
     return prepared
