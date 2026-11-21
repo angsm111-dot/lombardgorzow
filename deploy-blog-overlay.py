@@ -113,15 +113,6 @@ def main() -> int:
         raise RuntimeError("JDM_PASSWORD is not configured")
     import paramiko
 
-    parts = sorted(ARCHIVE_PARTS.glob("blog-archive.part-*"))
-    if not parts:
-        raise RuntimeError("Blog archive segments are missing")
-    encoded = b"".join(part.read_bytes() for part in parts)
-    ARCHIVE.write_bytes(base64.b64decode(encoded, validate=True))
-
-    with zipfile.ZipFile(ARCHIVE) as zf:
-        files = prepare_files(zf)
-
     client = paramiko.SSHClient()
     client.load_host_keys(str(KNOWN_HOSTS))
     client.set_missing_host_key_policy(paramiko.RejectPolicy())
@@ -146,9 +137,22 @@ def main() -> int:
         private_root = posixpath.join(home, "private")
         if not exists(sftp, public_root) or not exists(sftp, private_root):
             raise RuntimeError("Expected public/private hosting directories were not found")
+        homepage = posixpath.join(public_root, "index.html")
+        with sftp.file(homepage, "rb") as remote:
+            current = remote.read().decode("utf-8")
+        old_card = "<div class=\"rate-note\"><span>2,5<small>%</small></span><div>za 15 dni<br><strong>5% za 30 dni</strong></div></div>"
+        new_cards = "<div class=\"loan-rate-tiles\">\n  <div class=\"rate-note\"><span>2,5<small>%</small></span><div>za 15 dni</div></div>\n  <div class=\"rate-note\"><span>5<small>%</small></span><div>za 30 dni</div></div>\n</div>"
+        style = "<style id=\"loan-rate-tiles-style\">\n.loan-rate-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,2vw,16px);max-width:380px;margin:28px 0 20px}\n.loan-rate-tiles .rate-note{display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:0;width:100%;margin:0;padding:14px 6px;text-align:center}\n.loan-rate-tiles .rate-note>span{font-size:clamp(38px,5vw,62px);white-space:nowrap}\n.loan-rate-tiles .rate-note>span small{font-size:.46em}\n.loan-rate-tiles .rate-note>div{font-size:14px;line-height:1.35;white-space:nowrap}\n</style>"
+        if current.count(new_cards) == 1 and current.count(style) == 1:
+            print("Homepage already contains both rate cards.")
+            return 0
+        if current.count(old_card) != 1 or current.count("</head>") != 1 or "loan-rate-tiles" in current:
+            raise RuntimeError("The live homepage did not match the expected calculator markup.")
+        updated = current.replace(old_card, new_cards, 1).replace("</head>", style + "\n</head>", 1)
+        files = [("index.html", updated.encode("utf-8"))]
         token = re.sub(r"[^A-Za-z0-9_-]", "_", RUN_ID)
-        stage = posixpath.join(private_root, f"blog-stage-{token}")
-        backup = posixpath.join(private_root, f"blog-backup-{token}")
+        stage = posixpath.join(private_root, f"rate-tiles-stage-{token}")
+        backup = posixpath.join(private_root, f"rate-tiles-backup-{token}")
         sftp_mkdirs(sftp, stage)
         sftp_mkdirs(sftp, backup)
 
@@ -189,7 +193,7 @@ def main() -> int:
         sftp.close()
         client.close()
 
-    print(f"Installed {len(files)} blog files; previous versions backed up in the private hosting directory.")
+    print(f"Installed {len(files)} homepage file; previous versions backed up in the private hosting directory.")
     return 0
 
 
@@ -197,5 +201,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except Exception as exc:
-        print(f"Blog overlay deployment failed: {type(exc).__name__}", file=sys.stderr)
+        print(f"Homepage rate-card deployment failed: {type(exc).__name__}", file=sys.stderr)
         raise SystemExit(1)
