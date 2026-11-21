@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Safely deploy the single allowlisted catalog template over pinned SSH."""
+"""Safely deploy allowlisted static site overlays over pinned SSH."""
 
 from __future__ import annotations
 
