@@ -200,23 +200,18 @@ def main() -> int:
         private_root = posixpath.join(home, "private")
         if not exists(sftp, public_root) or not exists(sftp, private_root):
             raise RuntimeError("Expected public/private hosting directories were not found")
-        files = []
+        name = "obraczki/index.html"
+        with sftp.file(posixpath.join(public_root, name), "rb") as remote:
+            current = remote.read().decode("utf-8")
         label = "<span class=\"sezam-wall-sign\" aria-hidden=\"true\">Sezam</span>"
-        style = "<style id=\"sezam-wall-sign-style\">\n.sezam-wall-sign{position:absolute;left:36%;top:23%;transform:translate(-50%,-50%) rotate(-1.5deg);pointer-events:none;white-space:nowrap;color:#655b50;opacity:.40;filter:blur(1.1px);text-shadow:0 1px 2px #f4eee8;font:400 clamp(24px,6.6cqw,49px)/1 SezamEditorial,Georgia,serif;letter-spacing:.055em}\n</style>"
-        for name, frame in [["index.html","home-jewelry-frame"],["obraczki/index.html","rings-photo-frame"]]:
-            with sftp.file(posixpath.join(public_root, name), "rb") as remote:
-                current = remote.read().decode("utf-8")
-            marker = f'<div class="{frame}">'
-            if label in current and style in current:
-                continue
-            if current.count(marker) != 1 or current.count("</head>") != 1:
-                raise RuntimeError(f"Unexpected photo markup in {name}")
-            updated = current.replace(marker, marker + label, 1)
-            updated = updated.replace("</head>", style + "\n</head>", 1)
-            files.append((name, updated.encode("utf-8")))
-        if not files:
-            print("Wall signs already published.")
+        style = "<style id=\"sezam-rings-soft-edges\">\n.rings-hero .rings-photo{align-self:center;min-height:0;aspect-ratio:1.15;background:transparent;border:0;box-shadow:none}\n.rings-photo .rings-photo-frame{left:50%;top:44%;width:100%;transform:translate(-50%,-50%)}\n.rings-photo .rings-photo-art{mask-image:linear-gradient(to right,transparent,#000 12%,#000 88%,transparent),linear-gradient(to bottom,transparent,#000 17%,#000 76%,transparent);mask-composite:intersect}\n</style>"
+        if style in current and label not in current:
+            print("Wedding bands already updated.")
             return 0
+        if current.count(label) != 1 or current.count("</head>") != 1:
+            raise RuntimeError("Unexpected photo markup")
+        updated = current.replace(label, "", 1).replace("</head>", style + "\n</head>", 1)
+        files = [(name, updated.encode("utf-8"))]
         token = re.sub(r"[^A-Za-z0-9_-]", "_", RUN_ID)
         stage = posixpath.join(private_root, f"contact-ui-stage-{token}")
         backup = posixpath.join(private_root, f"contact-ui-backup-{token}")
