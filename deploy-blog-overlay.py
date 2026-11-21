@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Safely deploy the prepared blog-only overlay to JDM over pinned SSH."""
+"""Safely deploy blog, canonical sitemap, and robots over pinned SSH."""
 
 from __future__ import annotations
 
