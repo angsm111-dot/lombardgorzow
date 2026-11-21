@@ -35,6 +35,8 @@ def read_manifest(zf: zipfile.ZipFile) -> dict[str, str]:
 
 
 def is_allowed(name: str) -> bool:
+    if name in {"robots.txt", "sitemap.xml"}:
+        return True
     if name == "index.html":
         return True
     if name == "test/index.html":
