@@ -117,6 +117,8 @@ a.wa-action:hover,button.wa-action:hover,.mobile-bar button.wa-action:hover{back
 a.wa-action.text-link,a.wa-action.accepted-inquiry{padding:9px 13px;width:fit-content}
 .mobile-bar button.wa-action{flex-direction:column;gap:3px}
 .whatsapp-float .whatsapp-bubble,.whatsapp-float .whatsapp-circle{background:#00854a;color:#fff;border-color:#00854a}
+.contact-grid a.wa-action.contact-whatsapp{background:#00854a;color:#fff;border-color:#00854a}
+.contact-grid a.wa-action.contact-whatsapp:hover{background:#006d3d;color:#fff;border-color:#006d3d}
 .gold-pricing{padding-top:12px}
 .gold-pricing .price-heading h1{margin-top:0}
 .page-kontakt footer .footer-navigation{margin-block:0;padding-block:20px}
@@ -126,6 +128,10 @@ def polish_page(page, name):
     if 'id="i-whatsapp"' not in page or '</head>' not in page:
         return page
     if 'id="sezam-whatsapp-and-page-polish"' in page:
+        old_rule = ".whatsapp-float .whatsapp-bubble,.whatsapp-float .whatsapp-circle{background:#00854a;color:#fff;border-color:#00854a}"
+        extra_rules = ".contact-grid a.wa-action.contact-whatsapp{background:#00854a;color:#fff;border-color:#00854a}\n.contact-grid a.wa-action.contact-whatsapp:hover{background:#006d3d;color:#fff;border-color:#006d3d}"
+        if "wa-action btn contact-whatsapp" in page and extra_rules not in page:
+            return page.replace(old_rule, old_rule + "\n" + extra_rules, 1)
         return page
 
     def whatsapp_link(match):
@@ -188,7 +194,7 @@ def main() -> int:
         private_root = posixpath.join(home, "private")
         if not exists(sftp, public_root) or not exists(sftp, private_root):
             raise RuntimeError("Expected public/private hosting directories were not found")
-        routes = ["index.html","assets/sales-template.html","13789-2/index.html","blog/index.html","cennik-zlota/index.html","co-mozna-zastawic-w-lombardzie-w-gorzowie/index.html","co-przyjmujemy/index.html","czesci-do-telefonow/index.html","czym-polega-dzialalnosc-lombardu/index.html","dlaczego-lombard-w-gorzowie-sa-chetnie-odwiedzane/index.html","galeria/index.html","gdzie-mozna-zdobyc-szybko-pieniadze/index.html","jak-oszacowac-wartosc-bizuterii-zlotej-monet-sztabek/index.html","jak-powstalo-zloto/index.html","kalkulator/index.html","kontakt/index.html","kto-przoduje-w-wydobywaniu-zlota/index.html","lombard-gorzow/index.html","lombard-gorzow-jak-szybko-uzyskac-gotowke-pod-zastaw/index.html","lombard-gorzow-lombardy-polsce-swiecie/index.html","lombard-w-gorzowie-telefony-i-laptopy-pod-zastaw/index.html","lombardy-zloto-wyglada/index.html","mowa-ojczysta-zlotem-okraszona-skup-zlota-gorzow/index.html","na-sprzedaz/index.html","nowosc-monety/index.html","o-nas/index.html","obraczki/index.html","oferta/index.html","pierscionki-zareczynowe/index.html","pochodzenie-zlota/index.html","podrabiane-sztabki-jeszcze/index.html","poszukiwanie-dobrego-lombardu/index.html","pozyczka-od-reki/index.html","pozyczki-zastaw-lombardzie-lombard-gorzow/index.html","produkcja-wyrobow-ze-zlota/index.html","pytania/index.html","rozwoj-lombardow/index.html","serwis-telefonow-gorzow/index.html","skup-laptopow-gorzow/index.html","skup-telefonow-gorzow/index.html","skup-zlota-dziala/index.html","skup-zlota-gorzow/index.html","skup-zlota-gorzow-aktualne-ceny/index.html","skup-zlota-gorzow-wlkp/index.html","skup-zlota-gorzow-wydobycie-zlota-az-po-jego-skup/index.html","skup-zlota-gorzow-zlote-skoki-czyli-najwieksze-rabunki/index.html","skup-zlota-w-gorzowie-na-co-zwrocic-uwage-przy-wycenie/index.html","skup-zlota-w-punkcie-skupu-czy-warto/index.html","test/index.html","wydobycie-i-znaczenie-zlota-na-swiecie/index.html","wykorzystanie-zlota-medycynie-skup-zlota-gorzow/index.html","zastosowanie-zlota-przemysle-elektronicznym/index.html","zlote-dodatki-modzie/index.html","zloto-elektronice-skup-zlota-gorzow/index.html","zloto-inwestycyjne-uzytkowe-w-lombard-gorzow/index.html","zloto-jubilerstwie-skup-zlota-gorzow/index.html","zloto-medycynie-skup-zlota-gorzow/index.html","zloto-moda-skup-zlota-gorzow/index.html","zloto-popularnosc-na-swiecie/index.html","zloto-w-gastronomii/index.html","blog/od-czego-zalezy-wycena-zlota/index.html","blog/pierwsza-wizyta-w-lombardzie/index.html","blog/telefon-laptop-przygotowanie-do-wyceny/index.html","blog/zastaw-czy-sprzedaz-przedmiotu/index.html"]
+        routes = ["index.html", "kontakt/index.html"]
         files = []
         for name in routes:
             page_path = posixpath.join(public_root, name)
