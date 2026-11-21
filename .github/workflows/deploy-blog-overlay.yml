@@ -1,6 +1,7 @@
 name: Deploy unique blog covers to JDM preview
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - deploy/blog-overlay-unique-covers
