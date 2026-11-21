@@ -165,6 +165,70 @@ def polish_page(page, name):
         page = re.sub(r'<span class="eyebrow muted">ZŁOTO · SREBRO · MONETY · SZTABKI</span>\s*', '', page, count=1)
         page = re.sub(r'(<div class="section-heading price-heading"[^>]*>\s*<div>)<h1>.*?</h1>', r'\1<h1>Sprawdź, ile warte jest<br><span class="soft">Twoje złoto.</span></h1>', page, count=1, flags=re.S)
     if name == 'co-przyjmujemy/index.html':
+        style = WA_STYLE.replace('</style>', ".accepted-question a.wa-action.accepted-whatsapp{background:#00854a;color:#fff;border-color:#00854a}\n.accepted-question a.wa-action.accepted-whatsapp:hover{background:#006d3d;color:#fff;border-color:#006d3d}" + '\n</style>', 1)
+    else:
+        style = WA_STYLE
+    return page.replace('</head>', style + '\n</head>', 1)
+
+
+STYLE = """<style id="sezam-site-buttons-v2">
+body a.wa-action,body button.wa-action,body .contact-grid a.wa-action.contact-whatsapp,body .accepted-question a.wa-action.accepted-whatsapp,body .mobile-bar button.wa-action,body .whatsapp-float .whatsapp-bubble,body .whatsapp-float .whatsapp-circle{background:#25d366;color:#fff;border-color:#25d366;text-shadow:0 1px 2px #075831,0 0 2px #075831}
+body a.wa-action,body button.wa-action,body .contact-grid a.wa-action.contact-whatsapp,body .accepted-question a.wa-action.accepted-whatsapp,body .mobile-bar button.wa-action{border-radius:9px}
+body a.wa-action:hover,body button.wa-action:hover,body .contact-grid a.wa-action.contact-whatsapp:hover,body .accepted-question a.wa-action.accepted-whatsapp:hover,body .mobile-bar button.wa-action:hover{background:#2be171;color:#fff;border-color:#2be171}
+body .wa-action .wa-icon,body .whatsapp-float .wa-icon{color:#fff;filter:drop-shadow(0 1px 1px #087641)}
+body .mobile-bar a,body .mobile-bar a:nth-child(2){border-radius:9px}
+body.page-home-calculator a.wa-action,body.page-home-calculator button.wa-action,body.page-home-calculator .contact-grid a.wa-action.contact-whatsapp,body.page-home-calculator .mobile-bar button.wa-action,body.page-home-calculator .whatsapp-float .whatsapp-bubble,body.page-home-calculator .whatsapp-float .whatsapp-circle{color:#fff}
+body.page-home-calculator a.wa-action:hover,body.page-home-calculator button.wa-action:hover,body.page-home-calculator .contact-grid a.wa-action.contact-whatsapp:hover,body.page-home-calculator .mobile-bar button.wa-action:hover{color:#fff}
+.gold-pricing .price-actions{display:grid;grid-template-columns:1fr;gap:8px}
+.gold-pricing .price-actions>a{width:100%;margin:0;justify-content:center;border-radius:9px}
+.gold-pricing .price-actions .price-call{background:linear-gradient(112deg,#ad9167 0%,#e9dbc2 30%,#c3aa83 57%,#e0ceb0 78%,#b69b73 100%);color:#403321;border:1px solid #9b835f}
+.page-kalkulator .amount-presets{grid-template-columns:repeat(6,minmax(0,1fr))}
+.page-kalkulator .amount-presets button{min-height:36px;font-size:clamp(10px,1vw,13px);padding:7px 1px;white-space:nowrap}
+</style>"""
+
+def refine(page, name, rates_css):
+    if 'id="i-whatsapp"' not in page or 'id="sezam-site-buttons-v2"' in page:
+        return page
+    page = re.sub(r'/assets/sezam-logo-square\.webp(?:\?v=[a-f0-9]+)?', '/assets/sezam-logo-hd.webp', page)
+    if name == 'kontakt/index.html':
+        page = page.replace('<span class="eyebrow">WPADNIJ PO SĄSIEDZKU</span>', '', 1)
+    if name == 'cennik-zlota/index.html':
+        page = re.sub(r'(<div class="price-actions">)(<a\b[^>]*\bid="price-whatsapp"[^>]*>.*?</a>)(<a\b[^>]*\bhref="tel:[^"]*"[^>]*>.*?</a>)', lambda m: m[1]+m[3].replace('btn-dark','price-call',1)+m[2], page, count=1, flags=re.S)
+    extra = STYLE
+    if name == 'kalkulator/index.html':
+        extra += '<style id="sezam-standalone-rates">'+rates_css+'</style>'
+    return page.replace('</head>', extra+'\n</head>', 1)
+
+
+def main() -> int:
+    if not os.environ.get("JDM_PASSWORD"):
+        raise RuntimeError("JDM_PASSWORD is not configured")
+    import paramiko
+
+    client = paramiko.SSHClient()
+    client.load_host_keys(str(KNOWN_HOSTS))
+    client.set_missing_host_key_policy(paramiko.RejectPolicy())
+    client.connect(
+        hostname=HOST,
+        port=PORT,
+        username=USERNAME,
+        password=os.environ["JDM_PASSWORD"],
+        look_for_keys=False,
+        allow_agent=False,
+        timeout=20,
+        banner_timeout=20,
+        auth_timeout=20,
+    )
+    sftp = client.open_sftp()
+    stage = backup = ""
+    moved_old: list[tuple[str, str]] = []
+    installed: list[str] = []
+    try:
+        home = sftp.normalize(".").rstrip("/")
+        public_root = posixpath.join(home, "public_html")
+        private_root = posixpath.join(home, "private")
+        if not exists(sftp, public_root) or not exists(sftp, private_root):
+            raise RuntimeError("Expected public/private hosting directories were not found")
         name = "index.html"
         with sftp.file(posixpath.join(public_root, name), "rb") as remote:
             current = remote.read().decode("utf-8")
