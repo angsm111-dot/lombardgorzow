@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import hashlib
+import base64
 import os
 import pathlib
 import posixpath
@@ -100,9 +101,8 @@ def main() -> int:
     parts = sorted(ARCHIVE_PARTS.glob("blog-archive.part-*"))
     if not parts:
         raise RuntimeError("Blog archive segments are missing")
-    with ARCHIVE.open("wb") as archive_file:
-        for part in parts:
-            archive_file.write(part.read_bytes())
+    encoded = b"".join(part.read_bytes() for part in parts)
+    ARCHIVE.write_bytes(base64.b64decode(encoded, validate=True))
 
     with zipfile.ZipFile(ARCHIVE) as zf:
         files = prepare_files(zf)
