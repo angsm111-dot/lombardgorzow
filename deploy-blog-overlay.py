@@ -35,6 +35,8 @@ def read_manifest(zf: zipfile.ZipFile) -> dict[str, str]:
 
 
 def is_allowed(name: str) -> bool:
+    if name == "index.html":
+        return True
     if name == "test/index.html":
         return False
     if name.startswith("assets/blog/"):
