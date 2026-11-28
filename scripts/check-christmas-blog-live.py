@@ -16,6 +16,9 @@ with sync_playwright() as p:
         errors=[]
         page.on('pageerror',lambda error: errors.append(str(error)))
         response=page.goto(ORIGIN+ROUTE,wait_until='networkidle',timeout=60000)
+        page.screenshot(path=f'qa/http-response-{width}.png')
+        if response.status != 200:
+            Path('qa/http-error.json').write_text(json.dumps({'url':ORIGIN+ROUTE,'status':response.status,'title':page.title(),'body':page.locator('body').inner_text()[:2000],'headers':{key:response.headers.get(key) for key in ('server','content-type','cf-mitigated')}},ensure_ascii=False,indent=2))
         assert response.status==200, response.status
         page.locator('h1').wait_for()
         assert page.locator('h1').count()==1
