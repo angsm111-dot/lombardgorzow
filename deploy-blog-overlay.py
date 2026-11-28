@@ -103,7 +103,7 @@ def directory(sftp,path):
 def write(sftp,path,data,mode=0o600):
     if not absent(sftp,path):
         raise ValueError('Staging path already exists')
-    with sftp.open(path,'xb') as f:
+    with sftp.open(path,'wxb') as f:
         f.write(data)
     sftp.chmod(path,mode)
     if read(sftp,path)!=data:
