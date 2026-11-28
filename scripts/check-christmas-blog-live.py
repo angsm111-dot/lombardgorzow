@@ -31,6 +31,8 @@ with sync_playwright() as p:
         assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth + 1')
         photo=page.locator('.journal-cover img')
         assert photo.evaluate('(img)=>img.complete && img.naturalWidth===1672')
+        photo_box=photo.bounding_box()
+        assert abs(photo_box['height']-photo_box['width']*941/1672)<2, photo_box
         page.screenshot(path=f'qa/article-{width}.png')
         photo.scroll_into_view_if_needed()
         page.screenshot(path=f'qa/article-photo-{width}.png')

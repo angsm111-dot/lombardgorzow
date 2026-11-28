@@ -11,6 +11,7 @@ import re
 import stat
 import sys
 import urllib.request
+import urllib.error
 import xml.etree.ElementTree as ET
 
 ORIGIN = 'https://lombardgorzow.com'
@@ -142,7 +143,7 @@ def publish(p):
             directory(sftp,target_dir)
         if not absent(sftp,PUBLIC+'/'+ARTICLE):
             old=read(sftp,PUBLIC+'/'+ARTICLE)
-            if old!=prepared[ARTICLE]:
+            if old!=prepared[ARTICLE] and digest(old)!=p.get('previous_article_sha256'):
                 raise ValueError('Article route already has a different page')
             originals[ARTICLE]=old
         else:
@@ -220,4 +221,9 @@ if __name__=='__main__':
         print('Approved article payload validated')
     else:
         publish(payload)
-        verify_http(payload)
+        try:
+            verify_http(payload)
+        except urllib.error.HTTPError as error:
+            if error.code != 403:
+                raise
+            print('The Python HTTP client received 403; the required Chrome check verifies public access next.')
