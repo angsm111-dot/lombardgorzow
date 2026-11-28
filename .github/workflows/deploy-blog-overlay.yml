@@ -1,4 +1,4 @@
-name: Deploy unique blog covers to JDM preview
+name: Publish Christmas jewellery style guide to JDM
 
 on:
   workflow_dispatch:
@@ -24,10 +24,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install pinned SSH library
-        run: python -m pip install --disable-pip-version-check paramiko==3.5.1
-      - name: Install blog overlay with host key verification
+      - name: Install pinned deployment and browser check libraries
+        run: python -m pip install --disable-pip-version-check paramiko==3.5.1 playwright==1.56.0
+      - name: Validate the approved article payload
+        run: python deploy-blog-overlay.py --check
+      - name: Publish only the article, newest card and sitemap URL
         env:
           JDM_PASSWORD: ${{ secrets.JDM_PASSWORD }}
-          GITHUB_RUN_ID: ${{ github.run_id }}
         run: python deploy-blog-overlay.py
+      - name: Check the public desktop and mobile article
+        run: python scripts/check-christmas-blog-live.py
+      - name: Save public verification and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: christmas-2026-public-verification
+          path: qa/
+          if-no-files-found: ignore
+          retention-days: 30
